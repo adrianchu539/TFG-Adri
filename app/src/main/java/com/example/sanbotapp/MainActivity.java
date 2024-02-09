@@ -76,6 +76,10 @@ public class MainActivity extends TopBaseActivity {
             headAbsoluteUp, headAbsoluteDown, moveForward,
             videoStream, closeStream;
 
+    //Loreto 09/02/2024
+    HandMotionManager handMotionManager;
+    Button btnNavigateToHandControl;
+
 
     @Override
     protected void onMainServiceConnected() {
@@ -96,6 +100,12 @@ public class MainActivity extends TopBaseActivity {
         wheelMotionManager = (WheelMotionManager) getUnitManager(FuncConstant.WHEELMOTION_MANAGER);
         systemManager = (SystemManager) getUnitManager(FuncConstant.SYSTEM_MANAGER);
         projectorManager = (ProjectorManager) getUnitManager(FuncConstant.PROJECTOR_MANAGER);
+
+        //Loreto 09/02/2024
+        handMotionManager = (HandMotionManager) getUnitManager(FuncConstant.HANDMOTION_MANAGER);
+        btnNavigateToHandControl = findViewById(R.id.btnNavigateToHandControl);
+
+
         speakOption.setSpeed(30);
         ledOn = findViewById(R.id.ledOn);
         videoStream = findViewById(R.id.videoStream);
@@ -120,6 +130,18 @@ public class MainActivity extends TopBaseActivity {
     }
 
     public void setonClicks() {
+
+        btnNavigateToHandControl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Crea un Intent para iniciar la actividad HandControl
+                Intent intent = new Intent(MainActivity.this, HandControl.class);
+
+                // Inicia la actividad HandControl
+                startActivity(intent);
+            }
+        });
+
         videoStream.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {

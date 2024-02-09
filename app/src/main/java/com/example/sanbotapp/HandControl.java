@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -38,8 +39,9 @@ public class HandControl extends TopBaseActivity {
     private Spinner svHandNoAnglePart;
 
     private EditText etHandNoAngleSpeed;
-    private TextView tvHandNoAngleStart;
-    private TextView tvHandNoAngleEnd;
+    private Button tvHandNoAngleStart;
+    private Button tvHandNoAngleEnd;
+
 
 
     private byte[] noAngleAction = {NoAngleHandMotion.ACTION_UP, NoAngleHandMotion.ACTION_DOWN, NoAngleHandMotion.ACTION_RESET, NoAngleHandMotion.ACTION_STOP};
@@ -66,7 +68,7 @@ public class HandControl extends TopBaseActivity {
 
     private EditText etHandRelativeSpeed;
     private EditText etHandRelativeAngle;
-    private TextView tvHandRelativeStart;
+    private Button tvHandRelativeStart;
 
     private byte[] relativeAction = {RelativeAngleHandMotion.ACTION_UP, RelativeAngleHandMotion.ACTION_DOWN};
     private byte curRelativeAction;
@@ -90,8 +92,7 @@ public class HandControl extends TopBaseActivity {
 
     private EditText etHandAbsoluteSpeed;
     private EditText etHandAbsoluteAngle;
-    private TextView tvHandAbsoluteStart;
-
+    private Button tvHandAbsoluteStart;
 
     private byte[] absolutePart = {AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
     private byte curAbsolutePart;
@@ -105,7 +106,31 @@ public class HandControl extends TopBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hand_control);
         handMotionManager = (HandMotionManager) getUnitManager(FuncConstant.HANDMOTION_MANAGER);
+
+        // Inicializar Spinners
+        svHandNoAngleAction = findViewById(R.id.sv_hand_no_angle_action);
+        svHandNoAnglePart = findViewById(R.id.sv_hand_no_angle_part);
+        svHandRelativeAction = findViewById(R.id.sv_hand_relative_action);
+        svHandRelativePart = findViewById(R.id.sv_hand_relative_part);
+        svHandAbsolutePart = findViewById(R.id.sv_hand_absolute_part);
+
+        // Inicializar EditTexts
+        etHandNoAngleSpeed = findViewById(R.id.et_hand_no_angle_speed);
+        etHandRelativeSpeed = findViewById(R.id.et_hand_relative_speed);
+        etHandRelativeAngle = findViewById(R.id.et_hand_relative_angle);
+        etHandAbsoluteSpeed = findViewById(R.id.et_hand_absolute_speed);
+        etHandAbsoluteAngle = findViewById(R.id.et_hand_absolute_angle);
+
+        // Inicializar Buttons
+        tvHandNoAngleStart = findViewById(R.id.tv_hand_no_angle_start);
+        tvHandNoAngleEnd = findViewById(R.id.tv_hand_no_angle_end);
+        tvHandRelativeStart = findViewById(R.id.tv_hand_relative_start);
+        tvHandAbsoluteStart = findViewById(R.id.tv_hand_absolute_start);
+
+        // Inicializar listeners
         initListener();
+
+
     }
 
     @Override
