@@ -79,6 +79,7 @@ public class MainActivity extends TopBaseActivity {
     //Loreto 09/02/2024
     HandMotionManager handMotionManager;
     Button btnNavigateToHandControl;
+    Button btnNavigateToSpeechControl;
 
 
     @Override
@@ -104,6 +105,7 @@ public class MainActivity extends TopBaseActivity {
         //Loreto 09/02/2024
         handMotionManager = (HandMotionManager) getUnitManager(FuncConstant.HANDMOTION_MANAGER);
         btnNavigateToHandControl = findViewById(R.id.btnNavigateToHandControl);
+        btnNavigateToSpeechControl = findViewById(R.id.btnNavigateToSpeechControl);
 
 
         speakOption.setSpeed(30);
@@ -130,7 +132,7 @@ public class MainActivity extends TopBaseActivity {
     }
 
     public void setonClicks() {
-
+        //Loreto 09/02/2024
         btnNavigateToHandControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,6 +140,17 @@ public class MainActivity extends TopBaseActivity {
                 Intent intent = new Intent(MainActivity.this, HandControl.class);
 
                 // Inicia la actividad HandControl
+                startActivity(intent);
+            }
+        });
+
+        btnNavigateToSpeechControl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Crea un Intent para iniciar la actividad SpeechControl
+                Intent intent = new Intent(MainActivity.this, SpeechControl.class);
+
+                // Inicia la actividad SpeechControl
                 startActivity(intent);
             }
         });
