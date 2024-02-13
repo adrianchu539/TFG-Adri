@@ -13,7 +13,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.qihancloud.opensdk.function.unit.MediaManager;
@@ -24,6 +26,7 @@ import com.sanbot.opensdk.function.beans.EmotionsType;
 import com.sanbot.opensdk.function.beans.LED;
 import com.sanbot.opensdk.function.beans.SpeakOption;
 import com.sanbot.opensdk.function.beans.StreamOption;
+import com.sanbot.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
 import com.sanbot.opensdk.function.beans.handmotion.NoAngleHandMotion;
 import com.sanbot.opensdk.function.beans.handmotion.RelativeAngleHandMotion;
 import com.sanbot.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
@@ -80,6 +83,8 @@ public class MainActivity extends TopBaseActivity {
     HandMotionManager handMotionManager;
     Button btnNavigateToHandControl;
     Button btnNavigateToSpeechControl;
+    // se ha añadido un botón de prueba
+    Button btnPrueba;
 
 
     @Override
@@ -106,6 +111,7 @@ public class MainActivity extends TopBaseActivity {
         handMotionManager = (HandMotionManager) getUnitManager(FuncConstant.HANDMOTION_MANAGER);
         btnNavigateToHandControl = findViewById(R.id.btnNavigateToHandControl);
         btnNavigateToSpeechControl = findViewById(R.id.btnNavigateToSpeechControl);
+        btnPrueba = findViewById(R.id.btnPrueba);
 
 
         speakOption.setSpeed(30);
@@ -125,7 +131,11 @@ public class MainActivity extends TopBaseActivity {
         buttonWheelForward = findViewById(R.id.buttonWheelForward);
         setEmotion = findViewById(R.id.setEmotion);
         headCenter = findViewById(R.id.headCenter);
-        emotions = new EmotionsType[]{EmotionsType.CRY, EmotionsType.SURPRISE, EmotionsType.KISS, EmotionsType.LAUGHTER};
+        // se han añadido todos los posibles sentimientos
+        emotions = new EmotionsType[]{EmotionsType.ARROGANCE,EmotionsType.SURPRISE,EmotionsType.WHISTLE,EmotionsType.LAUGHTER,EmotionsType.GOODBYE,
+                EmotionsType.SHY,  EmotionsType.SWEAT,  EmotionsType.SNICKER,  EmotionsType.PICKNOSE,  EmotionsType.CRY,  EmotionsType.ABUSE,
+                EmotionsType.ANGRY,  EmotionsType.KISS,  EmotionsType.SLEEP, EmotionsType.SMILE, EmotionsType.GRIEVANCE, EmotionsType.QUESTION,
+                EmotionsType.FAINT, EmotionsType.PRISE, EmotionsType.NORMAL};
         moveForward = findViewById(R.id.moveForward);
         setonClicks();
         touchTest();
@@ -152,6 +162,12 @@ public class MainActivity extends TopBaseActivity {
 
                 // Inicia la actividad SpeechControl
                 startActivity(intent);
+            }
+        });
+        btnPrueba.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pruebaModulos();
             }
         });
 
@@ -272,6 +288,18 @@ public class MainActivity extends TopBaseActivity {
         systemManager.showEmotion(currentEmotion);
     }
 
+    // función para dado un string te cambia la emoción del robot. SIN COMPLETAR.
+    public void changeEmotion(String emotion){
+        if(emotion.equals("FELIZ")){
+            currentEmotion = EmotionsType.SMILE;
+            systemManager.showEmotion(currentEmotion);
+        }
+        else if(emotion.equals("TRISTE")){
+            currentEmotion = EmotionsType.CRY;
+            systemManager.showEmotion(currentEmotion);
+        }
+    }
+
     public void wheelGoForward() {
         DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, 5, 50);
         wheelMotionManager.doDistanceMotion(distanceWheelMotion);
@@ -389,6 +417,66 @@ public class MainActivity extends TopBaseActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    // Prueba de varios módulos del robot
+    public void pruebaModulos(){
+        // Despertamos al robot para que se ponga en modo escucha
+        speechManager.doWakeUp();
+        // Utilizamos la función setOnSpeechListener para definir acciones tras reconocer una frase fija
+        speechManager.setOnSpeechListener(new RecognizeListener() {
+            @Override
+            public boolean onRecognizeResult(Grammar grammar) {
+                // prueba de sentimiento felicidad
+                // si reconoce la frase "prueba feliz"
+                if (grammar.getText().equals("prueba feliz")) {
+                    // el robot responderá "estoy muy feliz"
+                    speechManager.startSpeak("estoy muy feliz");
+                    // levantará los brazos
+                    byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
+                    AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 0);
+                    handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                    // y cambiará su cara a feliz
+                    changeEmotion("FELIZ");
+                    return true;
+                }
+                // prueba de sentimiento tristeza
+                // si reconoce la frase "prueba triste"
+                else if (grammar.getText().equals("prueba triste")) {
+                    // el robot responderá "estoy muy triste"
+                    speechManager.startSpeak("estoy muy triste");
+                    // bajará los brazos
+                    byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
+                    AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 170);
+                    handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                    // y cambiará su cara a triste
+                    changeEmotion("TRISTE");
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+
+            @Override
+            public void onRecognizeVolume(int i) {
+                Log.i("Cris", "onRecognizeVolume: ");
+            }
+
+            @Override
+            public void onStartRecognize() {
+                Log.i("Cris", "onStartRecognize: ");
+            }
+
+            @Override
+            public void onStopRecognize() {
+                Log.i("Cris", "onStopRecognize: ");
+            }
+
+            @Override
+            public void onError(int i, int i1) {
+                Log.i("Cris", "onError: i="+i+" i1="+i1);
+            }
+        });
     }
 
 }

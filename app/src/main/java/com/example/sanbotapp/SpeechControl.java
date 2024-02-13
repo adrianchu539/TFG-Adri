@@ -125,14 +125,27 @@ public class SpeechControl extends TopBaseActivity {
             }
         });
         //语音识别回调
+
         speechManager.setOnSpeechListener(new RecognizeListener() {
             @Override
             public boolean onRecognizeResult(Grammar grammar) {
-//                Log.i("语言识别：", "onRecognizeResult: "+grammar.getText());
+                //Log.i("reconocimiento：", "onRecognizeResult: "+grammar.getText());
                 //只有在配置了RECOGNIZE_MODE为1，且返回为true的情况下，才会拦截
                 tvSpeechRecognizeResult.setText(grammar.getText());
-                if (grammar.getTopic().equals("test_topic")) {
-                    speechManager.startSpeak("接收到了自定义语义");
+                if (grammar.getText().equals("hola soy Adrián")) {
+                    speechManager.startSpeak("hola Adrian, ¿qué tal estás?");
+                    return true;
+                }
+                else if(grammar.getText().equals("hola soy Loreto")) {
+                    speechManager.startSpeak("hola Loreto, ¿cómo va tu día?");
+                    return true;
+                }
+                else if(grammar.getText().equals("hola soy Eva")) {
+                    speechManager.startSpeak("hola Eva, espero que tengas un bonito día");
+                    return true;
+                }
+                else if(grammar.getText().equals("hola soy Sandra")) {
+                    speechManager.startSpeak("hola Sandra, ¿cómo te va?");
                     return true;
                 }
                 return cbInterceptMessage.isChecked();
