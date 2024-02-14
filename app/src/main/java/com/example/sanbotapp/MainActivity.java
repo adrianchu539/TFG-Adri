@@ -83,8 +83,12 @@ public class MainActivity extends TopBaseActivity {
     HandMotionManager handMotionManager;
     Button btnNavigateToHandControl;
     Button btnNavigateToSpeechControl;
+
     // se ha añadido un botón de prueba
     Button btnPrueba;
+
+    //Boton para reconocimiento facial
+    Button btnFaceRecognition;
 
 
     @Override
@@ -112,6 +116,7 @@ public class MainActivity extends TopBaseActivity {
         btnNavigateToHandControl = findViewById(R.id.btnNavigateToHandControl);
         btnNavigateToSpeechControl = findViewById(R.id.btnNavigateToSpeechControl);
         btnPrueba = findViewById(R.id.btnPrueba);
+        btnFaceRecognition = findViewById(R.id.btnFaceRecognition);
 
 
         speakOption.setSpeed(30);
@@ -168,6 +173,17 @@ public class MainActivity extends TopBaseActivity {
             @Override
             public void onClick(View v) {
                 pruebaModulos();
+            }
+        });
+
+        btnFaceRecognition.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Crea un Intent para iniciar la actividad FaceRecognition
+                Intent intent = new Intent(MainActivity.this, FaceRecognitionControl.class);
+
+                // Inicia la actividad FaceRecognition
+                startActivity(intent);
             }
         });
 
