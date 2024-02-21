@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.List;
 
 public class FaceRecognitionControl extends BindBaseActivity {
+
     MediaManager mediaManager;
     @Override
     protected void onMainServiceConnected() {
@@ -31,7 +32,7 @@ public class FaceRecognitionControl extends BindBaseActivity {
 
         mediaManager = (MediaManager) getUnitManager(FuncConstant.MEDIA_MANAGER);
 
-       mediaManager.setMediaListener(new FaceRecognizeListener() {
+       /*mediaManager.setMediaListener(new FaceRecognizeListener() {
             @Override
             public void recognizeResult(List<FaceRecognizeBean> faceRecognizeBean) {
                 Bitmap bitmap = mediaManager.getVideoImage();
@@ -39,7 +40,7 @@ public class FaceRecognitionControl extends BindBaseActivity {
                     imageView.setImageBitmap(bitmap);
                 }
             }
-        });
+        });*/
     }
 
 

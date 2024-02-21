@@ -65,6 +65,7 @@ public class MainActivity extends TopBaseActivity {
     HardWareManager hardWareManager;
     SpeechManager speechManager;
     HeadMotionManager headMotionManager;
+    MediaManager mediaManager;
     RelativeAngleHeadMotion relativeAngleHeadMotion;
     AbsoluteAngleHeadMotion absoluteAngleHeadMotion;
     LocateAbsoluteAngleHeadMotion locateAbsoluteAngleHeadMotion;
@@ -89,6 +90,7 @@ public class MainActivity extends TopBaseActivity {
 
     //Boton para reconocimiento facial
     Button btnFaceRecognition;
+    Button btnMediaControl;
 
 
     @Override
@@ -110,6 +112,7 @@ public class MainActivity extends TopBaseActivity {
         wheelMotionManager = (WheelMotionManager) getUnitManager(FuncConstant.WHEELMOTION_MANAGER);
         systemManager = (SystemManager) getUnitManager(FuncConstant.SYSTEM_MANAGER);
         projectorManager = (ProjectorManager) getUnitManager(FuncConstant.PROJECTOR_MANAGER);
+        mediaManager = (MediaManager) getUnitManager(FuncConstant.BR_FACE_RECOGNIZE);
 
         //Loreto 09/02/2024
         handMotionManager = (HandMotionManager) getUnitManager(FuncConstant.HANDMOTION_MANAGER);
@@ -117,6 +120,7 @@ public class MainActivity extends TopBaseActivity {
         btnNavigateToSpeechControl = findViewById(R.id.btnNavigateToSpeechControl);
         btnPrueba = findViewById(R.id.btnPrueba);
         btnFaceRecognition = findViewById(R.id.btnFaceRecognition);
+        btnMediaControl = findViewById(R.id.btnMediaControl);
 
 
         speakOption.setSpeed(30);
@@ -183,6 +187,17 @@ public class MainActivity extends TopBaseActivity {
                 Intent intent = new Intent(MainActivity.this, FaceRecognitionControl.class);
 
                 // Inicia la actividad FaceRecognition
+                startActivity(intent);
+            }
+        });
+
+        btnMediaControl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Crea un Intent para iniciar la actividad MediaControl
+                Intent intent = new Intent(MainActivity.this, MediaControlActivity.class);
+
+                // Inicia la actividad MediaControl
                 startActivity(intent);
             }
         });
