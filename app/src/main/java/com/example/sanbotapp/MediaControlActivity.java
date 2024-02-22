@@ -21,6 +21,7 @@ import com.sanbot.opensdk.base.TopBaseActivity;
 import com.sanbot.opensdk.beans.FuncConstant;
 import com.sanbot.opensdk.function.beans.FaceRecognizeBean;
 import com.sanbot.opensdk.function.beans.StreamOption;
+import com.sanbot.opensdk.function.unit.SpeechManager;
 import com.sanbot.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
 import com.sanbot.opensdk.function.unit.interfaces.media.MediaStreamListener;
 
@@ -51,6 +52,7 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
     TextView tvFace;
 
     private MediaManager mediaManager;
+    private SpeechManager speechManager;
 
     /**
      * 视频编解码器
@@ -78,6 +80,9 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
         ivCapture = findViewById(R.id.iv_capture);
         tvFace = findViewById(R.id.tv_face);
 
+        // Añadimos el speechManager
+        speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
+
         svMedia.getHolder().addCallback(this);
         initListener();
     }
@@ -103,8 +108,22 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
                 for (FaceRecognizeBean bean : list) {
                     sb.append(new Gson().toJson(bean));
                     sb.append("\n");
+
+
+                    // Acceder al valor de la propiedad "user"
+                    String user = bean.getUser();
+                    // Hacer algo con el valor de "user"
+                    System.out.println("Usuario reconocido: " + user);
+
+                    if(user != ""){
+                        speechManager.startSpeak("hola " + user + " ¿cómo estás?");
+                    }
+
                 }
                 tvFace.setText(sb.toString());
+                System.out.println("Persona reconocida????：" + sb.toString());
+
+
             }
         });
     }
