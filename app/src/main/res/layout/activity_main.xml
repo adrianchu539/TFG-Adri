@@ -237,5 +237,25 @@
             android:layout_weight="1"
             android:text="Face recognition" />
     </LinearLayout>
+    <EditText
+        android:id="@+id/Pregunta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Introduce la pregunta"
+        android:textSize="20sp"
+    />
+    <Button
+        android:id="@+id/Enviar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enviar"
+    />
+    <TextView
+        android:id="@+id/Respuesta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="La respuesta aparecerá aquí"
+        android:textSize="20sp"
+    />
 
 </android.support.v7.widget.LinearLayoutCompat>

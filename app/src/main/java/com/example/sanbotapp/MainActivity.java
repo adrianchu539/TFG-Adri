@@ -14,10 +14,12 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.Volley;
 import com.qihancloud.opensdk.function.unit.MediaManager;
 import com.sanbot.opensdk.base.TopBaseActivity;
 import com.sanbot.opensdk.beans.FuncConstant;
@@ -55,8 +57,17 @@ import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
 import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
 import com.sanbot.opensdk.function.unit.interfaces.speech.WakenListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -90,6 +101,12 @@ public class MainActivity extends TopBaseActivity {
     //Boton para reconocimiento facial
     Button btnFaceRecognition;
 
+    //-------- ChatGPT  ----------
+    EditText preguntaGPT;
+    Button enviarGPT;
+    TextView respuestaGPT;
+
+    // ------ FIN GPT ---------
 
     @Override
     protected void onMainServiceConnected() {
@@ -99,6 +116,9 @@ public class MainActivity extends TopBaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Volley
+        Volley client = new Volley();
+        // ---
         register(MainActivity.class);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
@@ -144,7 +164,58 @@ public class MainActivity extends TopBaseActivity {
         moveForward = findViewById(R.id.moveForward);
         setonClicks();
         touchTest();
+
+        speechManager.startSpeak(chatGPT("Cuentame un chiste"));
     }
+
+    // Prueba ChatGPT
+public String chatGPT(String prompt){
+        String url = "https://api.openai.com/v1/chat/completions";
+        String API_KEY = "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";
+        String model = "gpt-3.5-turbo";
+
+        try {
+            URL obj = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            // request body
+            String body = "{\"model\": \"" + model + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+            connection.setDoOutput(true);
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(body);
+            writer.flush();
+            writer.close();
+
+            // respuesta de chatgpt
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String line;
+
+            StringBuffer response = new StringBuffer();
+
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+            br.close();
+
+            // calls the method to extract the message.
+            return extractMessageFromJSONResponse(response.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String extractMessageFromJSONResponse(String response) {
+        int start = response.indexOf("content")+ 11;
+
+        int end = response.indexOf("\"", start);
+
+        return response.substring(start, end);
+
+    }
+
 
     public void setonClicks() {
         //Loreto 09/02/2024
@@ -494,5 +565,4 @@ public class MainActivity extends TopBaseActivity {
             }
         });
     }
-
 }
