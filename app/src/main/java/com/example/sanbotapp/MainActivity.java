@@ -141,9 +141,9 @@ public class MainActivity extends TopBaseActivity {
         setEmotion = findViewById(R.id.setEmotion);
         headCenter = findViewById(R.id.headCenter);
         // se han añadido todos los posibles sentimientos
-        emotions = new EmotionsType[]{EmotionsType.ARROGANCE,EmotionsType.SURPRISE,EmotionsType.WHISTLE,EmotionsType.LAUGHTER,EmotionsType.GOODBYE,
-                EmotionsType.SHY,  EmotionsType.SWEAT,  EmotionsType.SNICKER,  EmotionsType.PICKNOSE,  EmotionsType.CRY,  EmotionsType.ABUSE,
-                EmotionsType.ANGRY,  EmotionsType.KISS,  EmotionsType.SLEEP, EmotionsType.SMILE, EmotionsType.GRIEVANCE, EmotionsType.QUESTION,
+        emotions = new EmotionsType[]{EmotionsType.ARROGANCE, EmotionsType.SURPRISE, EmotionsType.WHISTLE, EmotionsType.LAUGHTER, EmotionsType.GOODBYE,
+                EmotionsType.SHY, EmotionsType.SWEAT, EmotionsType.SNICKER, EmotionsType.PICKNOSE, EmotionsType.CRY, EmotionsType.ABUSE,
+                EmotionsType.ANGRY, EmotionsType.KISS, EmotionsType.SLEEP, EmotionsType.SMILE, EmotionsType.GRIEVANCE, EmotionsType.QUESTION,
                 EmotionsType.FAINT, EmotionsType.PRISE, EmotionsType.NORMAL};
         moveForward = findViewById(R.id.moveForward);
         setonClicks();
@@ -176,7 +176,11 @@ public class MainActivity extends TopBaseActivity {
         btnPrueba.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                pruebaModulos();
+                try {
+                    pruebaModulos();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
@@ -191,6 +195,7 @@ public class MainActivity extends TopBaseActivity {
             }
         });
 
+        /*
         btnMediaControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -201,8 +206,9 @@ public class MainActivity extends TopBaseActivity {
                 startActivity(intent);
             }
         });
+         */
 
-        videoStream.setOnClickListener(new View.OnClickListener(){
+        videoStream.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startVideoStream();
@@ -310,7 +316,6 @@ public class MainActivity extends TopBaseActivity {
         });
 
 
-
     }
 
     public void currentEmotion() {
@@ -319,16 +324,10 @@ public class MainActivity extends TopBaseActivity {
         systemManager.showEmotion(currentEmotion);
     }
 
-    // función para dado un string te cambia la emoción del robot. SIN COMPLETAR.
-    public void changeEmotion(String emotion){
-        if(emotion.equals("FELIZ")){
-            currentEmotion = EmotionsType.SMILE;
-            systemManager.showEmotion(currentEmotion);
-        }
-        else if(emotion.equals("TRISTE")){
-            currentEmotion = EmotionsType.CRY;
-            systemManager.showEmotion(currentEmotion);
-        }
+    // funcion que muestra la emoción pasada por parametro
+    public void changeEmotion(EmotionsType emotion) {
+        currentEmotion = emotion;
+        systemManager.showEmotion(currentEmotion);
     }
 
     public void wheelGoForward() {
@@ -417,7 +416,8 @@ public class MainActivity extends TopBaseActivity {
                 break;
         }
     }
-    public void startVideoStream(){
+
+    public void startVideoStream() {
         projectorManager.switchProjector(true);
         projectorManager.setMode(ProjectorManager.MODE_WALL);
 
@@ -450,7 +450,128 @@ public class MainActivity extends TopBaseActivity {
         return super.onOptionsItemSelected(item);
     }
     // Prueba de varios módulos del robot
-    public void pruebaModulos(){
+
+    public void reaccionRespuestaCorrecta() {
+        // cambiar emoción a feliz
+        changeEmotion(EmotionsType.SMILE);
+        // respuesta para notificar que la respuesta es correcta
+        speechManager.startSpeak("Muy bien, respuesta correcta");
+        // subir los brazos para simular alegría
+        controlBasicoBrazos(AccionesBrazos.LEVANTAR_AMBOS_BRAZOS);
+    }
+
+    public void reaccionRespuestaIncorrecta() {
+        // cambiar emoción a triste
+        changeEmotion(EmotionsType.GOODBYE);
+        // respuesta para notificar que la respuesta es incorrecta
+        speechManager.startSpeak("La respuesta es incorrecta");
+        // bajar los brazos para simular tristeza
+        controlBasicoBrazos(AccionesBrazos.BAJAR_AMBOS_BRAZOS);
+    }
+
+    public void reaccionChocarCinco() throws InterruptedException {
+        // cambiar emoción a sorprendido
+        changeEmotion(EmotionsType.PRISE);
+        // respuesta para notificar que choque los cinco
+        speechManager.startSpeak("Genial. Choca esos cinco");
+        // sube uno de los brazos
+        controlBrazos(TipoBrazo.DERECHO, 10, 70);
+        Thread.sleep(10000);
+        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO_DERECHO);
+    }
+
+    public void hacerOla() throws InterruptedException {
+        // bajar los brazos en caso de que no los tenga ya bajados
+        controlBasicoBrazos(AccionesBrazos.BAJAR_AMBOS_BRAZOS);
+        // cambiar emoción a feliz
+        changeEmotion(EmotionsType.SMILE);
+        // respuesta para notificar que va a hacer la ola
+        speechManager.startSpeak("Hagamos una ola");
+        Thread.sleep(2000);
+        narrarCuentaAtras(5);
+        Thread.sleep(2000);
+        // subir los brazos para simular la ola
+        controlBasicoBrazos(AccionesBrazos.LEVANTAR_AMBOS_BRAZOS);
+        Thread.sleep(2000);
+        // bajar los brazos para simular la ola
+        controlBasicoBrazos(AccionesBrazos.BAJAR_AMBOS_BRAZOS);
+    }
+
+    // Robot narra una cuenta atrás del tiempo que se pase como parametro.
+    // IDEA: Utilizarlo como cronómetro para acciones como tiempos de respuesta a preguntas, juegos, etc.
+    public void narrarCuentaAtras(int segundos) throws InterruptedException {
+        while (segundos > 0) {
+            speechManager.startSpeak(String.valueOf(segundos));
+            Thread.sleep(1000);
+            segundos--;
+        }
+    }
+
+    public enum AccionesBrazos {
+        LEVANTAR_BRAZO_DERECHO,
+        LEVANTAR_BRAZO_IZQUIERDO,
+        LEVANTAR_AMBOS_BRAZOS,
+        BAJAR_BRAZO_DERECHO,
+        BAJAR_BRAZO_IZQUIERDO,
+        BAJAR_AMBOS_BRAZOS;
+    }
+
+    public enum TipoBrazo {
+        DERECHO,
+        IZQUIERDO,
+        AMBOS;
+    }
+
+    public void saludo() {
+        // cambiar emoción a contento
+        changeEmotion(EmotionsType.LAUGHTER);
+        // saludar con el brazo derecho
+        controlBrazos(TipoBrazo.DERECHO, 10, 165);
+        controlBrazos(TipoBrazo.DERECHO, 10, 160);
+        controlBrazos(TipoBrazo.DERECHO, 10, 165);
+        controlBrazos(TipoBrazo.DERECHO, 10, 160);
+    }
+
+    public void controlBasicoBrazos(AccionesBrazos accion) {
+        byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
+        if (accion.equals(AccionesBrazos.LEVANTAR_BRAZO_DERECHO)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], 10, 0);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        } else if (accion.equals(AccionesBrazos.LEVANTAR_BRAZO_IZQUIERDO)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 0);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        } else if (accion.equals(AccionesBrazos.LEVANTAR_AMBOS_BRAZOS)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 0);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        } else if (accion.equals(AccionesBrazos.BAJAR_BRAZO_DERECHO)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], 10, 170);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        } else if (accion.equals(AccionesBrazos.BAJAR_BRAZO_IZQUIERDO)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 170);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        } else if (accion.equals(AccionesBrazos.BAJAR_AMBOS_BRAZOS)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 170);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        }
+    }
+
+    public void controlBrazos(TipoBrazo brazo, int velocidad, int angulo) {
+        byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
+        if (brazo.equals(TipoBrazo.DERECHO)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], velocidad, angulo);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        } else if (brazo.equals(TipoBrazo.IZQUIERDO)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], velocidad, angulo);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        } else if (brazo.equals(TipoBrazo.AMBOS)) {
+            AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], velocidad, angulo);
+            handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        }
+    }
+
+    public void pruebaModulos() throws InterruptedException {
+        hacerOla();
+        /*
         // Despertamos al robot para que se ponga en modo escucha
         speechManager.doWakeUp();
         // Utilizamos la función setOnSpeechListener para definir acciones tras reconocer una frase fija
@@ -467,7 +588,7 @@ public class MainActivity extends TopBaseActivity {
                     AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 0);
                     handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
                     // y cambiará su cara a feliz
-                    changeEmotion("FELIZ");
+                    changeEmotion(EmotionsType.LAUGHTER);
                     return true;
                 }
                 // prueba de sentimiento tristeza
@@ -480,13 +601,16 @@ public class MainActivity extends TopBaseActivity {
                     AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 170);
                     handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
                     // y cambiará su cara a triste
-                    changeEmotion("TRISTE");
+                    changeEmotion(EmotionsType.CRY);
                     return true;
                 }
                 else{
                     return false;
                 }
+
+
             }
+
 
             @Override
             public void onRecognizeVolume(int i) {
@@ -507,7 +631,7 @@ public class MainActivity extends TopBaseActivity {
             public void onError(int i, int i1) {
                 Log.i("Cris", "onError: i="+i+" i1="+i1);
             }
-        });
+        }
+        */
     }
-
 }
