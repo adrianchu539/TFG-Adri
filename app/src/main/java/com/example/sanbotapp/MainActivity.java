@@ -526,10 +526,10 @@ public class MainActivity extends TopBaseActivity {
         // cambiar emoción a contento
         changeEmotion(EmotionsType.LAUGHTER);
         // saludar con el brazo derecho
-        controlBrazos(TipoBrazo.DERECHO, 10, 165);
-        controlBrazos(TipoBrazo.DERECHO, 10, 160);
-        controlBrazos(TipoBrazo.DERECHO, 10, 165);
-        controlBrazos(TipoBrazo.DERECHO, 10, 160);
+        controlBrazos(TipoBrazo.DERECHO, 10, 65);
+        controlBrazos(TipoBrazo.DERECHO, 10, 60);
+        controlBrazos(TipoBrazo.DERECHO, 10, 65);
+        controlBrazos(TipoBrazo.DERECHO, 10, 60);
     }
 
     public void controlBasicoBrazos(AccionesBrazos accion) {
