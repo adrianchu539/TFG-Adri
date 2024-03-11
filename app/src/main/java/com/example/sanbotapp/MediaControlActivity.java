@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,7 +49,7 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
     private final static String TAG = MediaControlActivity.class.getSimpleName();
 
     SurfaceView svMedia;
-    TextView tvCapture;
+    Button tvCapture;
     ImageView ivCapture;
     TextView tvFace;
 
@@ -85,6 +87,15 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
 
         svMedia.getHolder().addCallback(this);
         initListener();
+
+        // Capturar imagen
+        tvCapture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onViewClicked();
+            }
+        });
+
     }
 
     /**
@@ -220,13 +231,17 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
         videoInputBuffers = null;
     }
 
+
+    // FUNCION QUE SE REALIZA EN EL ONCLICK DE CAPTURA, LO QUE SE VA A INTENTAR ES O QUE HAGA UNA FOTO O GRABE UN VÍDEO
     public void onViewClicked() {
-//        storeImage(mediaManager.getVideoImage());
+        storeImage(mediaManager.getVideoImage());
         ivCapture.setImageBitmap(mediaManager.getVideoImage());
     }
 
     public void storeImage(Bitmap bitmap){
         String dir = Environment.getExternalStorageDirectory()+ "/FACE_REG/IMG/" + "DCIM/";
+
+        System.out.println("RUTA: " + dir);
         final File f = new File(dir);
         if (!f.exists()) {
             f.mkdirs();
@@ -237,11 +252,15 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
         try {
             FileOutputStream fos = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            System.out.println("Imagen guardada en: " + file.getAbsolutePath());
             fos.flush();
             fos.close();
+            System.out.println("Imagen guardada en: " + file.getAbsolutePath());
         } catch (FileNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
 

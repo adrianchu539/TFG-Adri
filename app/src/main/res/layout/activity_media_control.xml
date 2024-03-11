@@ -23,7 +23,7 @@
     </LinearLayout>
 
 
-    <TextView
+    <Button
         android:id="@+id/tv_capture"
         android:layout_width="300px"
         android:layout_height="100px"
