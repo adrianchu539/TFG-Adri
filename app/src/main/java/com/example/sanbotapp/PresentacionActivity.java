@@ -2,6 +2,7 @@ package com.example.sanbotapp;
 
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -16,9 +17,11 @@ import com.sanbot.opensdk.beans.FuncConstant;
 import com.sanbot.opensdk.function.beans.EmotionsType;
 import com.sanbot.opensdk.function.beans.FaceRecognizeBean;
 import com.sanbot.opensdk.function.beans.LED;
+import com.sanbot.opensdk.function.beans.SpeakOption;
 import com.sanbot.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
 import com.sanbot.opensdk.function.beans.handmotion.NoAngleHandMotion;
 import com.sanbot.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
+import com.sanbot.opensdk.function.beans.headmotion.LocateAbsoluteAngleHeadMotion;
 import com.sanbot.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
 import com.sanbot.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
 import com.sanbot.opensdk.function.beans.wheelmotion.NoAngleWheelMotion;
@@ -49,7 +52,11 @@ public class PresentacionActivity extends TopBaseActivity {
     private WheelMotionManager wheelMotionManager;
     private MediaManager mediaManager;
 
+    private WheelControlActivity wheelControlActivity;
+
     private Button btnpresentacion;
+
+    public Boolean reconocimientoFacial = false;
 
     MediaPlayer mp1;
 
@@ -102,8 +109,8 @@ public class PresentacionActivity extends TopBaseActivity {
                     // Hacer algo con el valor de "user"
                     System.out.println("Usuario reconocido: " + user);
 
-                    if(user != ""){
-                        if(user.equals("Adri")){
+                    if(user != "" && reconocimientoFacial){
+                        if(user == "Adri"){
                             speechManager.startSpeak("hola " + user + " ¿cómo estás?");
                         } else {
                             speechManager.startSpeak("Tu no eres Adri, eres " + user + " , sabes donde está Adrián?");
@@ -121,147 +128,189 @@ public class PresentacionActivity extends TopBaseActivity {
     }
 
     private void startPresentation() {
-                //intro
-                speechManager.startSpeak("Hola, soy SanBot, un robot de integración sensorial y robótica. Me encanta interactuar con las personas y ayudarlas en lo que necesiten. ");
-                try {
-                    Thread.sleep(8000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //DISPLAY
-                speechManager.startSpeak("No solo puedo hablar, ");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //show emotion
-                systemManager.showEmotion(EmotionsType.KISS);
-                speechManager.startSpeak("Puedo cambiar mi expresión facial");
 
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        //SPEECH, velocidad y tono del dialogo
+        SpeakOption speakOption = new SpeakOption();
+        speakOption.setSpeed(60);
+        speakOption.setIntonation(50);
 
-                speechManager.startSpeak(" el color de mi cuerpo, ");
+        // INTRO --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("Hola, soy SanBot, un robot de integración sensorial y robótica. Me encanta interactuar con las personas y ayudarlas en lo que necesiten. ", speakOption);
+        try {
+            Thread.sleep(9000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //flicker led
-                hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM));
+        // LEDS --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak(" No solo puedo hablar, ¿ sabes que también puedo cambiar el color de mi cuerpo ?", speakOption);
 
-                // speechManager.startSpeak(" también puedo reproducir cosas en mi tablet y proyectarlas ");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //flicker led
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM));
 
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //ACTUATORS
-                speechManager.startSpeak("También puedo mover mi cabeza, ");
-                //head movement
-                AbsoluteAngleHeadMotion absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(
-                        AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,130
-                );
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // HEAD MOVEMENT --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("También puedo mover mi cabeza, ", speakOption);
+        //head movement
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion1 = new AbsoluteAngleHeadMotion(
+                AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,130
+        );
 
-                headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //head movement
-                absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(
-                        AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90
-                );
-                headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion1);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //head movement
+        absoluteAngleHeadMotion1 = new AbsoluteAngleHeadMotion(
+                AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90
+        );
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion1);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-                speechManager.startSpeak("mis brazos...");
-                //hand up
-                AbsoluteAngleHandMotion absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_LEFT, 5, 70);
-                handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
-                absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_RIGHT, 5, 70);
-                handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                //hands down (reset position)
-                handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+        // HAND MOVEMENT --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("mis brazos...", speakOption);
+        //hand up
+        AbsoluteAngleHandMotion absoluteAngleWingMotion3 = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_LEFT, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion3);
+        absoluteAngleWingMotion3 = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_RIGHT, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion3);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //hands down (reset position)
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
 
-                speechManager.startSpeak("también puedo moverme, puedo bailar!!");
+        // DANCE  --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("y por su puesto ¡ Puedo bailar !", speakOption);
 
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-                //play music
-                int maxVolume = 100;
-                int currVolume = 50;
-                float log1=(float)(Math.log(maxVolume-currVolume)/Math.log(maxVolume));
-                mp1.setVolume(log1,log1);
-                mp1.start();
+        // PLAY MUSIC
+        int maxVolume = 0;
+        int currVolume = 0;
+        float log1=(float)(Math.log(maxVolume-currVolume)/Math.log(maxVolume));
+        mp1.setVolume(log1,log1);
+       // mp1.start(); DESCOMENTAR ESTO ---------------------------------------------------------------------------
 
-                systemManager.showEmotion(EmotionsType.SMILE);
-                hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM_THREE_GROUP));
-                absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 0);
-                handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
-                RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(
-                        RelativeAngleWheelMotion.TURN_LEFT, 5,360
-                );
-                wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
+        systemManager.showEmotion(EmotionsType.SMILE);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM_THREE_GROUP));
+        AbsoluteAngleHandMotion absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 0);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
+        RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(
+                RelativeAngleWheelMotion.TURN_LEFT, 5,360
+        );
+        wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
 
 
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-                //hands down (reset position)
-                handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
-                try {
-                    Thread.sleep(4000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        //hands down (reset position)
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-                mp1.stop();
+        mp1.stop();
 
-                speechManager.startSpeak(" ¿ sabeís que también dispongo de un módulo de reconocimiento facial ? ¿ Adrián, puedes acercarte a mi ? ");
-                try {
-                    Thread.sleep(7000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        // EMOTIONS --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("A pesar de ser un robot, también puedo mostrar emociones", speakOption);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-                absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 30);
-                headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        // ENAMORADO
+        speakOption.setSpeed(70);
+        systemManager.showEmotion(EmotionsType.KISS);
+        AbsoluteAngleHandMotion absoluteAngleWingMotion1 = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion1);
+        speechManager.startSpeak("Cuando estoy enamorada no se como ocultarlo", speakOption);
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // TRISTE
+        speakOption.setSpeed(50);
+        systemManager.showEmotion(EmotionsType.CRY);
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 7);
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
+        speechManager.startSpeak("O cuando estoy triste no puedo evitar llorar ", speakOption);
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speakOption.setSpeed(60);
+        systemManager.showEmotion(EmotionsType.SMILE);
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion2 = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 30);
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion2);
+        speechManager.startSpeak("Pero hoy estoy muy contenta de poder enseñaros todo lo que se hacer", speakOption);
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 
-               // speechManager.startSpeak(" es un placer conoceros, espero que disfruteis de mi compañía. ");
+        // RECONOCIMIENTO FACIAL  --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak(" ¿ sabeís que también dispongo de un módulo de reconocimiento facial ? ¿ Adrián, puedes acercarte a mi ? ", speakOption);
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        reconocimientoFacial = true;
+
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion4 = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 30);
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion4);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
 
+        // WHEELS  --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak(" Al igual que vosotros, yo también puedo caminar, ¿quieres verlo? ", speakOption);
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-
+        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, 5, 100);
+        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
 
 
     }

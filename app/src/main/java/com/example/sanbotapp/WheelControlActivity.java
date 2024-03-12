@@ -55,7 +55,7 @@ public class WheelControlActivity extends TopBaseActivity {
 
     Button movimiento;
 
-    private WheelMotionManager wheelMotionManager;
+    public WheelMotionManager wheelMotionManager;
     //private HardWareManager hardWareManager;
 
     // VARIABLE QUE CONTROLA SI DETECTA ALGUNA PRESENCIA HUMANA
