@@ -1,6 +1,10 @@
 package com.example.sanbotapp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -9,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.VideoView;
 
 import com.google.gson.Gson;
 import com.qihancloud.opensdk.function.unit.MediaManager;
@@ -29,6 +34,7 @@ import com.sanbot.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
 import com.sanbot.opensdk.function.unit.HandMotionManager;
 import com.sanbot.opensdk.function.unit.HardWareManager;
 import com.sanbot.opensdk.function.unit.HeadMotionManager;
+import com.sanbot.opensdk.function.unit.ProjectorManager;
 import com.sanbot.opensdk.function.unit.SpeechManager;
 import com.sanbot.opensdk.function.unit.SystemManager;
 import com.sanbot.opensdk.function.unit.WheelMotionManager;
@@ -51,10 +57,13 @@ public class PresentacionActivity extends TopBaseActivity {
     private HardWareManager hardWareManager; //leds //touch sensors //voice locate //gyroscope
     private WheelMotionManager wheelMotionManager;
     private MediaManager mediaManager;
+    private ProjectorManager projectorManager;
+    private AudioManager audioManager;
 
     private WheelControlActivity wheelControlActivity;
 
     private Button btnpresentacion;
+    private Button btnreconocimientofacial;
 
     public Boolean reconocimientoFacial = false;
 
@@ -76,14 +85,23 @@ public class PresentacionActivity extends TopBaseActivity {
         systemManager = (SystemManager) getUnitManager(FuncConstant.SYSTEM_MANAGER);
         wheelMotionManager = (WheelMotionManager) getUnitManager(FuncConstant.WHEELMOTION_MANAGER);
         mediaManager = (MediaManager) getUnitManager(FuncConstant.MEDIA_MANAGER);
+        projectorManager = (ProjectorManager) getUnitManager(FuncConstant.PROJECTOR_MANAGER);
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         btnpresentacion = findViewById(R.id.btnpresentacion);
-
         btnpresentacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startPresentation();
+            }
+        });
 
+        btnreconocimientofacial = findViewById(R.id.btn_opcion1);
+        btnreconocimientofacial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reconocimientoFacial = true;
+                setReconocimientoFacial();
             }
         });
 
@@ -125,6 +143,114 @@ public class PresentacionActivity extends TopBaseActivity {
         });
 
 
+    }
+
+    public void reproducirVideo(){
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 2, 0);
+
+        // Cambiamos el layout de la actividad por el layout del video
+        setContentView(R.layout.video);
+
+        // Obtener la referencia al VideoView en tu layout XML
+        VideoView videoView = findViewById(R.id.videoView);
+
+        // Establecer la URI del archivo de video ubicado en res/raw
+        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.emocionesingles);
+
+        // Establecer la URI del video en el VideoView
+        videoView.setVideoURI(videoUri);
+
+        // Comenzar la reproducción del video
+        videoView.start();
+
+        // Establecer un Listener para detectar cuando el video haya terminado de reproducirse
+        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                // Puedes realizar alguna acción aquí si lo necesitas
+                setContentView(R.layout.activity_presentacion);
+                projectorManager.switchProjector(false);
+                girarDerecha(5, 180);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
+
+
+            }
+        });
+    }
+
+    public void startProyector(){
+        projectorManager.switchProjector(true);
+
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        projectorManager.setMode(ProjectorManager.MODE_WALL);
+        projectorManager.setBright(31);
+        projectorManager.setTrapezoidV(30);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    // Método para avanzar
+    public void avanzar(int velocidad, int distancia) {
+        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, velocidad, distancia);
+        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
+
+        // Calcular el tiempo de espera necesario
+        long tiempoEspera = (long) (5000 * (distancia / 100.0)); // Convertir la distancia a segundos
+
+        try {
+            Thread.sleep(tiempoEspera);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    // Método para girar a la izquierda
+    public void  girarIzquierda(int velocidad, int angulo) {
+        RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(RelativeAngleWheelMotion.TURN_LEFT, velocidad, angulo);
+        wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // Método para girar a la derecha
+    public void girarDerecha(int velocidad, int angulo) {
+        RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(RelativeAngleWheelMotion.TURN_RIGHT, velocidad, angulo);
+        wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Hacer un cuadrado
+    public void cuadrado(int tamano) {
+        avanzar(5, tamano);
+        girarDerecha(5, 90);
+        avanzar(5, tamano);
+        girarDerecha(5, 90);
+        avanzar(5, tamano);
+        girarDerecha(5, 90);
+        avanzar(5, tamano);
+        girarDerecha(5, 90);
     }
 
     private void startPresentation() {
@@ -207,11 +333,9 @@ public class PresentacionActivity extends TopBaseActivity {
         }
 
         // PLAY MUSIC
-        int maxVolume = 0;
-        int currVolume = 0;
-        float log1=(float)(Math.log(maxVolume-currVolume)/Math.log(maxVolume));
-        mp1.setVolume(log1,log1);
-       // mp1.start(); DESCOMENTAR ESTO ---------------------------------------------------------------------------
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 2, 0);
+
+        mp1.start();
 
         systemManager.showEmotion(EmotionsType.SMILE);
         hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM_THREE_GROUP));
@@ -221,7 +345,6 @@ public class PresentacionActivity extends TopBaseActivity {
                 RelativeAngleWheelMotion.TURN_LEFT, 5,360
         );
         wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
-
 
         try {
             Thread.sleep(2000);
@@ -238,6 +361,9 @@ public class PresentacionActivity extends TopBaseActivity {
         }
 
         mp1.stop();
+
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
+
 
         // EMOTIONS --------------------------------------------------------------------------------------------------------------------------
         speechManager.startSpeak("A pesar de ser un robot, también puedo mostrar emociones", speakOption);
@@ -283,36 +409,43 @@ public class PresentacionActivity extends TopBaseActivity {
         }
 
 
+        // NAVEGACION Y PROYECTOR  --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak(" ¿ Os gustaría ver un vídeo sobre algunas cosas que hacemos aquí en el Affectivelab ?", speakOption);
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        speechManager.startSpeak(" Vamos, os voy a proyectar un vídeo", speakOption);
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // NAVEGAR
+        avanzar(5, 350);
+        girarDerecha(5, 90);
+        avanzar(5, 100);
+        // PROYECTOR
+        startProyector();
+        reproducirVideo();
+
+    }
+
+    public void setReconocimientoFacial(){
+        SpeakOption speakOption = new SpeakOption();
+        speakOption.setSpeed(60);
+        speakOption.setIntonation(50);
         // RECONOCIMIENTO FACIAL  --------------------------------------------------------------------------------------------------------------------------
-        speechManager.startSpeak(" ¿ sabeís que también dispongo de un módulo de reconocimiento facial ? ¿ Adrián, puedes acercarte a mi ? ", speakOption);
+        speechManager.startSpeak(" ¿ sabeis que también dispongo de un módulo de reconocimiento facial ? ¿ Adrián, puedes acercarte a mi ? ", speakOption);
         try {
             Thread.sleep(6000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         reconocimientoFacial = true;
-
-        AbsoluteAngleHeadMotion absoluteAngleHeadMotion4 = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 30);
-        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion4);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        // WHEELS  --------------------------------------------------------------------------------------------------------------------------
-        speechManager.startSpeak(" Al igual que vosotros, yo también puedo caminar, ¿quieres verlo? ", speakOption);
-        try {
-            Thread.sleep(6000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, 5, 100);
-        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
-
-
     }
 
 
