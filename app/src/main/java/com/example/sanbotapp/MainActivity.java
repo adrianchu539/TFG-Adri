@@ -104,10 +104,7 @@ public class MainActivity extends TopBaseActivity {
     Button btnFaceRecognition;
     Button btnMediaControl;
 
-    //boton respuestas
-    //Button btnRespuestaCorrecta;
-    //Button btnRespuestaIncorrecta;
-    //Button btnPruebaRespuestas;
+    private Boolean respuestaCorrectaReconocida;
 
 
     @Override
@@ -172,6 +169,7 @@ public class MainActivity extends TopBaseActivity {
         setonClicks();
         touchTest();
 
+        respuestaCorrectaReconocida = false;
 
     }
 
@@ -500,9 +498,12 @@ public class MainActivity extends TopBaseActivity {
     }
 
     // POR COMPLETAR
-    public void reaccionAlegre(){
+    public void reaccionAlegre() throws InterruptedException {
         // dar vueltas
-        repetirAccionTronco(AccionesTronco.GIRO_360, TipoDireccion.IZQUIERDA, 3);
+        controlBasicoTronco(AccionesTronco.GIRO_360, TipoDireccion.IZQUIERDA);
+        Thread.sleep(3000);
+        controlBasicoTronco(AccionesTronco.GIRO_360, TipoDireccion.IZQUIERDA);
+        Thread.sleep(3000);
         controlBasicoBrazos(AccionesBrazos.LEVANTAR_BRAZO, TipoBrazo.AMBOS);
         // cambiar cara
         changeEmotion(EmotionsType.PRISE);
@@ -531,7 +532,7 @@ public class MainActivity extends TopBaseActivity {
         // bajar los brazos en caso de que no los tenga ya bajados
         controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
         // cambiar emoción a feliz
-        changeEmotion(EmotionsType.SMILE);
+        changeEmotion(EmotionsType.LAUGHTER);
         // respuesta para notificar que va a hacer la ola
         speechManager.startSpeak("Hagamos una ola");
         Thread.sleep(2000);
@@ -597,10 +598,10 @@ public class MainActivity extends TopBaseActivity {
         changeEmotion(EmotionsType.LAUGHTER);
         // saludar con el brazo derecho
         speechManager.startSpeak("Hola, soy Sanbot");
-        if(controlBrazos(TipoBrazo.DERECHO, 10, 0)){
-            if(controlBrazos(TipoBrazo.DERECHO, 10, 10)){
-                if(controlBrazos(TipoBrazo.DERECHO, 10, 0)){
-                    controlBrazos(TipoBrazo.DERECHO, 10, 10);
+        if(controlBrazos(TipoBrazo.DERECHO, 10, 30)){
+            if(controlBrazos(TipoBrazo.DERECHO, 10, 50)){
+                if(controlBrazos(TipoBrazo.DERECHO, 10, 30)){
+                    controlBrazos(TipoBrazo.DERECHO, 10, 50);
                 }
             }
         }
@@ -613,15 +614,15 @@ public class MainActivity extends TopBaseActivity {
             case LEVANTAR_BRAZO:
                 switch (brazo) {
                     case IZQUIERDO:
-                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 0);
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 10);
                         handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
                         break;
                     case DERECHO:
-                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], 10, 0);
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], 10, 10);
                         handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
                         break;
                     case AMBOS:
-                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 0);
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 10, 10);
                         handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
                         break;
                 }
@@ -735,21 +736,21 @@ public class MainActivity extends TopBaseActivity {
                 headMotionManager.doRelativeAngleMotion(relativeAngleHeadMotion);
                 break;
             case CENTRO:
-                relativeAngleHeadMotion = new RelativeAngleHeadMotion(RelativeAngleHeadMotion.ACTION_RIGHTDOWN, 0);
-                headMotionManager.doRelativeAngleMotion(relativeAngleHeadMotion);
-                relativeAngleHeadMotion = new RelativeAngleHeadMotion(RelativeAngleHeadMotion.ACTION_UP, 0);
-                headMotionManager.doRelativeAngleMotion(relativeAngleHeadMotion);
+                absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90);
+                headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
                 break;
         }
         return true;
     }
 
-    public void senalarCielo(){
-        if(controlBasicoCabeza(AccionesCabeza.ARRIBA)){
-            if(controlBasicoBrazos(AccionesBrazos.LEVANTAR_BRAZO, TipoBrazo.DERECHO)){
-                speechManager.startSpeak("Mi caaaasa");
-            }
-        }
+    public void senalarCielo() throws InterruptedException {
+        controlBasicoCabeza(AccionesCabeza.ARRIBA);
+        Thread.sleep(2000);
+        controlBrazos(TipoBrazo.DERECHO, 8, 70);
+        speechManager.startSpeak("Mi caaaasa");
+        Thread.sleep(3000);
+        controlBasicoCabeza(AccionesCabeza.CENTRO);
+        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.DERECHO);
     }
 
     public void formularPregunta(String pregunta, String respuestaAReconocer, int intentos) throws InterruptedException {
@@ -777,15 +778,17 @@ public class MainActivity extends TopBaseActivity {
         speechManager.setOnSpeechListener(new RecognizeListener() {
             @Override
             public boolean onRecognizeResult(Grammar grammar) {
+                System.out.println("He reconocido " + grammar.getText());
                 if (grammar.getText().equals(respuestaAReconocer)) { // MIRAR COMO RECONOCER PAUSA (!!)
                     System.out.println("Se ha reconocido la respuesta correcta");
                     reconocimientoCorrecto[0] = true;
+                    return true;
                 }
                 else{
                     System.out.println("No se ha reconocido la respuesta incorrecta");
                     reconocimientoCorrecto[0] = false;
+                    return false;
                 }
-                return true;
             }
             @Override
             public void onRecognizeVolume(int i) {
@@ -806,15 +809,17 @@ public class MainActivity extends TopBaseActivity {
             public void onError(int i, int i1) {
 
             }
-
         });
-        if(reconocimientoCorrecto[0] == true){
+        Thread.sleep(5000);
+        System.out.println("Voy a evaluar la respuesta");
+        if(reconocimientoCorrecto[0]==true){
+            System.out.println("Respuesta correcta reconocida");
             return true;
         }
         else{
+            System.out.println("Respuesta incorrecta reconocida" + reconocimientoCorrecto[0]);
             return false;
         }
-
     }
 
     public void ejecutarInteraccion(String respuestaAReconocer) throws InterruptedException {
@@ -824,12 +829,15 @@ public class MainActivity extends TopBaseActivity {
         }
 
          */
+        /*
         if(reconocimientoVoz(respuestaAReconocer)){
             speechManager.startSpeak("Muy bien");
         }
         else{
             speechManager.startSpeak("Muy mal");
         }
+
+         */
     }
 
     public boolean esperarRespuesta(String respuestaAReconocer, int intentos) throws InterruptedException {
@@ -837,6 +845,7 @@ public class MainActivity extends TopBaseActivity {
         while(intentos>0 && !respuestaCorrecta){
             System.out.println("Intento" + intentos);
             speechManager.doWakeUp();
+            /*
             if(!reconocimientoVoz(respuestaAReconocer)){
                 Thread.sleep(2000);
                 System.out.println("Se ha fallado la respuesta");
@@ -849,8 +858,10 @@ public class MainActivity extends TopBaseActivity {
                 System.out.println("Se ha acertado la respuesta");
                 respuestaCorrecta = true;
             }
+
+             */
         }
-        return respuestaCorrecta;
+        return true;
     }
 
     public boolean pruebaDialogoPlanetario() throws InterruptedException {
@@ -876,13 +887,160 @@ public class MainActivity extends TopBaseActivity {
 
     }
 
-    public void repetirAccionTronco(AccionesTronco accion, TipoDireccion direccion, int repeticiones){
+    public void repetirAccionTronco(AccionesTronco accion, TipoDireccion direccion, int repeticiones) throws InterruptedException {
         while(repeticiones>0){
             repeticiones--;
             if(controlBasicoTronco(accion, direccion)){
                 continue;
             };
+            Thread.sleep(3000);
         }
+    }
+
+    public void presentacionAffectiveLab() throws InterruptedException {
+        SpeakOption speakOption = new SpeakOption();
+        speakOption.setSpeed(55);
+        speakOption.setIntonation(50);
+
+        changeEmotion(EmotionsType.SMILE);
+        speechManager.startSpeak("Hola, buenos días, mi nombre es Sanbot y os voy a presentar a nuestro grupo Affectif Lab", speakOption);
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        speechManager.startSpeak("Nuestro equipo es reconocido como un grupo de referencia por el Gobierno de Aragón y forma parte del I3A", speakOption);
+        try {
+            Thread.sleep(6500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+        // el grupo affectivelab es un grupo multidisciplinar en el que hay investigadores procedentes de areas como ingenieria, ...
+        speechManager.startSpeak("Affectif Lab es un grupo multidisciplinar en el que hay investigadores procedentes de areas como la ingeniería, la psicología, la sociología, la educación, y la geriatría", speakOption);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        speechManager.startSpeak("Nuestra área de investigación es la interacción y el desarrollo de interfaces", speakOption);
+        try {
+            Thread.sleep(7000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        speechManager.startSpeak("Hemos trabajado con interfaces multimodales mediante personajes 3D virtuales", speakOption);
+        try {
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechManager.startSpeak("También con interfaces tangibles, como nuestras mesas interactivas, en éstas interfaces los periféricos habituales como el ratón o el teclado" +
+                "son sustituidos por objetos de uso común", speakOption);
+        try {
+            Thread.sleep(13000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechManager.startSpeak("Y no olvidemos las interfaces afectivas basadas en el reconocimiento" +
+                "del estado emocional del usuario a partir de reconocimiento facial o medidas fisiológicas", speakOption);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        speechManager.startSpeak("En cuanto accesibilidad nuestro objetivo es favorecer la inclusión" +
+                "de usuarios con necesidades especiales y explorar los beneficios terapéuticos, educativos, y sociales de los nuevos" +
+                "modos de interacción digital", speakOption);
+        try {
+            Thread.sleep(17000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechManager.startSpeak("Actualmente nuestro grupo lidera un proyecto nacional coordinado por la universidad de zaragoza llamado PLEISAR," +
+                "en el que participan investigadores de la Universidad de las Islas Baleares, Universidad de Granada," +
+                "e investigadores de la universidad de La Laguna", speakOption);
+        try {
+            Thread.sleep(18000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        speechManager.startSpeak("En éste proyecto se ha comenzado a trabajar con asistentes por voz como Alexa y con robots sociales como...", speakOption);
+        try {
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechManager.startSpeak("¡Espera!");
+        changeEmotion(EmotionsType.PRISE);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechManager.startSpeak("¡Mirad eso!");
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        controlTronco(TipoDireccion.DERECHA, 5, 90);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        controlBrazos(TipoBrazo.DERECHO, 8, 70);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechManager.startSpeak("¡Ese soy yo!", speakOption);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        controlBasicoTronco(AccionesTronco.GIRO_90, TipoDireccion.IZQUIERDA);
+        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.DERECHO);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        changeEmotion(EmotionsType.SNICKER);
+        speechManager.startSpeak("Ah, y tambien tengo a uno de mis primos en Teruel, trabajando con los Amantes", speakOption);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speechManager.startSpeak("Y bueno, eso es todo", speakOption);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        changeEmotion(EmotionsType.SLEEP);
+        controlBasicoCabeza(AccionesCabeza.ABAJO);
+        controlBrazos(TipoBrazo.AMBOS, 7, 230);
+        speechManager.startSpeak("Muchas gracias por vuestra atención", speakOption);
+        try {
+            Thread.sleep(7000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        controlBasicoCabeza(AccionesCabeza.CENTRO);
+        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
+        changeEmotion(EmotionsType.LAUGHTER);
     }
 
     /*
@@ -960,6 +1118,7 @@ public class MainActivity extends TopBaseActivity {
 
      */
     public void pruebaModulos() throws InterruptedException {
+        //presentacionAffectiveLab();
         /*
         controlBasicoTronco(AccionesTronco.GIRO_360, TipoDireccion.IZQUIERDA);
         Thread.sleep(5000);
@@ -986,7 +1145,8 @@ public class MainActivity extends TopBaseActivity {
         controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
         Thread.sleep(5000);
          */
-        /*
+        senalarCielo();
+        Thread.sleep(8000);
         reaccionChocarCinco();
         Thread.sleep(5000);
         saludo();
@@ -997,8 +1157,21 @@ public class MainActivity extends TopBaseActivity {
         Thread.sleep(10000);
         hacerOla();
 
-         */
-        formularPregunta("de que color es el caballo blanco de santiago", "blanco", 3);
+        /*
+        speechManager.startSpeak("de que color es el caballo blanco de santiago");
+        Thread.sleep(1000);
+        speechManager.doWakeUp();
+        Thread.sleep(3000);
+        reconocimientoVoz("blanco");
+        if((reconocimientoVoz("blanco"))){
+            System.out.println("Reconocido bien");
+            speechManager.startSpeak("bien");
+        }
+        else{
+            speechManager.startSpeak("mal");
+            System.out.println("Reconocido mal");
+        }
 
+         */
     }
 }
