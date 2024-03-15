@@ -23,6 +23,8 @@ import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
 import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
 import com.sanbot.opensdk.function.unit.interfaces.speech.WakenListener;
 
+import java.text.Normalizer;
+
 
 /*
 
@@ -131,20 +133,43 @@ public class SpeechControl extends TopBaseActivity {
             public boolean onRecognizeResult(Grammar grammar) {
                 //Log.i("reconocimiento：", "onRecognizeResult: "+grammar.getText());
                 //只有在配置了RECOGNIZE_MODE为1，且返回为true的情况下，才会拦截
-                tvSpeechRecognizeResult.setText(grammar.getText());
-                if (grammar.getText().equals("hola soy Adrián")) {
-                    speechManager.startSpeak("hola Adrian, ¿qué tal estás?");
+
+                String cadenaReconocida = grammar.getText();
+                cadenaReconocida = cadenaReconocida.toLowerCase();
+                cadenaReconocida = Normalizer.normalize(cadenaReconocida, Normalizer.Form.NFD);
+                cadenaReconocida = cadenaReconocida.replaceAll("[^\\p{ASCII}]", "");
+                tvSpeechRecognizeResult.setText(cadenaReconocida);
+                if (cadenaReconocida.contains("hola quien eres tu")) {
+                    speechManager.startSpeak("Me llamo Arturito y estoy buscando a Drako. Habíamos quedado en vernos pero no recuerdo donde");
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    speechManager.doWakeUp();
                     return true;
                 }
-                else if(grammar.getText().equals("hola soy Loreto")) {
-                    speechManager.startSpeak("hola Loreto, ¿cómo va tu día?");
+                else if(cadenaReconocida.contains("tienes muy mala memoria ayudamos a arturito")) {
+                    speechManager.startSpeak("reconocido");
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    speechManager.doWakeUp();
                     return true;
                 }
-                else if(grammar.getText().equals("hola soy Eva")) {
-                    speechManager.startSpeak("hola Eva, espero que tengas un bonito día");
+                else if(cadenaReconocida.contains("si")) {
+                    speechManager.startSpeak("Bieeen, gracias");
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    speechManager.doWakeUp();
                     return true;
                 }
-                else if(grammar.getText().equals("hola soy Sandra")) {
+                else if(cadenaReconocida.contains("es ese el planeta en el que has quedado con tu amigo")) {
                     speechManager.startSpeak("hola Sandra, ¿cómo te va?");
                     return true;
                 }
