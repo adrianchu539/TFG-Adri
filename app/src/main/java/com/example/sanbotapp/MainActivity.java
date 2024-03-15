@@ -101,8 +101,9 @@ public class MainActivity extends TopBaseActivity {
     Button btnPrueba;
 
     //Boton para reconocimiento facial
-    Button btnFaceRecognition;
+    Button btnWheelControl;
     Button btnMediaControl;
+    Button btnPresentacion;
 
     private Boolean respuestaCorrectaReconocida;
 
@@ -133,8 +134,9 @@ public class MainActivity extends TopBaseActivity {
         btnNavigateToHandControl = findViewById(R.id.btnNavigateToHandControl);
         btnNavigateToSpeechControl = findViewById(R.id.btnNavigateToSpeechControl);
         btnPrueba = findViewById(R.id.btnPrueba);
-        btnFaceRecognition = findViewById(R.id.btnFaceRecognition);
+        btnWheelControl = findViewById(R.id.btnWheelControl);
         btnMediaControl = findViewById(R.id.btnMediaControl);
+        btnPresentacion = findViewById(R.id.btnPresentacion);
 
         // Adrian 01/03/2024
         //btnRespuestaCorrecta = findViewById(R.id.btnResCorrecta);
@@ -186,6 +188,17 @@ public class MainActivity extends TopBaseActivity {
             }
         });
 
+        btnPresentacion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Crea un Intent para iniciar la actividad Presentacion
+                Intent intent = new Intent(MainActivity.this, PresentacionActivity.class);
+
+                // Inicia la actividad Presentacion
+                startActivity(intent);
+            }
+        });
+
         btnNavigateToSpeechControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -207,13 +220,13 @@ public class MainActivity extends TopBaseActivity {
             }
         });
 
-        btnFaceRecognition.setOnClickListener(new View.OnClickListener() {
+        btnWheelControl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Crea un Intent para iniciar la actividad FaceRecognition
-                Intent intent = new Intent(MainActivity.this, FaceRecognitionControl.class);
+                Intent intent = new Intent(MainActivity.this, WheelControlActivity.class);
 
-                // Inicia la actividad FaceRecognition
+                // Inicia la actividad WheelControl
                 startActivity(intent);
             }
         });

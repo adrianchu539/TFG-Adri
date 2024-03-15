@@ -225,12 +225,12 @@
             android:text="Prueba" />
 
         <Button
-            android:id="@+id/btnFaceRecognition"
+            android:id="@+id/btnWheelControl"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:layout_weight="1"
-            android:text="Face recognition" />
+            android:text="Wheel control" />
 
         <Button
             android:id="@+id/btnMediaControl"
@@ -239,6 +239,14 @@
             android:layout_margin="16dp"
             android:layout_weight="1"
             android:text="Media Control" />
+
+        <Button
+            android:id="@+id/btnPresentacion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_weight="1"
+            android:text="Presentacion" />
     </LinearLayout>
 
 

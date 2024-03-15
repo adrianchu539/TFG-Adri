@@ -12,6 +12,8 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
 
     <application
         android:allowBackup="true"
@@ -34,6 +36,8 @@
         <activity android:name=".SpeechControl" />
         <activity android:name=".FaceRecognitionControl" />
         <activity android:name=".MediaControlActivity" />
+        <activity android:name=".WheelControlActivity"/>
+        <activity android:name=".PresentacionActivity"/>
 
     </application>
 
