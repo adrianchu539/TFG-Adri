@@ -38,6 +38,7 @@ import com.sanbot.opensdk.function.unit.ProjectorManager;
 import com.sanbot.opensdk.function.unit.SpeechManager;
 import com.sanbot.opensdk.function.unit.SystemManager;
 import com.sanbot.opensdk.function.unit.WheelMotionManager;
+import com.sanbot.opensdk.function.unit.interfaces.hardware.PIRListener;
 import com.sanbot.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
 
 import java.util.Arrays;
@@ -67,6 +68,13 @@ public class PresentacionActivity extends TopBaseActivity {
 
     public Boolean reconocimientoFacial = false;
 
+    private long tiempoRestante;
+    private int distanciaRestante = 0;
+
+    private boolean pirdetection = false;
+
+
+
     MediaPlayer mp1;
 
 
@@ -92,7 +100,81 @@ public class PresentacionActivity extends TopBaseActivity {
         btnpresentacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startPresentation();
+
+                SpeakOption speakOption = new SpeakOption();
+                speakOption.setSpeed(60);
+                speakOption.setIntonation(50);
+
+                // startPresentation();
+
+                avanzar(5, 30);
+                distanciaRestante = 0;
+                speechManager.startSpeak("avanzo1", speakOption);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                girarDerecha(5, 90);
+
+
+                avanzar(5, 400);
+                distanciaRestante = 0;
+                speechManager.startSpeak("avanzo2", speakOption);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                girarIzquierda(5, 180);
+
+                speechManager.startSpeak("sonrio", speakOption);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                systemManager.showEmotion(EmotionsType.SMILE);
+                AbsoluteAngleHandMotion absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
+                handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
+                speechManager.startSpeak("El laboratorio 2 0 7 es mi casa, y estoy muy contenta de poder enseñárosla hoy", speakOption);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+
+                /*
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                avanzar(5, 400);
+                speechManager.startSpeak("avanzo v1", speakOption);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                girarDerecha(5, 90);
+                avanzar(5, 100);
+                speechManager.startSpeak("avanzo v2", speakOption);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+                 */
             }
         });
 
@@ -138,6 +220,44 @@ public class PresentacionActivity extends TopBaseActivity {
                 }
                 System.out.println("Persona reconocida????：" + sb.toString());
 
+
+            }
+        });
+
+        hardWareManager.setOnHareWareListener(new PIRListener() {
+            @Override
+            public void onPIRCheckResult(boolean isCheck, int part) {
+                System.out.print((part == 1 ? "delante del cuerpo" : "Detras del cuerpo") + " detectado");
+
+                // Si se detecta movimiento delante del robot
+                if (part == 1 ){
+                    speechManager.startSpeak("te detecto");
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    pirdetection = true;
+                    System.out.println("Tiempo de restante final: " + tiempoRestante);
+                    // Si el avance se completa sin excepciones, actualiza la distancia recorrida
+                    distanciaRestante = (int) (tiempoRestante * 100 / 5000);
+
+                    if ( distanciaRestante > 0) {
+                        System.out.println("Distancia recorrida: " + distanciaRestante);
+
+                        speechManager.startSpeak("No puedo avanzar, hay un obstáculo en el camino");
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        avanzar(5, distanciaRestante );
+
+                    }
+                } else {
+                    pirdetection = false;
+
+                }
 
             }
         });
@@ -208,10 +328,20 @@ public class PresentacionActivity extends TopBaseActivity {
 
         // Calcular el tiempo de espera necesario
         long tiempoEspera = (long) (5000 * (distancia / 100.0)); // Convertir la distancia a segundos
+        tiempoRestante = tiempoEspera;
 
         try {
-            Thread.sleep(tiempoEspera);
+            long tiempoInicio = System.currentTimeMillis();
+
+            System.out.println("Tiempo de espera: " + tiempoInicio);
+            while (tiempoRestante > 0 && !pirdetection) {
+                System.out.println("Tiempo restante: " + tiempoRestante);
+                tiempoRestante = tiempoEspera - (System.currentTimeMillis() - tiempoInicio);
+                Thread.sleep(100); // Actualizar cada 100 milisegundos
+            }
+
         } catch (InterruptedException e) {
+            System.out.println("Error al avanzar: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -410,7 +540,7 @@ public class PresentacionActivity extends TopBaseActivity {
 
 
         // NAVEGACION Y PROYECTOR  --------------------------------------------------------------------------------------------------------------------------
-        speechManager.startSpeak(" ¿ Os gustaría ver un vídeo sobre algunas cosas que hacemos aquí en el Affectivelab ?", speakOption);
+        speechManager.startSpeak(" ¿ Os gustaría ver un vídeo sobre algunas cosas que hacemos aquí en el Affectif lab ?", speakOption);
         try {
             Thread.sleep(6000);
         } catch (InterruptedException e) {
