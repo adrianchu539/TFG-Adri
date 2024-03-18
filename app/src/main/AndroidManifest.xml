@@ -39,6 +39,7 @@
         <activity android:name=".WheelControlActivity"/>
         <activity android:name=".PresentacionActivity"/>
 
+
     </application>
 
 </manifest>

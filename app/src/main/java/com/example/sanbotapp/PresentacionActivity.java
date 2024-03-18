@@ -45,8 +45,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class PresentacionActivity extends TopBaseActivity {
@@ -68,12 +68,9 @@ public class PresentacionActivity extends TopBaseActivity {
 
     public Boolean reconocimientoFacial = false;
 
-    private long tiempoRestante;
-    private int distanciaRestante = 0;
-
-    private boolean pirdetection = false;
-
-
+    private volatile long tiempoRestante;
+    private volatile int distanciaRestante = 0;
+    private final AtomicBoolean movimientoDetectado = new AtomicBoolean(false);
 
     MediaPlayer mp1;
 
@@ -100,81 +97,7 @@ public class PresentacionActivity extends TopBaseActivity {
         btnpresentacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                SpeakOption speakOption = new SpeakOption();
-                speakOption.setSpeed(60);
-                speakOption.setIntonation(50);
-
-                // startPresentation();
-
-                avanzar(5, 30);
-                distanciaRestante = 0;
-                speechManager.startSpeak("avanzo1", speakOption);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                girarDerecha(5, 90);
-
-
-                avanzar(5, 400);
-                distanciaRestante = 0;
-                speechManager.startSpeak("avanzo2", speakOption);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                girarIzquierda(5, 180);
-
-                speechManager.startSpeak("sonrio", speakOption);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                systemManager.showEmotion(EmotionsType.SMILE);
-                AbsoluteAngleHandMotion absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
-                handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
-                speechManager.startSpeak("El laboratorio 2 0 7 es mi casa, y estoy muy contenta de poder enseñárosla hoy", speakOption);
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
-
-                /*
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-
-                avanzar(5, 400);
-                speechManager.startSpeak("avanzo v1", speakOption);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                girarDerecha(5, 90);
-                avanzar(5, 100);
-                speechManager.startSpeak("avanzo v2", speakOption);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-
-                 */
+                startPresentation();
             }
         });
 
@@ -224,46 +147,85 @@ public class PresentacionActivity extends TopBaseActivity {
             }
         });
 
+    }
+
+    // Método para avanzar
+    public void avanzarConEsperas(int velocidad, int distancia) {
+        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, velocidad, distancia);
+        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
+
+        // Calcular el tiempo de espera necesario
+        long tiempoEspera = (long) (5000 * (distancia / 100.0)); // Convertir la distancia a segundos
+        tiempoRestante = tiempoEspera;
+        distanciaRestante = (int) (tiempoRestante * 100 / 5000);
+
+        // Crear y ejecutar un hilo para el bucle
+        Thread bucleThread = new Thread(() -> {
+            try {
+                long tiempoInicio = System.currentTimeMillis();
+                System.out.println("Tiempo de espera: " + tiempoInicio);
+
+                while (distanciaRestante > 0) {
+                    if (movimientoDetectado.get()) {
+                        System.out.println("Detenido por detección de movimiento");
+                        break; // Salir del bucle
+                    }
+
+                    System.out.println("Tiempo restante: " + tiempoRestante + " distancia recorrida: " + distanciaRestante + " tiempo de espera: " + tiempoEspera + " tiempo inicio: " + tiempoInicio + " distancia: " + distancia);
+                    tiempoRestante = tiempoEspera - (System.currentTimeMillis() - tiempoInicio);
+                    distanciaRestante = (int) (tiempoRestante * 100 / 5000);
+                    Thread.sleep(100); // Actualizar cada 100 milisegundos
+                }
+
+                System.out.println("FINAAL Tiempo restante: " + tiempoRestante + " distancia recorrida: " + distanciaRestante + " pirdetection: " + tiempoEspera + " tiempo inicio: " + tiempoInicio + " distancia: " + distancia);
+
+                /*if (distanciaRestante > 0) {
+                    System.out.println("Distancia restante: " + distanciaRestante);
+                    speechManager.startSpeak("No puedo avanzar, hay un obstáculo en el camino");
+
+                    avanzar(5, distanciaRestante);
+                }*/
+
+            } catch (InterruptedException e) {
+                System.out.println("Error al avanzar: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+
+        if (movimientoDetectado.get()) {
+            bucleThread.interrupt();
+            if (distanciaRestante > 0) {
+                System.out.println("Distancia restante: " + distanciaRestante);
+                speechManager.startSpeak("No puedo avanzar, hay un obstáculo en el camino");
+                movimientoDetectado.set(false);
+                avanzarConEsperas(5, distanciaRestante);
+            }
+        } else {
+            // Iniciar el hilo del bucle
+            bucleThread.start();
+        }
+
+        // Configurar el listener del hardware
         hardWareManager.setOnHareWareListener(new PIRListener() {
             @Override
             public void onPIRCheckResult(boolean isCheck, int part) {
                 System.out.print((part == 1 ? "delante del cuerpo" : "Detras del cuerpo") + " detectado");
 
                 // Si se detecta movimiento delante del robot
-                if (part == 1 ){
-                    speechManager.startSpeak("te detecto");
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    pirdetection = true;
-                    System.out.println("Tiempo de restante final: " + tiempoRestante);
-                    // Si el avance se completa sin excepciones, actualiza la distancia recorrida
-                    distanciaRestante = (int) (tiempoRestante * 100 / 5000);
+                if (part == 1) {
+                    movimientoDetectado.set(true);
+                    System.out.println("FINAAL PIR Tiempo restante: " + tiempoRestante + "distancia restante: " + distanciaRestante);
 
-                    if ( distanciaRestante > 0) {
-                        System.out.println("Distancia recorrida: " + distanciaRestante);
-
-                        speechManager.startSpeak("No puedo avanzar, hay un obstáculo en el camino");
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        avanzar(5, distanciaRestante );
-
-                    }
                 } else {
-                    pirdetection = false;
-
+                    System.out.println("FINAAL PIR Tiempo restante: " + tiempoRestante + "distancia recorrida: " + distanciaRestante);
                 }
-
             }
         });
 
-
     }
+
+
+
 
     public void reproducirVideo(){
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 2, 0);
@@ -288,65 +250,53 @@ public class PresentacionActivity extends TopBaseActivity {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 // Puedes realizar alguna acción aquí si lo necesitas
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
                 setContentView(R.layout.activity_presentacion);
                 projectorManager.switchProjector(false);
                 girarDerecha(5, 180);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
-
-
             }
         });
     }
 
     public void startProyector(){
         projectorManager.switchProjector(true);
-
         try {
-            Thread.sleep(6000);
+            Thread.sleep(10000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         projectorManager.setMode(ProjectorManager.MODE_WALL);
-        projectorManager.setBright(31);
-        projectorManager.setTrapezoidV(30);
-
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
-    }
-
-
-    // Método para avanzar
-    public void avanzar(int velocidad, int distancia) {
-        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, velocidad, distancia);
-        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
-
-        // Calcular el tiempo de espera necesario
-        long tiempoEspera = (long) (5000 * (distancia / 100.0)); // Convertir la distancia a segundos
-        tiempoRestante = tiempoEspera;
-
+        projectorManager.setBright(31);
         try {
-            long tiempoInicio = System.currentTimeMillis();
-
-            System.out.println("Tiempo de espera: " + tiempoInicio);
-            while (tiempoRestante > 0 && !pirdetection) {
-                System.out.println("Tiempo restante: " + tiempoRestante);
-                tiempoRestante = tiempoEspera - (System.currentTimeMillis() - tiempoInicio);
-                Thread.sleep(100); // Actualizar cada 100 milisegundos
-            }
-
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
-            System.out.println("Error al avanzar: " + e.getMessage());
+            e.printStackTrace();
+        }
+        projectorManager.setTrapezoidV(30);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
     }
 
+    public void avanzar(int velocidad, int distancia) {
+        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, velocidad, distancia);
+        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
+
+        long tiempoEspera = (long) (5000 * (distancia / 100.0));
+        try {
+            Thread.sleep(tiempoEspera);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     // Método para girar a la izquierda
     public void  girarIzquierda(int velocidad, int angulo) {
@@ -382,6 +332,7 @@ public class PresentacionActivity extends TopBaseActivity {
         avanzar(5, tamano);
         girarDerecha(5, 90);
     }
+
 
     private void startPresentation() {
 
@@ -472,7 +423,7 @@ public class PresentacionActivity extends TopBaseActivity {
         AbsoluteAngleHandMotion absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 0);
         handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
         RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(
-                RelativeAngleWheelMotion.TURN_LEFT, 5,360
+                RelativeAngleWheelMotion.TURN_LEFT, 3,360
         );
         wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
 
@@ -505,6 +456,7 @@ public class PresentacionActivity extends TopBaseActivity {
 
         // ENAMORADO
         speakOption.setSpeed(70);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_PINK));
         systemManager.showEmotion(EmotionsType.KISS);
         AbsoluteAngleHandMotion absoluteAngleWingMotion1 = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
         handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion1);
@@ -517,6 +469,7 @@ public class PresentacionActivity extends TopBaseActivity {
 
         // TRISTE
         speakOption.setSpeed(50);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_BLUE));
         systemManager.showEmotion(EmotionsType.CRY);
         handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
         AbsoluteAngleHeadMotion absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 7);
@@ -528,6 +481,7 @@ public class PresentacionActivity extends TopBaseActivity {
             e.printStackTrace();
         }
         speakOption.setSpeed(60);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_CLOSE));
         systemManager.showEmotion(EmotionsType.SMILE);
         AbsoluteAngleHeadMotion absoluteAngleHeadMotion2 = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 30);
         headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion2);
@@ -539,7 +493,34 @@ public class PresentacionActivity extends TopBaseActivity {
         }
 
 
-        // NAVEGACION Y PROYECTOR  --------------------------------------------------------------------------------------------------------------------------
+        // NAVEGACION --------------------------------------------------------------------------------------------------------------------------
+
+        girarDerecha(3, 90);
+        avanzar(5, 300);
+        girarDerecha(3, 180);
+
+        systemManager.showEmotion(EmotionsType.SMILE);
+        AbsoluteAngleHandMotion absoluteAngleWingMotionlab = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotionlab);
+        speechManager.startSpeak("El laboratorio 2 0 7 es mi casa, y estoy muy contenta de poder enseñárosla hoy", speakOption);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        avanzar(5, 300);
+        girarDerecha(3, 90);
+
+
+        // PROYECTOR  --------------------------------------------------------------------------------------------------------------------------
         speechManager.startSpeak(" ¿ Os gustaría ver un vídeo sobre algunas cosas que hacemos aquí en el Affectif lab ?", speakOption);
         try {
             Thread.sleep(6000);
@@ -555,8 +536,6 @@ public class PresentacionActivity extends TopBaseActivity {
         }
 
         // NAVEGAR
-        avanzar(5, 350);
-        girarDerecha(5, 90);
         avanzar(5, 100);
         // PROYECTOR
         startProyector();
