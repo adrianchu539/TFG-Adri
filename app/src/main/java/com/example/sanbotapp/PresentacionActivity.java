@@ -260,11 +260,26 @@ public class PresentacionActivity extends TopBaseActivity {
 
     public void startProyector(){
         projectorManager.switchProjector(true);
-        projectorManager.setMode(ProjectorManager.MODE_WALL);
-        projectorManager.setBright(31);
-        projectorManager.setTrapezoidV(0);
         try {
-            Thread.sleep(15000);
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        projectorManager.setMode(ProjectorManager.MODE_WALL);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        projectorManager.setBright(31);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        projectorManager.setTrapezoidV(30);
+        try {
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
