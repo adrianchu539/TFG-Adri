@@ -408,7 +408,7 @@ public class PresentacionActivity extends TopBaseActivity {
         AbsoluteAngleHandMotion absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 0);
         handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
         RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(
-                RelativeAngleWheelMotion.TURN_LEFT, 5,360
+                RelativeAngleWheelMotion.TURN_LEFT, 3,360
         );
         wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
 
@@ -480,9 +480,9 @@ public class PresentacionActivity extends TopBaseActivity {
 
         // NAVEGACION --------------------------------------------------------------------------------------------------------------------------
 
-        girarDerecha(5, 90);
+        girarDerecha(3, 90);
         avanzar(5, 300);
-        girarDerecha(5, 180);
+        girarDerecha(3, 180);
 
         systemManager.showEmotion(EmotionsType.SMILE);
         AbsoluteAngleHandMotion absoluteAngleWingMotionlab = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
@@ -502,7 +502,7 @@ public class PresentacionActivity extends TopBaseActivity {
         }
 
         avanzar(5, 300);
-        girarDerecha(5, 90);
+        girarDerecha(3, 90);
 
 
         // PROYECTOR  --------------------------------------------------------------------------------------------------------------------------
