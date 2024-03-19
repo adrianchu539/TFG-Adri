@@ -25,37 +25,6 @@ import com.sanbot.opensdk.function.unit.interfaces.speech.WakenListener;
 
 import java.text.Normalizer;
 
-
-/*
-
-EJEMPLO DE USO DE LA UNIDAD DE RECONOCIMIENTO DE VOZ
-speechManager.setOnSpeechListener(new RecognizeListener() {
-    @Override
-    public boolean onRecognizeResult(Grammar grammar) {
-        String recognizedText = grammar.getText();
-        String recognizedTopic = grammar.getTopic();
-        float confidence = grammar.getConfidence();
-
-        // Aquí puedes procesar el texto reconocido y el tema asociado según tus necesidades
-        Log.i("SpeechRecognition", "Texto reconocido: " + recognizedText);
-        Log.i("SpeechRecognition", "Tema reconocido: " + recognizedTopic);
-        Log.i("SpeechRecognition", "Confianza del reconocimiento: " + confidence);
-
-        // Lógica adicional según el texto y el tema reconocidos
-        if (recognizedTopic.equals("saludo")) {
-            // Si el tema es "saludo", realizar acciones específicas para saludar al usuario
-            speechManager.startSpeak("¡Hola! ¿Cómo estás?");
-            return true; // Devuelve true para detener el reconocimiento
-        }
-
-        // Devuelve false para continuar con el reconocimiento
-        return false;
-    }
-
-    // Otros métodos de la interfaz RecognizeListener
-});
-
- */
 public class SpeechControl extends TopBaseActivity {
 
 
@@ -133,46 +102,6 @@ public class SpeechControl extends TopBaseActivity {
             public boolean onRecognizeResult(Grammar grammar) {
                 //Log.i("reconocimiento：", "onRecognizeResult: "+grammar.getText());
                 //只有在配置了RECOGNIZE_MODE为1，且返回为true的情况下，才会拦截
-
-                String cadenaReconocida = grammar.getText();
-                cadenaReconocida = cadenaReconocida.toLowerCase();
-                cadenaReconocida = Normalizer.normalize(cadenaReconocida, Normalizer.Form.NFD);
-                cadenaReconocida = cadenaReconocida.replaceAll("[^\\p{ASCII}]", "");
-                tvSpeechRecognizeResult.setText(cadenaReconocida);
-                if (cadenaReconocida.contains("hola quien eres tu")) {
-                    speechManager.startSpeak("Me llamo Arturito y estoy buscando a Drako. Habíamos quedado en vernos pero no recuerdo donde");
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    speechManager.doWakeUp();
-                    return true;
-                }
-                else if(cadenaReconocida.contains("tienes muy mala memoria ayudamos a arturito")) {
-                    speechManager.startSpeak("reconocido");
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    speechManager.doWakeUp();
-                    return true;
-                }
-                else if(cadenaReconocida.contains("si")) {
-                    speechManager.startSpeak("Bieeen, gracias");
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    speechManager.doWakeUp();
-                    return true;
-                }
-                else if(cadenaReconocida.contains("es ese el planeta en el que has quedado con tu amigo")) {
-                    speechManager.startSpeak("hola Sandra, ¿cómo te va?");
-                    return true;
-                }
                 return cbInterceptMessage.isChecked();
             }
 
