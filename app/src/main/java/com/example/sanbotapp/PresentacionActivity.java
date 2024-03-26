@@ -48,6 +48,7 @@ import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
 import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
 import com.sanbot.opensdk.function.unit.interfaces.speech.WakenListener;
 
+import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,12 @@ import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import okhttp3.Call;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 
 public class PresentacionActivity extends TopBaseActivity {
@@ -164,7 +171,11 @@ public class PresentacionActivity extends TopBaseActivity {
         btnpresentacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startPresentation();
+                try {
+                    presentacionNinos();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
@@ -180,16 +191,15 @@ public class PresentacionActivity extends TopBaseActivity {
         // boton para narrar la presentación de AffectiveLab
 
         btnPresentacionAffectiveLab = findViewById(R.id.btn_opcion2);
+
         btnPresentacionAffectiveLab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    presentacionAffectiveLab();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                pruebaAPI();
             }
         });
+
+
 
         // boton para realizar el diálogo preparado del planetario
         btnDialogoPlanetario = findViewById(R.id.btn_opcion3);
@@ -355,10 +365,13 @@ public class PresentacionActivity extends TopBaseActivity {
                 // Puedes realizar alguna acción aquí si lo necesitas
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
                 //setContentView(R.layout.activity_presentacion);
-                
+
+                /*
                 projectorManager.switchProjector(false);
                 girarDerecha(5, 180);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
+
+                 */
 
 
             }
@@ -1358,6 +1371,296 @@ public class PresentacionActivity extends TopBaseActivity {
     public void changeEmotion(EmotionsType emotion) {
         currentEmotion = emotion;
         systemManager.showEmotion(currentEmotion);
+    }
+
+    public void presentacionNinos() throws InterruptedException {
+        //SPEECH, velocidad y tono del dialogo
+        SpeakOption speakOption = new SpeakOption();
+        speakOption.setSpeed(60);
+        speakOption.setIntonation(50);
+
+        // INTRO --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("Hola, soy SanBot, un robot de integración sensorial y robótica. Me encanta interactuar con las personas y ayudarlas en lo que necesiten. ", speakOption);
+        try {
+            Thread.sleep(9000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // LEDS --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak(" No solo puedo hablar, ¿ sabes que también puedo cambiar el color de mi cuerpo ?", speakOption);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //flicker led
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM));
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // HEAD MOVEMENT --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("También puedo mover mi cabeza, ", speakOption);
+        //head movement
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion1 = new AbsoluteAngleHeadMotion(
+                AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,130
+        );
+
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion1);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //head movement
+        absoluteAngleHeadMotion1 = new AbsoluteAngleHeadMotion(
+                AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90
+        );
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion1);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // HAND MOVEMENT --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("mis brazos...", speakOption);
+        //hand up
+        AbsoluteAngleHandMotion absoluteAngleWingMotion3 = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_LEFT, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion3);
+        absoluteAngleWingMotion3 = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_RIGHT, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion3);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //hands down (reset position)
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+
+        // DANCE  --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("y por su puesto ¡ Puedo bailar !", speakOption);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // PLAY MUSIC
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 2, 0);
+
+        mp1.start();
+
+        systemManager.showEmotion(EmotionsType.SMILE);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM_THREE_GROUP));
+        AbsoluteAngleHandMotion absoluteAngleWingMotion = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 0);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion);
+        RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(
+                RelativeAngleWheelMotion.TURN_LEFT, 3,360
+        );
+        wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //hands down (reset position)
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        mp1.stop();
+
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
+
+
+        // EMOTIONS --------------------------------------------------------------------------------------------------------------------------
+        speechManager.startSpeak("A pesar de ser un robot, también puedo mostrar emociones", speakOption);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // ENAMORADO
+        speakOption.setSpeed(70);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_PINK));
+        systemManager.showEmotion(EmotionsType.KISS);
+        AbsoluteAngleHandMotion absoluteAngleWingMotion1 = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotion1);
+        speechManager.startSpeak("Cuando estoy enamorada no se como ocultarlo", speakOption);
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // TRISTE
+        speakOption.setSpeed(50);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_BLUE));
+        systemManager.showEmotion(EmotionsType.CRY);
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 7);
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
+        speechManager.startSpeak("O cuando estoy triste no puedo evitar llorar ", speakOption);
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        speakOption.setSpeed(60);
+        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_CLOSE));
+        systemManager.showEmotion(EmotionsType.SMILE);
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion2 = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_VERTICAL, 30);
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion2);
+        speechManager.startSpeak("Pero hoy estoy muy contenta de poder enseñaros todo lo que se hacer", speakOption);
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // NAVEGACION
+
+        avanzar(5, 50);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        controlBasicoTronco(AccionesTronco.GIRO_180, TipoDireccion.IZQUIERDA);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        avanzar(5, 50);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        controlBasicoTronco(AccionesTronco.GIRO_180, TipoDireccion.IZQUIERDA);
+
+        systemManager.showEmotion(EmotionsType.SMILE);
+        AbsoluteAngleHandMotion absoluteAngleWingMotionlab = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotionlab);
+        speechManager.startSpeak("El laboratorio 2 0 7 es mi casa, y estoy muy contenta de poder enseñárosla hoy", speakOption);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        handMotionManager.doNoAngleMotion(new NoAngleHandMotion(NoAngleHandMotion.PART_BOTH, 5,NoAngleHandMotion.ACTION_RESET));
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        speechManager.startSpeak("Cuando respondéis bien una pregunta, hago esto", speakOption);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        reaccionChocarCinco();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        speechManager.startSpeak("Cuando estoy muy contenta hago así", speakOption);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        reaccionAlegre();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        speechManager.startSpeak("Cuando quiero participar con los niños hago así", speakOption);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        hacerOla();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        speechManager.startSpeak("Y bueno, eso es todo", speakOption);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // cambia su emoción
+        changeEmotion(EmotionsType.SLEEP);
+        // baja la cabeza
+        controlBasicoCabeza(AccionesCabeza.ABAJO);
+        // pone los brazos atrás
+        controlBrazos(TipoBrazo.AMBOS, 7, 230);
+        try {
+            Thread.sleep(7000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // se despide del publico
+        speechManager.startSpeak("Muchas gracias por vuestra atención, ahora os dejo con un vídeo" +
+                "ya que tuve la oportunidad de trabajar con Emilia y Khea en su último videoclip", speakOption);
+        try {
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // recupera su posición
+        controlBasicoCabeza(AccionesCabeza.CENTRO);
+        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
+        changeEmotion(EmotionsType.SMILE);
+
+        // PROYECTOR
+        //startProyector();
+        reproducirVideo();
+    }
+
+    public void pruebaAPI(){
+        OkHttpClient client = new OkHttpClient();
+        HttpUrl.Builder urlBuilder
+                = HttpUrl.parse("https://www.google.com").newBuilder();
+        //HttpUrl.Builder urlBuilder
+        //        = HttpUrl.parse("https://www.meteosource.com/api/v1/free/").newBuilder();
+        //urlBuilder.addQueryParameter("id", "1");
+
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Call call = client.newCall(request);
+        try {
+            Response response = call.execute();
+            System.out.println(response.code());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
