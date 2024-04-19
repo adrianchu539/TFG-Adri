@@ -13,15 +13,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.sanbot.opensdk.base.TopBaseActivity;
-import com.sanbot.opensdk.beans.FuncConstant;
-import com.sanbot.opensdk.function.beans.SpeakOption;
-import com.sanbot.opensdk.function.beans.speech.Grammar;
-import com.sanbot.opensdk.function.beans.speech.SpeakStatus;
-import com.sanbot.opensdk.function.unit.SpeechManager;
-import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.WakenListener;
+
+import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.qihancloud.opensdk.beans.FuncConstant;
+import com.qihancloud.opensdk.function.beans.SpeakOption;
+import com.qihancloud.opensdk.function.beans.speech.Grammar;
+import com.qihancloud.opensdk.function.unit.SpeechManager;
+import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
+import com.qihancloud.opensdk.function.unit.interfaces.speech.SpeakListener;
+import com.qihancloud.opensdk.function.unit.interfaces.speech.WakenListener;
 
 import java.text.Normalizer;
 
@@ -51,7 +51,7 @@ public class SpeechControl extends TopBaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        register(SpeechControl.class);
+        //register(SpeechControl.class);
         //屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -110,22 +110,20 @@ public class SpeechControl extends TopBaseActivity {
                 tvSpeechRecognizeVolume.setText(String.valueOf(i));
             }
 
-            @Override
             public void onStartRecognize() {
                 Log.i("Cris", "onStartRecognize: ");
             }
 
-            @Override
             public void onStopRecognize() {
                 Log.i("Cris", "onStopRecognize: ");
             }
 
-            @Override
             public void onError(int i, int i1) {
                 Log.i("Cris", "onError: i="+i+" i1="+i1);
             }
         });
         //语音合成状态回调
+        /*
         speechManager.setOnSpeechListener(new SpeakListener() {
             @Override
             public void onSpeakStatus(SpeakStatus speakStatus) {
@@ -135,6 +133,8 @@ public class SpeechControl extends TopBaseActivity {
                 }
             }
         });
+
+         */
     }
 
     @Override

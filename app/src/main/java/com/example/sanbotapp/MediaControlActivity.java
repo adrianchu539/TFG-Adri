@@ -18,14 +18,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.qihancloud.opensdk.beans.FuncConstant;
+import com.qihancloud.opensdk.function.beans.FaceRecognizeBean;
+import com.qihancloud.opensdk.function.beans.StreamOption;
 import com.qihancloud.opensdk.function.unit.MediaManager;
-import com.sanbot.opensdk.base.TopBaseActivity;
-import com.sanbot.opensdk.beans.FuncConstant;
-import com.sanbot.opensdk.function.beans.FaceRecognizeBean;
-import com.sanbot.opensdk.function.beans.StreamOption;
-import com.sanbot.opensdk.function.unit.SpeechManager;
-import com.sanbot.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
-import com.sanbot.opensdk.function.unit.interfaces.media.MediaStreamListener;
+import com.qihancloud.opensdk.function.unit.SpeechManager;
+import com.qihancloud.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
+import com.qihancloud.opensdk.function.unit.interfaces.media.MediaStreamListener;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,7 +69,7 @@ public class MediaControlActivity extends TopBaseActivity implements SurfaceHold
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        register(MediaControlActivity.class);
+        //register(MediaControlActivity.class);
         //屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 

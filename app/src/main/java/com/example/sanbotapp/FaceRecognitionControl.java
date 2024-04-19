@@ -1,3 +1,4 @@
+/*
 package com.example.sanbotapp;
 
 import android.content.Context;
@@ -40,7 +41,7 @@ public class FaceRecognitionControl extends BindBaseActivity {
                     imageView.setImageBitmap(bitmap);
                 }
             }
-        });*/
+        });
     }
 
 
@@ -56,7 +57,6 @@ public class FaceRecognitionControl extends BindBaseActivity {
         return new File(cachePath + File.separator + uniqueName);
     }
 }
-
-
+ */
 
 

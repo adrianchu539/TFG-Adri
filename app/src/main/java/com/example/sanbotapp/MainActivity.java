@@ -19,42 +19,26 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.qihancloud.opensdk.beans.FuncConstant;
+import com.qihancloud.opensdk.function.beans.EmotionsType;
+import com.qihancloud.opensdk.function.beans.LED;
+import com.qihancloud.opensdk.function.beans.SpeakOption;
+import com.qihancloud.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
+import com.qihancloud.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
+import com.qihancloud.opensdk.function.beans.headmotion.LocateAbsoluteAngleHeadMotion;
+import com.qihancloud.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
+import com.qihancloud.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
+import com.qihancloud.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
+import com.qihancloud.opensdk.function.unit.HandMotionManager;
+import com.qihancloud.opensdk.function.unit.HardWareManager;
+import com.qihancloud.opensdk.function.unit.HeadMotionManager;
 import com.qihancloud.opensdk.function.unit.MediaManager;
-import com.sanbot.opensdk.base.TopBaseActivity;
-import com.sanbot.opensdk.beans.FuncConstant;
-import com.sanbot.opensdk.beans.OperationResult;
-import com.sanbot.opensdk.function.beans.EmotionsType;
-import com.sanbot.opensdk.function.beans.LED;
-import com.sanbot.opensdk.function.beans.SpeakOption;
-import com.sanbot.opensdk.function.beans.StreamOption;
-import com.sanbot.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
-import com.sanbot.opensdk.function.beans.handmotion.NoAngleHandMotion;
-import com.sanbot.opensdk.function.beans.handmotion.RelativeAngleHandMotion;
-import com.sanbot.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
-import com.sanbot.opensdk.function.beans.headmotion.LocateAbsoluteAngleHeadMotion;
-import com.sanbot.opensdk.function.beans.headmotion.LocateRelativeAngleHeadMotion;
-import com.sanbot.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
-import com.sanbot.opensdk.function.beans.speech.Grammar;
-import com.sanbot.opensdk.function.beans.speech.SpeakStatus;
-import com.sanbot.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
-import com.sanbot.opensdk.function.beans.wheelmotion.NoAngleWheelMotion;
-import com.sanbot.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
-import com.sanbot.opensdk.function.unit.HandMotionManager;
-import com.sanbot.opensdk.function.unit.HardWareManager;
-import com.sanbot.opensdk.function.unit.HeadMotionManager;
-import com.sanbot.opensdk.function.unit.ModularMotionManager;
-import com.sanbot.opensdk.function.unit.ProjectorManager;
-import com.sanbot.opensdk.function.unit.SpeechManager;
-import com.sanbot.opensdk.function.unit.SystemManager;
-import com.sanbot.opensdk.function.unit.WheelMotionManager;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.HardWareListener;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.InfrareListener;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.PIRListener;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.TouchSensorListener;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.VoiceLocateListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.WakenListener;
+import com.qihancloud.opensdk.function.unit.ProjectorManager;
+import com.qihancloud.opensdk.function.unit.SpeechManager;
+import com.qihancloud.opensdk.function.unit.SystemManager;
+import com.qihancloud.opensdk.function.unit.WheelMotionManager;
+import com.qihancloud.opensdk.function.unit.interfaces.hardware.TouchSensorListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -115,8 +99,8 @@ public class MainActivity extends TopBaseActivity {
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        register(MainActivity.class);
+    public void onCreate(Bundle savedInstanceState) {
+        //register(MainActivity.class);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         onMainServiceConnected();

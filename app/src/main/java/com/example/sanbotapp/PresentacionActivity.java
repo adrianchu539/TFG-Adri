@@ -1,11 +1,14 @@
 package com.example.sanbotapp;
 
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,56 +18,68 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.VideoView;
-
 import com.google.gson.Gson;
+import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.qihancloud.opensdk.beans.FuncConstant;
+import com.qihancloud.opensdk.function.beans.EmotionsType;
+import com.qihancloud.opensdk.function.beans.FaceRecognizeBean;
+import com.qihancloud.opensdk.function.beans.LED;
+import com.qihancloud.opensdk.function.beans.SpeakOption;
+import com.qihancloud.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
+import com.qihancloud.opensdk.function.beans.handmotion.NoAngleHandMotion;
+import com.qihancloud.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
+import com.qihancloud.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
+import com.qihancloud.opensdk.function.beans.speech.Grammar;
+import com.qihancloud.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
+import com.qihancloud.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
+import com.qihancloud.opensdk.function.unit.HandMotionManager;
+import com.qihancloud.opensdk.function.unit.HardWareManager;
+import com.qihancloud.opensdk.function.unit.HeadMotionManager;
 import com.qihancloud.opensdk.function.unit.MediaManager;
-import com.sanbot.opensdk.base.TopBaseActivity;
-import com.sanbot.opensdk.beans.FuncConstant;
-import com.sanbot.opensdk.function.beans.EmotionsType;
-import com.sanbot.opensdk.function.beans.FaceRecognizeBean;
-import com.sanbot.opensdk.function.beans.LED;
-import com.sanbot.opensdk.function.beans.SpeakOption;
-import com.sanbot.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
-import com.sanbot.opensdk.function.beans.handmotion.NoAngleHandMotion;
-import com.sanbot.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
-import com.sanbot.opensdk.function.beans.headmotion.LocateAbsoluteAngleHeadMotion;
-import com.sanbot.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
-import com.sanbot.opensdk.function.beans.speech.Grammar;
-import com.sanbot.opensdk.function.beans.speech.SpeakStatus;
-import com.sanbot.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
-import com.sanbot.opensdk.function.beans.wheelmotion.NoAngleWheelMotion;
-import com.sanbot.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
-import com.sanbot.opensdk.function.unit.HandMotionManager;
-import com.sanbot.opensdk.function.unit.HardWareManager;
-import com.sanbot.opensdk.function.unit.HeadMotionManager;
-import com.sanbot.opensdk.function.unit.ProjectorManager;
-import com.sanbot.opensdk.function.unit.SpeechManager;
-import com.sanbot.opensdk.function.unit.SystemManager;
-import com.sanbot.opensdk.function.unit.WheelMotionManager;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.PIRListener;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.TouchSensorListener;
-import com.sanbot.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.RecognizeListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.SpeakListener;
-import com.sanbot.opensdk.function.unit.interfaces.speech.WakenListener;
+import com.qihancloud.opensdk.function.unit.ProjectorManager;
+import com.qihancloud.opensdk.function.unit.SpeechManager;
+import com.qihancloud.opensdk.function.unit.SystemManager;
+import com.qihancloud.opensdk.function.unit.WheelMotionManager;
+import com.qihancloud.opensdk.function.unit.interfaces.hardware.PIRListener;
+import com.qihancloud.opensdk.function.unit.interfaces.hardware.TouchSensorListener;
+import com.qihancloud.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
+import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 
 public class PresentacionActivity extends TopBaseActivity {
@@ -146,7 +161,7 @@ public class PresentacionActivity extends TopBaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        register(PresentacionActivity.class);
+        //register(PresentacionActivity.class);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         super.onCreate(savedInstanceState);
@@ -171,11 +186,8 @@ public class PresentacionActivity extends TopBaseActivity {
         btnpresentacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    presentacionNinos();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                //presentacionNinos();
+                pruebaAPI();
             }
         });
 
@@ -947,17 +959,14 @@ public class PresentacionActivity extends TopBaseActivity {
             public void onRecognizeVolume(int i) {
             }
 
-            @Override
             public void onStartRecognize() {
                 //Log.i("Cris", "onStartRecognize: ");
             }
 
-            @Override
             public void onStopRecognize() {
                 //Log.i("Cris", "onStopRecognize: ");
             }
 
-            @Override
             public void onError(int i, int i1) {
                 //Log.i("Cris", "onError: i="+i+" i1="+i1);
             }
@@ -1641,8 +1650,174 @@ public class PresentacionActivity extends TopBaseActivity {
         reproducirVideo();
     }
 
+    /*
+    public void pruebaAPI(String pregunta) {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        final OkHttpClient client = new OkHttpClient();
+
+        String API_KEY = "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";
+        String url = "https://api.openai.com/v1/chat/completions";
+        String urlTiempo = "https://my.meteoblue.com/packages/basic-day?apikey=iOREgrduDyw490YH&lat=41.6561&lon=-0.87734&asl=214&format=json";
+
+        RequestBody requestBody = new FormBody.Builder()
+                .add("model", "gpt-3.5-turbo")
+                .add("prompt", pregunta)
+                .add("max_tokens", "500")
+                .add("temperature", "0")
+                .build();
+        RequestBody requestBodyTiempo = new FormBody.Builder()
+                .add("place_id", "zaragoza")
+                .add("language", "es")
+                .build();
+        Request request = new Request.Builder()
+                .url(urlTiempo)
+                .post(requestBodyTiempo)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override public void onResponse(Call call, Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                    Headers responseHeaders = response.headers();
+                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+                        System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                    }
+
+                    System.out.println(responseBody.string());
+                }
+            }
+        });
+    }
+        HttpUrl.Builder urlBuilder
+                = HttpUrl.parse("https://www.google.com").newBuilder();
+        //HttpUrl.Builder urlBuilder
+        //        = HttpUrl.parse("https://www.meteosource.com/api/v1/free/").newBuilder();
+        //urlBuilder.addQueryParameter("id", "1");
+
+        String url = urlBuilder.build().toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Call call = client.newCall(request);
+        try {
+            Response response = call.execute();
+            System.out.println(response.code());
+        } catch (IOException e)
+
+        {
+            throw new RuntimeException(e);
+        }
+
+    public void pruebaAPI2() throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        final OkHttpClient client = new OkHttpClient();
+
+        String API_KEY = "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";
+        String API_KEY_MOVIES = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZjRhZTM4MjY5ZWEzODY2Yzc4MjcyZTMzNDc1ZTQwNiIsInN1YiI6IjY2MDMzNDhjZDM4YjU4MDE3ZDFiNzExMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.sGinrHt3C4Ko683tmaYIHZNeUgK87Vg8FSmJfiwvyRI";
+        String url = "https://api.openai.com/v1/chat/completions";
+        String urlTiempo = "https://my.meteoblue.com/packages/basic-day?apikey=iOREgrduDyw490YH&lat=41.6561&lon=-0.87734&asl=214&format=json";
+        String urlPeliculas = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1";
+        String urlLibros = "https://books.googleapis.com/books/v1/volumes/_LettPDhwR0C?key=[YOUR_API_KEY]";
+        RequestBody requestBody = new FormBody.Builder()
+                .add("model", "gpt-3.5-turbo")
+                //     .add("prompt", pregunta)
+                .add("max_tokens", "500")
+                .add("temperature", "0")
+                .build();
+        RequestBody requestBodyTiempo = new FormBody.Builder()
+                .add("place_id", "zaragoza")
+                .add("language", "es")
+                .build();
+        Request requestPeliculas = new Request.Builder()
+                .url(urlPeliculas)
+                .header("Authorization Bearer:", API_KEY_MOVIES)
+                .build();
+
+        Request requestLibros = new Request.Builder()
+                .url("https://books.googleapis.com/books/v1/volumes/_LettPDhwR0C?key=[YOUR_API_KEY]")
+                .header("Authorization", "Bearer [YOUR_ACCESS_TOKEN]")
+                .header("Accept", "application/json")
+                .build();
+
+        try (Response response = client.newCall(requestLibros).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            response.body().string();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        client.newCall(requestLibros).enqueue(new Callback() {
+            @Override public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override public void onResponse(Call call, Response response) throws IOException {
+                try (ResponseBody responseBody = response.body()) {
+                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+                    Headers responseHeaders = response.headers();
+                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+                        System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                    }
+
+                    System.out.println(responseBody.string());
+                }
+            }
+        });
+
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+                    }
+
+                    @Override
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new java.security.cert.X509Certificate[]{};
+                    }
+                }
+        };
+
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+        OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
+        newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
+        newBuilder.hostnameVerifier((hostname, session) -> true);
+
+        OkHttpClient newClient = newBuilder.build();
+        try (Response response = newClient.newCall(requestLibros).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            response.body().string();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+
+     */
     public void pruebaAPI(){
-        OkHttpClient client = new OkHttpClient();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        final OkHttpClient client = new OkHttpClient();
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse("https://www.google.com").newBuilder();
         //HttpUrl.Builder urlBuilder

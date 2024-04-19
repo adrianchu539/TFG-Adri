@@ -9,12 +9,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.sanbot.opensdk.base.TopBaseActivity;
-import com.sanbot.opensdk.beans.FuncConstant;
-import com.sanbot.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
-import com.sanbot.opensdk.function.beans.handmotion.NoAngleHandMotion;
-import com.sanbot.opensdk.function.beans.handmotion.RelativeAngleHandMotion;
-import com.sanbot.opensdk.function.unit.HandMotionManager;
+import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.qihancloud.opensdk.beans.FuncConstant;
+import com.qihancloud.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
+import com.qihancloud.opensdk.function.beans.handmotion.NoAngleHandMotion;
+import com.qihancloud.opensdk.function.beans.handmotion.RelativeAngleHandMotion;
+import com.qihancloud.opensdk.function.unit.HandMotionManager;
 
 
 
@@ -24,17 +24,17 @@ public class HandControl extends TopBaseActivity {
 
     /**
      * Movimiento sin control del angulo
-    speed: 1-10(max)
-    action: the motion of hands
-        NoAngleHandMotion.ACTION_UP //hands up
-        NoAngleHandMotion.ACTION_DOWN //hands down
-        NoAngleHandMotion.ACTION_STOP //hands stop
-        NoAngleHandMotion.ACTION_RESET//hands reset to default position
-    part: the right/left hand
-        NoAngleHandMotion.PART_LEFT //only left
-        NoAngleHandMotion.PART_RIGHT 2 //only right
-        NoAngleHandMotion.PART_BOTH 3 //both
-    */
+     speed: 1-10(max)
+     action: the motion of hands
+     NoAngleHandMotion.ACTION_UP //hands up
+     NoAngleHandMotion.ACTION_DOWN //hands down
+     NoAngleHandMotion.ACTION_STOP //hands stop
+     NoAngleHandMotion.ACTION_RESET//hands reset to default position
+     part: the right/left hand
+     NoAngleHandMotion.PART_LEFT //only left
+     NoAngleHandMotion.PART_RIGHT 2 //only right
+     NoAngleHandMotion.PART_BOTH 3 //both
+     */
     private Spinner svHandNoAngleAction;
     private Spinner svHandNoAnglePart;
 
@@ -51,17 +51,17 @@ public class HandControl extends TopBaseActivity {
     private byte curNoAnglePart;
 
     /**
-    Movimiento relativo, respecto a la posicion de la mano
-    speed: 1-8(max)
-    angle: 0-270degree(counterclockwise)
-    action: the motion of hands
-        RelativeAngleHandMotion.ACTION_UP //hands up
-        RelativeAngleHandMotion.ACTION_DOWN //hands down
-    part: the right/left hand
-        RelativeAngleHandMotion.PART_LEFT //control left hand
-        RelativeAngleHandMotion.PART_RIGHT //control right hand
-        RelativeAngleHandMotion.PART_BOTH //control both
-    */
+     Movimiento relativo, respecto a la posicion de la mano
+     speed: 1-8(max)
+     angle: 0-270degree(counterclockwise)
+     action: the motion of hands
+     RelativeAngleHandMotion.ACTION_UP //hands up
+     RelativeAngleHandMotion.ACTION_DOWN //hands down
+     part: the right/left hand
+     RelativeAngleHandMotion.PART_LEFT //control left hand
+     RelativeAngleHandMotion.PART_RIGHT //control right hand
+     RelativeAngleHandMotion.PART_BOTH //control both
+     */
 
     private Spinner svHandRelativeAction;
     private Spinner svHandRelativePart;
@@ -77,17 +77,17 @@ public class HandControl extends TopBaseActivity {
     private byte curRelativePart;
 
     /**
-    Movimiento absoluto, respecto a una posición fija
-    speed:1-8
-    angle:0-270degree(counterclockwise)
-    action: the motion of hands
-        AbsoluteAngleHandMotion.ACTION_UP //hands up
-        AbsoluteAngleHandMotion.ACTION_DOWN //hands down
-    part: the right/left hand
-        AbsoluteAngleHandMotion.PART_LEFT //only left
-        AbsoluteAngleHandMotion.PART_RIGHT 2 //only right
-        AbsoluteAngleHandMotion.PART_BOTH 3 //both
-    */
+     Movimiento absoluto, respecto a una posición fija
+     speed:1-8
+     angle:0-270degree(counterclockwise)
+     action: the motion of hands
+     AbsoluteAngleHandMotion.ACTION_UP //hands up
+     AbsoluteAngleHandMotion.ACTION_DOWN //hands down
+     part: the right/left hand
+     AbsoluteAngleHandMotion.PART_LEFT //only left
+     AbsoluteAngleHandMotion.PART_RIGHT 2 //only right
+     AbsoluteAngleHandMotion.PART_BOTH 3 //both
+     */
     private Spinner svHandAbsolutePart;
 
     private EditText etHandAbsoluteSpeed;
@@ -99,7 +99,7 @@ public class HandControl extends TopBaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        register(HandControl.class);
+        //register(HandControl.class);
         //屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 

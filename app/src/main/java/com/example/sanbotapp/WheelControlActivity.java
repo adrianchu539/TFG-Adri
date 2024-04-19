@@ -10,15 +10,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.sanbot.opensdk.base.TopBaseActivity;
-import com.sanbot.opensdk.beans.FuncConstant;
-import com.sanbot.opensdk.beans.OperationResult;
-import com.sanbot.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
-import com.sanbot.opensdk.function.beans.wheelmotion.NoAngleWheelMotion;
-import com.sanbot.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
-import com.sanbot.opensdk.function.unit.HardWareManager;
-import com.sanbot.opensdk.function.unit.WheelMotionManager;
-import com.sanbot.opensdk.function.unit.interfaces.hardware.PIRListener;
+import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.qihancloud.opensdk.beans.FuncConstant;
+import com.qihancloud.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
+import com.qihancloud.opensdk.function.beans.wheelmotion.NoAngleWheelMotion;
+import com.qihancloud.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
+import com.qihancloud.opensdk.function.unit.WheelMotionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -76,7 +73,7 @@ public class WheelControlActivity extends TopBaseActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        register(WheelControlActivity.class);
+        //register(WheelControlActivity.class);
         //屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
