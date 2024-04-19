@@ -45,6 +45,7 @@ import com.qihancloud.opensdk.function.unit.interfaces.hardware.TouchSensorListe
 import com.qihancloud.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1818,11 +1819,9 @@ public class PresentacionActivity extends TopBaseActivity {
                 .permitAll().build();
         StrictMode.setThreadPolicy(policy);
         final OkHttpClient client = new OkHttpClient();
+        /*
         HttpUrl.Builder urlBuilder
                 = HttpUrl.parse("https://www.google.com").newBuilder();
-        //HttpUrl.Builder urlBuilder
-        //        = HttpUrl.parse("https://www.meteosource.com/api/v1/free/").newBuilder();
-        //urlBuilder.addQueryParameter("id", "1");
 
         String url = urlBuilder.build().toString();
 
@@ -1834,6 +1833,57 @@ public class PresentacionActivity extends TopBaseActivity {
             Response response = call.execute();
             System.out.println(response.code());
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+         */
+
+        Request request = new Request.Builder()
+                .url("https://api.themoviedb.org/3/movie/popular?language=es-ES&page=1")
+                .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZjRhZTM4MjY5ZWEzODY2Yzc4MjcyZTMzNDc1ZTQwNiIsInN1YiI6IjY2MDMzNDhjZDM4YjU4MDE3ZDFiNzExMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.sGinrHt3C4Ko683tmaYIHZNeUgK87Vg8FSmJfiwvyRI")
+                .header("accept", "application/json")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            SpeakOption speakOption = new SpeakOption();
+            speakOption.setSpeed(50);
+            speakOption.setIntonation(50);
+            System.out.println("Configurado opcion de voz");
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            System.out.println("Primera frase a decir");
+            speechManager.startSpeak("Hola, las novedades de peliculas son las siguientes", speakOption);
+            Thread.sleep(7000);
+            ArrayList<String> nombresPeliculas = new ArrayList<String>();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                JSONObject jsonObject = new JSONObject(response.body().string());
+                JSONArray results = new JSONArray(jsonObject.getString("results"));
+                for(int i=0; i<results.length(); i++){
+                    JSONObject pelicula = results.getJSONObject(i);
+                    nombresPeliculas.add(pelicula.getString("title"));
+                }
+
+
+
+                for(String nP: nombresPeliculas){
+                    System.out.println("Voy a decir la pelicula " + nP);
+                    speechManager.startSpeak(nP + ",", speakOption);
+                    Thread.sleep(3000);
+                }
+                //System.out.println(jsonObject.getString("results"));
+            }
+            /*
+            JSONObject obj = new JSONObject(response.body().string());
+            JSONObject results = obj.getJSONObject("results");
+            for(int i=0; i<results.length(); i++){
+                nombresPeliculas[i] = results.getJSONObject("title").toString();
+            }
+
+             */
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
