@@ -280,5 +280,6 @@
     <string name="auto_charging_state">auto charging state</string>
     <string name="open">open</string>
     <string name="close">close</string>
+    <string name="text" />
 
 </resources>

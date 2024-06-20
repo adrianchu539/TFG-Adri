@@ -36,7 +36,7 @@
                 android:background="#FF5722"
                 android:gravity="center"
                 android:onClick="onViewClicked"
-                android:text="Reconocimiento facial"
+                android:text="Prueba API"
                 android:textColor="#FFFFFF"
                 android:textSize="18sp" />
 

@@ -3,14 +3,13 @@ package com.example.sanbotapp;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.VideoView;
+
 import com.google.gson.Gson;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.FuncConstant;
@@ -23,7 +22,6 @@ import com.qihancloud.opensdk.function.beans.handmotion.NoAngleHandMotion;
 import com.qihancloud.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
 import com.qihancloud.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
 import com.qihancloud.opensdk.function.beans.speech.Grammar;
-import com.qihancloud.opensdk.function.beans.wheelmotion.DistanceWheelMotion;
 import com.qihancloud.opensdk.function.beans.wheelmotion.RelativeAngleWheelMotion;
 import com.qihancloud.opensdk.function.unit.HandMotionManager;
 import com.qihancloud.opensdk.function.unit.HardWareManager;
@@ -33,8 +31,6 @@ import com.qihancloud.opensdk.function.unit.ProjectorManager;
 import com.qihancloud.opensdk.function.unit.SpeechManager;
 import com.qihancloud.opensdk.function.unit.SystemManager;
 import com.qihancloud.opensdk.function.unit.WheelMotionManager;
-import com.qihancloud.opensdk.function.unit.interfaces.hardware.PIRListener;
-import com.qihancloud.opensdk.function.unit.interfaces.hardware.TouchSensorListener;
 import com.qihancloud.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
 
@@ -43,9 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.MediaType;
@@ -54,8 +48,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+public class ModuloConversacional extends TopBaseActivity {
 
-public class PresentacionActivity extends TopBaseActivity {
 
     EmotionsType currentEmotion, emotions[];
 
@@ -78,7 +72,7 @@ public class PresentacionActivity extends TopBaseActivity {
 
     private MainActivity mainActivity;
 
-    private Button btnpresentacion;
+    private Button btn_iniciar_conversacion;
     private Button btnreconocimientofacial;
 
     private Button btnPresentacionAffectiveLab;
@@ -157,73 +151,16 @@ public class PresentacionActivity extends TopBaseActivity {
                 EmotionsType.ANGRY, EmotionsType.KISS, EmotionsType.SLEEP, EmotionsType.SMILE, EmotionsType.GRIEVANCE, EmotionsType.QUESTION,
                 EmotionsType.FAINT, EmotionsType.PRISE, EmotionsType.NORMAL};
 
-        btnpresentacion = findViewById(R.id.btnpresentacion);
-        btnpresentacion.setOnClickListener(new View.OnClickListener() {
+        btn_iniciar_conversacion = findViewById(R.id.btn_iniciar_conversacion);
+        btn_iniciar_conversacion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    presentacionNinos();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        btnreconocimientofacial = findViewById(R.id.btn_opcion1);
-        btnreconocimientofacial.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reconocimientoFacial = true;
-                try {
-                    APIChatGPT();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        // boton para narrar la presentación de AffectiveLab
-
-        btnPresentacionAffectiveLab = findViewById(R.id.btn_opcion2);
-
-        btnPresentacionAffectiveLab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    presentacionAffectiveLab();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                setContentView(R.layout.activity_modulo_conversacional);
             }
         });
 
 
-
-        // boton para realizar el diálogo preparado del planetario
-        btnDialogoPlanetario = findViewById(R.id.btn_opcion3);
-        btnDialogoPlanetario.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogoPlanetario();
-            }
-        });
-
-        // boton de prueba de emociones para la demostración
-        btnPruebaEmociones = findViewById(R.id.btn_opcion4);
-        btnPruebaEmociones.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    pruebaEmociones();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        mp1 = MediaPlayer.create(PresentacionActivity.this,R.raw.musica);
+        mp1 = MediaPlayer.create(ModuloConversacional.this,R.raw.musica);
         mp1.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
@@ -262,205 +199,6 @@ public class PresentacionActivity extends TopBaseActivity {
 
     }
 
-    // Método para avanzar
-    public void avanzarConEsperas(int velocidad, int distancia) {
-        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, velocidad, distancia);
-        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
-
-        // Calcular el tiempo de espera necesario
-        long tiempoEspera = (long) (5000 * (distancia / 100.0)); // Convertir la distancia a segundos
-        tiempoRestante = tiempoEspera;
-        distanciaRestante = (int) (tiempoRestante * 100 / 5000);
-
-        // Crear y ejecutar un hilo para el bucle
-        Thread bucleThread = new Thread(() -> {
-            try {
-                long tiempoInicio = System.currentTimeMillis();
-                System.out.println("Tiempo de espera: " + tiempoInicio);
-
-                while (distanciaRestante > 0) {
-                    if (movimientoDetectado.get()) {
-                        System.out.println("Detenido por detección de movimiento");
-                        break; // Salir del bucle
-                    }
-
-                    System.out.println("Tiempo restante: " + tiempoRestante + " distancia recorrida: " + distanciaRestante + " tiempo de espera: " + tiempoEspera + " tiempo inicio: " + tiempoInicio + " distancia: " + distancia);
-                    tiempoRestante = tiempoEspera - (System.currentTimeMillis() - tiempoInicio);
-                    distanciaRestante = (int) (tiempoRestante * 100 / 5000);
-                    Thread.sleep(100); // Actualizar cada 100 milisegundos
-                }
-
-                System.out.println("FINAAL Tiempo restante: " + tiempoRestante + " distancia recorrida: " + distanciaRestante + " pirdetection: " + tiempoEspera + " tiempo inicio: " + tiempoInicio + " distancia: " + distancia);
-
-                /*if (distanciaRestante > 0) {
-                    System.out.println("Distancia restante: " + distanciaRestante);
-                    speechManager.startSpeak("No puedo avanzar, hay un obstáculo en el camino");
-
-                    avanzar(5, distanciaRestante);
-                }*/
-
-            } catch (InterruptedException e) {
-                System.out.println("Error al avanzar: " + e.getMessage());
-                e.printStackTrace();
-            }
-        });
-
-        if (movimientoDetectado.get()) {
-            bucleThread.interrupt();
-            if (distanciaRestante > 0) {
-                System.out.println("Distancia restante: " + distanciaRestante);
-                speechManager.startSpeak("No puedo avanzar, hay un obstáculo en el camino");
-                movimientoDetectado.set(false);
-                avanzarConEsperas(5, distanciaRestante);
-            }
-        } else {
-            // Iniciar el hilo del bucle
-            bucleThread.start();
-        }
-
-        // Configurar el listener del hardware
-        hardWareManager.setOnHareWareListener(new PIRListener() {
-            @Override
-            public void onPIRCheckResult(boolean isCheck, int part) {
-                System.out.print((part == 1 ? "delante del cuerpo" : "Detras del cuerpo") + " detectado");
-
-                // Si se detecta movimiento delante del robot
-                if (part == 1) {
-                    movimientoDetectado.set(true);
-                    System.out.println("FINAAL PIR Tiempo restante: " + tiempoRestante + "distancia restante: " + distanciaRestante);
-
-                } else {
-                    System.out.println("FINAAL PIR Tiempo restante: " + tiempoRestante + "distancia recorrida: " + distanciaRestante);
-                }
-            }
-        });
-
-    }
-
-
-
-
-    public void reproducirVideo(){
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) / 2, 0);
-
-        // Cambiamos el layout de la actividad por el layout del video
-        setContentView(R.layout.video);
-
-        // Obtener la referencia al VideoView en tu layout XML
-        VideoView videoView = findViewById(R.id.videoView);
-
-        // Establecer la URI del archivo de video ubicado en res/raw
-        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.emocionesingles);
-
-        // Establecer la URI del video en el VideoView
-        videoView.setVideoURI(videoUri);
-
-        // Comenzar la reproducción del video
-        videoView.start();
-
-        // Establecer un Listener para detectar cuando el video haya terminado de reproducirse
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                // Puedes realizar alguna acción aquí si lo necesitas
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
-                //setContentView(R.layout.activity_presentacion);
-
-                /*
-                projectorManager.switchProjector(false);
-                girarDerecha(5, 180);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) , 0);
-
-                 */
-
-
-            }
-        });
-    }
-
-    public void startProyector(){
-        projectorManager.switchProjector(true);
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        projectorManager.setMode(ProjectorManager.MODE_WALL);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        projectorManager.setBright(31);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        projectorManager.setTrapezoidV(30);
-
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-
-    // Método para avanzar
-    public void avanzar(int velocidad, int distancia) {
-        DistanceWheelMotion distanceWheelMotion = new DistanceWheelMotion(DistanceWheelMotion.ACTION_FORWARD_RUN, velocidad, distancia);
-        wheelMotionManager.doDistanceMotion(distanceWheelMotion);
-
-        long tiempoEspera = (long) (5000 * (distancia / 100.0));
-        try {
-            Thread.sleep(tiempoEspera);
-        } catch (InterruptedException e) {
-            System.out.println("Error al avanzar: " + e.getMessage());
-            e.printStackTrace();
-        }
-
-    }
-
-
-    // Método para girar a la izquierda
-    public void  girarIzquierda(int velocidad, int angulo) {
-        RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(RelativeAngleWheelMotion.TURN_LEFT, velocidad, angulo);
-        wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    // Método para girar a la derecha
-    public void girarDerecha(int velocidad, int angulo) {
-        RelativeAngleWheelMotion relativeAngleWheelMotion = new RelativeAngleWheelMotion(RelativeAngleWheelMotion.TURN_RIGHT, velocidad, angulo);
-        wheelMotionManager.doRelativeAngleMotion(relativeAngleWheelMotion);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Hacer un cuadrado
-    public void cuadrado(int tamano) {
-        avanzar(5, tamano);
-        girarDerecha(5, 90);
-        avanzar(5, tamano);
-        girarDerecha(5, 90);
-        avanzar(5, tamano);
-        girarDerecha(5, 90);
-        avanzar(5, tamano);
-        girarDerecha(5, 90);
-    }
 
     private void startPresentation() {
 
@@ -623,10 +361,6 @@ public class PresentacionActivity extends TopBaseActivity {
 
         // NAVEGACION --------------------------------------------------------------------------------------------------------------------------
 
-        girarDerecha(3, 30);
-        avanzar(5, 300);
-        girarDerecha(3, 180);
-
         systemManager.showEmotion(EmotionsType.SMILE);
         AbsoluteAngleHandMotion absoluteAngleWingMotionlab = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
         handMotionManager.doAbsoluteAngleMotion(absoluteAngleWingMotionlab);
@@ -644,8 +378,6 @@ public class PresentacionActivity extends TopBaseActivity {
             e.printStackTrace();
         }
 
-        avanzar(5, 300);
-        girarDerecha(3, 90);
 
 
         // PROYECTOR  --------------------------------------------------------------------------------------------------------------------------
@@ -662,12 +394,6 @@ public class PresentacionActivity extends TopBaseActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        // NAVEGAR
-        avanzar(5, 100);
-        // PROYECTOR
-        startProyector();
-        reproducirVideo();
 
     }
 
@@ -695,14 +421,14 @@ public class PresentacionActivity extends TopBaseActivity {
         // cambio la emoción a sonreír
         changeEmotion(EmotionsType.SMILE);
 
-        controlBrazos(TipoBrazo.DERECHO, 8, 70);
+        controlBrazos(PresentacionActivity.TipoBrazo.DERECHO, 8, 70);
         speechManager.startSpeak("Hola, buenos días, mi nombre es Sanbot y os voy a presentar a nuestro grupo Affectif Lab", speakOption);
         try {
             Thread.sleep(8000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO,TipoBrazo.DERECHO);
+        controlBasicoBrazos(PresentacionActivity.AccionesBrazos.BAJAR_BRAZO, PresentacionActivity.TipoBrazo.DERECHO);
 
         speechManager.startSpeak("Nuestro equipo es reconocido como un grupo de referencia por el Gobierno de Aragón", speakOption);
         try {
@@ -828,14 +554,14 @@ public class PresentacionActivity extends TopBaseActivity {
             e.printStackTrace();
         }
         // se gira CUANTO EXACTAMENTE (??)
-        controlTronco(TipoDireccion.DERECHA, 5, 90);
+        controlTronco(PresentacionActivity.TipoDireccion.DERECHA, 5, 90);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         // levanta el brazo
-        controlBrazos(TipoBrazo.DERECHO, 8, 70);
+        controlBrazos(PresentacionActivity.TipoBrazo.DERECHO, 8, 70);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
@@ -851,8 +577,8 @@ public class PresentacionActivity extends TopBaseActivity {
         }
 
         // recupera su posición CUANTOS GRADOS EXACTAMENTE (??)
-        controlBasicoTronco(AccionesTronco.GIRO_90, TipoDireccion.IZQUIERDA);
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.DERECHO);
+        controlBasicoTronco(PresentacionActivity.AccionesTronco.GIRO_90, PresentacionActivity.TipoDireccion.IZQUIERDA);
+        controlBasicoBrazos(PresentacionActivity.AccionesBrazos.BAJAR_BRAZO, PresentacionActivity.TipoBrazo.DERECHO);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -876,9 +602,9 @@ public class PresentacionActivity extends TopBaseActivity {
         // cambia su emoción
         changeEmotion(EmotionsType.SLEEP);
         // baja la cabeza
-        controlBasicoCabeza(AccionesCabeza.ABAJO);
+        controlBasicoCabeza(PresentacionActivity.AccionesCabeza.ABAJO);
         // pone los brazos atrás
-        controlBrazos(TipoBrazo.AMBOS, 7, 230);
+        controlBrazos(PresentacionActivity.TipoBrazo.AMBOS, 7, 230);
         // se despide del publico
         speechManager.startSpeak("Muchas gracias por vuestra atención", speakOption);
         try {
@@ -887,8 +613,8 @@ public class PresentacionActivity extends TopBaseActivity {
             e.printStackTrace();
         }
         // recupera su posición
-        controlBasicoCabeza(AccionesCabeza.CENTRO);
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
+        controlBasicoCabeza(PresentacionActivity.AccionesCabeza.CENTRO);
+        controlBasicoBrazos(PresentacionActivity.AccionesBrazos.BAJAR_BRAZO, PresentacionActivity.TipoBrazo.AMBOS);
         changeEmotion(EmotionsType.SMILE);
     }
 
@@ -904,47 +630,7 @@ public class PresentacionActivity extends TopBaseActivity {
                 String cadenaReconocida = grammar.getText();
 
                 preguntaChatGPT = cadenaReconocida;
-                /*
-                // paso la cadena a minúsculas
-                cadenaReconocida = cadenaReconocida.toLowerCase();
-                // NO NECESARIO. ME CAMBIA Ñ POR N
-                cadenaReconocida = Normalizer.normalize(cadenaReconocida, Normalizer.Form.NFD);
-                // elimino las tildes de la cadena reconocida para poder compararlo cómodamente con cadenas concretas
-                cadenaReconocida = cadenaReconocida.replaceAll("[^\\p{ASCII}]", "");
-                // saco por pantalla la cadena reconocida
-                System.out.println("La cadena reconocida es " + cadenaReconocida);
 
-                // recorro el vector para ver si la pregunta está dentro de la conversación
-                for(int i=0; i<pregunta_respuesta.length; i++){
-                    preguntaEncontrada = false;
-                    // expresión regular para ver si la cadena a comparar está dentro de la cadena reconocida
-                    String regex = "\\b" + pregunta_respuesta[i][0] + "\\b";
-                    Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-                    if(pattern.matcher(cadenaReconocida).find()){
-                        preguntaEncontrada = true;
-                        // si la cadena reconocida es "fin conversación" el robot para
-                        if(cadenaReconocida.equals("fin conversacion")){
-                            speechManager.doSleep();
-                        }
-                        // en caso contrario responde la respuesta correspondiente y el tiempo de espera
-                        // correspondiente
-                        else{
-                            System.out.println("Encontré la pregunta");
-                            //if(!pregunta_respuesta[i][1].equals("")){
-                            speechManager.startSpeak(pregunta_respuesta[i][1], so);
-                            System.out.println("He respondido a la pregunta");
-                            try {
-                                Thread.sleep(Integer.parseInt(pregunta_respuesta[i][2])*1000);
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                            // se vuelve a despertar para continuar la conversación
-                            speechManager.doWakeUp();
-                        }
-                    }
-                }
-
-                 */
                 return true;
             }
 
@@ -982,198 +668,6 @@ public class PresentacionActivity extends TopBaseActivity {
         // empieza el reconocimiento de voz
         speechManager.doWakeUp();
         reconocerRespuesta(speakOption);
-    }
-
-    // REACCIONES ----
-    public void saludo() {
-        // cambiar emoción a contento
-        changeEmotion(EmotionsType.LAUGHTER);
-        // saludar con el brazo derecho
-        speechManager.startSpeak("Hola, soy Sanbot");
-        controlBrazos(TipoBrazo.DERECHO, 8, 70);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.DERECHO);
-    }
-
-    public void hacerOla() throws InterruptedException {
-        // bajar los brazos en caso de que no los tenga ya bajados
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
-        // cambiar emoción a feliz
-        changeEmotion(EmotionsType.LAUGHTER);
-        // respuesta para notificar que va a hacer la ola
-        speechManager.startSpeak("Hagamos una ola");
-        Thread.sleep(2000);
-        narrarCuentaAtras(5);
-        Thread.sleep(2000);
-        // subir los brazos para simular la ola
-        controlBasicoBrazos(AccionesBrazos.LEVANTAR_BRAZO, TipoBrazo.AMBOS);
-        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM));
-        Thread.sleep(2000);
-        // bajar los brazos para simular la ola
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
-    }
-
-    public void reaccionChocarCinco() throws InterruptedException {
-        // cambiar emoción a sorprendido
-        changeEmotion(EmotionsType.PRISE);
-        // respuesta para notificar que choque los cinco
-        speechManager.startSpeak("Genial. Choca esos cinco");
-        // sube uno de los brazos
-        controlBrazos(TipoBrazo.DERECHO, 10, 70);
-        hardWareManager.setOnHareWareListener(new TouchSensorListener() {
-            @Override
-            public void onTouch(int part) {
-                if (part == 10) {
-                    controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.DERECHO);
-                }
-            }
-        });
-    }
-
-    public void reaccionTriste(){
-        // cambiar emoción a triste
-        changeEmotion(EmotionsType.GOODBYE);
-        // bajar los brazos para simular tristeza
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
-    }
-
-    public void reaccionAlegre() throws InterruptedException {
-        controlBasicoBrazos(AccionesBrazos.LEVANTAR_BRAZO, TipoBrazo.AMBOS);
-        // cambiar cara
-        changeEmotion(EmotionsType.PRISE);
-        // poner luces
-        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_FLICKER_RANDOM));
-        // dar vueltas
-        controlBasicoTronco(AccionesTronco.GIRO_360, TipoDireccion.IZQUIERDA);
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
-    }
-    public void reaccionRespuestaCorrecta() {
-        // cambiar emoción a feliz
-        changeEmotion(EmotionsType.SMILE);
-        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_GREEN));
-        // respuesta para notificar que la respuesta es correcta
-        speechManager.startSpeak("Muy bien, respuesta correcta");
-        // subir los brazos para simular alegría
-        controlBasicoBrazos(AccionesBrazos.LEVANTAR_BRAZO, TipoBrazo.AMBOS);
-    }
-
-    public void reaccionRespuestaIncorrecta() {
-        // cambiar emoción a triste
-        changeEmotion(EmotionsType.GOODBYE);
-        hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_BLUE));
-        // respuesta para notificar que la respuesta es incorrecta
-        speechManager.startSpeak("La respuesta es incorrecta");
-        // bajar los brazos para simular tristeza
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
-    }
-
-    public void pruebaEmociones() throws InterruptedException {
-        SpeakOption speakOption = new SpeakOption();
-        speakOption.setSpeed(60);
-        speakOption.setIntonation(50);
-
-        speechManager.startSpeak("Cuando quiero saludar hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        saludo();
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        speechManager.startSpeak("Cuando quiero felicitar a los niños hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        reaccionChocarCinco();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        speechManager.startSpeak("Cuando aciertan la pregunta hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        reaccionRespuestaCorrecta();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        speechManager.startSpeak("Cuando no aciertan la pregunta hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        reaccionRespuestaIncorrecta();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        speechManager.startSpeak("Cuando estoy muy contento hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        reaccionAlegre();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        speechManager.startSpeak("Puedo seleccionar un equipo aleatorio para responder mi pregunta", speakOption);
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        String[] equipos = new String[] {"AZUL", "AMARILLO", "ROJO", "VERDE"};
-        elegirEquipo(Arrays.asList(equipos));
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        speechManager.startSpeak("Tambiém puedo seleccionar un alumno aleatorio para responder mi pregunta", speakOption);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        String[] nombres = new String[] {"MARÍA", "FELIPE", "CARLOS", "ANDREA", "DAVID"};
-        elegirAlumno(Arrays.asList(nombres));
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        speechManager.startSpeak("Cuando quiero participar con los niños hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        hacerOla();
     }
 
     // EXTRA ----
@@ -1217,23 +711,7 @@ public class PresentacionActivity extends TopBaseActivity {
         IZQUIERDA;
     }
 
-    public void elegirEquipo(List<String> listaEquipos) throws InterruptedException {
-        speechManager.startSpeak("Le toca responder al equipo");
-        Random rand = new Random();
-        String randomElement = listaEquipos.get(rand.nextInt(listaEquipos.size()));
-        Thread.sleep(2000);
-        speechManager.startSpeak(randomElement);
-    }
-
-    public void elegirAlumno(List<String> listaNombres) throws InterruptedException {
-        speechManager.startSpeak("Le toca responder a");
-        Random rand = new Random();
-        String randomElement = listaNombres.get(rand.nextInt(listaNombres.size()));
-        Thread.sleep(2000);
-        speechManager.startSpeak(randomElement);
-    }
-
-    public boolean controlBasicoBrazos(AccionesBrazos accion, TipoBrazo brazo) {
+    public boolean controlBasicoBrazos(PresentacionActivity.AccionesBrazos accion, PresentacionActivity.TipoBrazo brazo) {
         byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
         AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 0);
         switch(accion) {
@@ -1273,22 +751,22 @@ public class PresentacionActivity extends TopBaseActivity {
         return true;
     }
 
-    public boolean controlBrazos(TipoBrazo brazo, int velocidad, int angulo) {
+    public boolean controlBrazos(PresentacionActivity.TipoBrazo brazo, int velocidad, int angulo) {
         byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
-        if (brazo.equals(TipoBrazo.DERECHO)) {
+        if (brazo.equals(PresentacionActivity.TipoBrazo.DERECHO)) {
             AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], velocidad, angulo);
             handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
-        } else if (brazo.equals(TipoBrazo.IZQUIERDO)) {
+        } else if (brazo.equals(PresentacionActivity.TipoBrazo.IZQUIERDO)) {
             AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], velocidad, angulo);
             handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
-        } else if (brazo.equals(TipoBrazo.AMBOS)) {
+        } else if (brazo.equals(PresentacionActivity.TipoBrazo.AMBOS)) {
             AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], velocidad, angulo);
             handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
         }
         return true;
     }
 
-    public boolean controlBasicoTronco(AccionesTronco accion, TipoDireccion direccion){
+    public boolean controlBasicoTronco(PresentacionActivity.AccionesTronco accion, PresentacionActivity.TipoDireccion direccion){
         RelativeAngleWheelMotion movimientoRuedas = new RelativeAngleWheelMotion(RelativeAngleWheelMotion.TURN_LEFT, 5, 360);
         switch (accion){
             case GIRO_90:
@@ -1331,9 +809,9 @@ public class PresentacionActivity extends TopBaseActivity {
         return true;
     }
 
-    public boolean controlTronco(TipoDireccion direccion, int velocidad, int angulo) {
+    public boolean controlTronco(PresentacionActivity.TipoDireccion direccion, int velocidad, int angulo) {
         RelativeAngleWheelMotion movimientoRuedas = new RelativeAngleWheelMotion(RelativeAngleWheelMotion.TURN_LEFT, 5, 360);
-        if (direccion.equals(TipoDireccion.DERECHA)) {
+        if (direccion.equals(PresentacionActivity.TipoDireccion.DERECHA)) {
             movimientoRuedas = new RelativeAngleWheelMotion(RelativeAngleWheelMotion.TURN_RIGHT, velocidad, angulo);
             wheelMotionManager.doRelativeAngleMotion(movimientoRuedas);
         } else{
@@ -1343,7 +821,7 @@ public class PresentacionActivity extends TopBaseActivity {
         return true;
     }
 
-    public boolean controlBasicoCabeza(AccionesCabeza accion){
+    public boolean controlBasicoCabeza(PresentacionActivity.AccionesCabeza accion){
         switch (accion) {
             case IZQUIERDA:
                 relativeAngleHeadMotion = new RelativeAngleHeadMotion(RelativeAngleHeadMotion.ACTION_LEFT, 180);
@@ -1532,27 +1010,15 @@ public class PresentacionActivity extends TopBaseActivity {
             e.printStackTrace();
         }
 
-        // NAVEGACION
 
-        avanzar(5, 50);
+        controlBasicoTronco(PresentacionActivity.AccionesTronco.GIRO_180, PresentacionActivity.TipoDireccion.IZQUIERDA);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        controlBasicoTronco(AccionesTronco.GIRO_180, TipoDireccion.IZQUIERDA);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        avanzar(5, 50);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        controlBasicoTronco(AccionesTronco.GIRO_180, TipoDireccion.IZQUIERDA);
+
+        controlBasicoTronco(PresentacionActivity.AccionesTronco.GIRO_180, PresentacionActivity.TipoDireccion.IZQUIERDA);
 
         systemManager.showEmotion(EmotionsType.SMILE);
         AbsoluteAngleHandMotion absoluteAngleWingMotionlab = new AbsoluteAngleHandMotion(AbsoluteAngleHandMotion.PART_BOTH, 5, 70);
@@ -1571,38 +1037,19 @@ public class PresentacionActivity extends TopBaseActivity {
             e.printStackTrace();
         }
 
-        speechManager.startSpeak("Cuando respondéis bien una pregunta, hago esto", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        reaccionChocarCinco();
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        speechManager.startSpeak("Cuando estoy muy contenta hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        reaccionAlegre();
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         speechManager.startSpeak("Cuando quiero participar con los niños hago así", speakOption);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        hacerOla();
+
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -1617,9 +1064,9 @@ public class PresentacionActivity extends TopBaseActivity {
         // cambia su emoción
         changeEmotion(EmotionsType.SLEEP);
         // baja la cabeza
-        controlBasicoCabeza(AccionesCabeza.ABAJO);
+        controlBasicoCabeza(PresentacionActivity.AccionesCabeza.ABAJO);
         // pone los brazos atrás
-        controlBrazos(TipoBrazo.AMBOS, 7, 230);
+        controlBrazos(PresentacionActivity.TipoBrazo.AMBOS, 7, 230);
         try {
             Thread.sleep(7000);
         } catch (InterruptedException e) {
@@ -1633,253 +1080,10 @@ public class PresentacionActivity extends TopBaseActivity {
             e.printStackTrace();
         }
         // recupera su posición
-        controlBasicoCabeza(AccionesCabeza.CENTRO);
-        controlBasicoBrazos(AccionesBrazos.BAJAR_BRAZO, TipoBrazo.AMBOS);
+        controlBasicoCabeza(PresentacionActivity.AccionesCabeza.CENTRO);
+        controlBasicoBrazos(PresentacionActivity.AccionesBrazos.BAJAR_BRAZO, PresentacionActivity.TipoBrazo.AMBOS);
         changeEmotion(EmotionsType.SMILE);
 
-        // PROYECTOR
-        //startProyector();
-        //reproducirVideo();
-    }
-
-    /*
-    public void pruebaAPI(String pregunta) {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        final OkHttpClient client = new OkHttpClient();
-
-        String API_KEY = "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";
-        String url = "https://api.openai.com/v1/chat/completions";
-        String urlTiempo = "https://my.meteoblue.com/packages/basic-day?apikey=iOREgrduDyw490YH&lat=41.6561&lon=-0.87734&asl=214&format=json";
-
-        RequestBody requestBody = new FormBody.Builder()
-                .add("model", "gpt-3.5-turbo")
-                .add("prompt", pregunta)
-                .add("max_tokens", "500")
-                .add("temperature", "0")
-                .build();
-        RequestBody requestBodyTiempo = new FormBody.Builder()
-                .add("place_id", "zaragoza")
-                .add("language", "es")
-                .build();
-        Request request = new Request.Builder()
-                .url(urlTiempo)
-                .post(requestBodyTiempo)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override public void onResponse(Call call, Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
-                    Headers responseHeaders = response.headers();
-                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-                        System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                    }
-
-                    System.out.println(responseBody.string());
-                }
-            }
-        });
-    }
-        HttpUrl.Builder urlBuilder
-                = HttpUrl.parse("https://www.google.com").newBuilder();
-        //HttpUrl.Builder urlBuilder
-        //        = HttpUrl.parse("https://www.meteosource.com/api/v1/free/").newBuilder();
-        //urlBuilder.addQueryParameter("id", "1");
-
-        String url = urlBuilder.build().toString();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Call call = client.newCall(request);
-        try {
-            Response response = call.execute();
-            System.out.println(response.code());
-        } catch (IOException e)
-
-        {
-            throw new RuntimeException(e);
-        }
-
-    public void pruebaAPI2() throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        final OkHttpClient client = new OkHttpClient();
-
-        String API_KEY = "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";
-        String API_KEY_MOVIES = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZjRhZTM4MjY5ZWEzODY2Yzc4MjcyZTMzNDc1ZTQwNiIsInN1YiI6IjY2MDMzNDhjZDM4YjU4MDE3ZDFiNzExMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.sGinrHt3C4Ko683tmaYIHZNeUgK87Vg8FSmJfiwvyRI";
-        String url = "https://api.openai.com/v1/chat/completions";
-        String urlTiempo = "https://my.meteoblue.com/packages/basic-day?apikey=iOREgrduDyw490YH&lat=41.6561&lon=-0.87734&asl=214&format=json";
-        String urlPeliculas = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1";
-        String urlLibros = "https://books.googleapis.com/books/v1/volumes/_LettPDhwR0C?key=[YOUR_API_KEY]";
-        RequestBody requestBody = new FormBody.Builder()
-                .add("model", "gpt-3.5-turbo")
-                //     .add("prompt", pregunta)
-                .add("max_tokens", "500")
-                .add("temperature", "0")
-                .build();
-        RequestBody requestBodyTiempo = new FormBody.Builder()
-                .add("place_id", "zaragoza")
-                .add("language", "es")
-                .build();
-        Request requestPeliculas = new Request.Builder()
-                .url(urlPeliculas)
-                .header("Authorization Bearer:", API_KEY_MOVIES)
-                .build();
-
-        Request requestLibros = new Request.Builder()
-                .url("https://books.googleapis.com/books/v1/volumes/_LettPDhwR0C?key=[YOUR_API_KEY]")
-                .header("Authorization", "Bearer [YOUR_ACCESS_TOKEN]")
-                .header("Accept", "application/json")
-                .build();
-
-        try (Response response = client.newCall(requestLibros).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            response.body().string();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        client.newCall(requestLibros).enqueue(new Callback() {
-            @Override public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override public void onResponse(Call call, Response response) throws IOException {
-                try (ResponseBody responseBody = response.body()) {
-                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
-                    Headers responseHeaders = response.headers();
-                    for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-                        System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                    }
-
-                    System.out.println(responseBody.string());
-                }
-            }
-        });
-
-        TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                    }
-
-                    @Override
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                    }
-
-                    @Override
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[]{};
-                    }
-                }
-        };
-
-        SSLContext sslContext = SSLContext.getInstance("SSL");
-        sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-
-        OkHttpClient.Builder newBuilder = new OkHttpClient.Builder();
-        newBuilder.sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0]);
-        newBuilder.hostnameVerifier((hostname, session) -> true);
-
-        OkHttpClient newClient = newBuilder.build();
-        try (Response response = newClient.newCall(requestLibros).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            response.body().string();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-    }
-
-
-     */
-    public void pruebaAPI(){
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                .permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        //final OkHttpClient client = new OkHttpClient();
-        /*
-        HttpUrl.Builder urlBuilder
-                = HttpUrl.parse("https://www.google.com").newBuilder();
-
-        String url = urlBuilder.build().toString();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Call call = client.newCall(request);
-        try {
-            Response response = call.execute();
-            System.out.println(response.code());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-         */
-
-        Request request = new Request.Builder()
-                .url("https://api.themoviedb.org/3/movie/popular?language=es-ES&page=1")
-                .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZjRhZTM4MjY5ZWEzODY2Yzc4MjcyZTMzNDc1ZTQwNiIsInN1YiI6IjY2MDMzNDhjZDM4YjU4MDE3ZDFiNzExMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.sGinrHt3C4Ko683tmaYIHZNeUgK87Vg8FSmJfiwvyRI")
-                .header("accept", "application/json")
-                .build();
-
-        /*
-        try (Response response = client.newCall(request).execute()) {
-            SpeakOption speakOption = new SpeakOption();
-            speakOption.setSpeed(50);
-            speakOption.setIntonation(50);
-            System.out.println("Configurado opcion de voz");
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-            System.out.println("Primera frase a decir");
-            speechManager.startSpeak("Hola, las novedades de peliculas son las siguientes", speakOption);
-            Thread.sleep(7000);
-            ArrayList<String> nombresPeliculas = new ArrayList<String>();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-                JSONObject jsonObject = new JSONObject(response.body().string());
-                JSONArray results = new JSONArray(jsonObject.getString("results"));
-                for(int i=0; i<results.length(); i++){
-                    JSONObject pelicula = results.getJSONObject(i);
-                    nombresPeliculas.add(pelicula.getString("title"));
-                }
-
-
-
-                for(String nP: nombresPeliculas){
-                    System.out.println("Voy a decir la pelicula " + nP);
-                    speechManager.startSpeak(nP + ",", speakOption);
-                    Thread.sleep(3000);
-                }
-                //System.out.println(jsonObject.getString("results"));
-            }
-            /*
-            JSONObject obj = new JSONObject(response.body().string());
-            JSONObject results = obj.getJSONObject("results");
-            for(int i=0; i<results.length(); i++){
-                nombresPeliculas[i] = results.getJSONObject("title").toString();
-            }
-
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-         */
     }
 
     public void APIChatGPT() throws IOException, InterruptedException {
@@ -1959,14 +1163,6 @@ public class PresentacionActivity extends TopBaseActivity {
                         MediaType.parse("application/json"), String.valueOf(request));
 
                 Log.d("requestBody", peticion.toString());
-
-                /*
-                String reqBody = "{\n    \"model\": \"gpt-3.5-turbo\",\n    \"messages\": [\n      {\n        \"role\": \"system\",\n        \"content\": \"You are a helpful assistant.\"\n      },\n      {\n        \"role\": \"user\",\n        \"content\": \"¿Cuál es la capital de España?\"\n      }\n    ]\n  }";
-                RequestBody peticion = RequestBody.create(
-                        MediaType.parse("application/json"), reqBody);
-
-                 */
-
 
 
                 Request requestOpenAI = new Request.Builder()
