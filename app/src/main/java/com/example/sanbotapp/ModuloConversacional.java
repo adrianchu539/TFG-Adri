@@ -9,6 +9,7 @@ import android.media.MediaDataSource;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
@@ -99,9 +100,20 @@ public class ModuloConversacional extends TopBaseActivity {
 
     private String vozSeleccionada;
 
+    private String nombreUsuario;
+
+    private int edadUsuario;
+
     private List<Map<String, String>> messages = new ArrayList<>();
 
     private MediaPlayer mediaPlayer = new MediaPlayer();
+
+    private String emociones[] = {"ÉXTASIS", "ALEGRÍA", "SERENIDAD", "ADMIRACIÓN", "CONFIANZA", "ACEPTACIÓN",
+    "TERROR", "MIEDO", "TEMOR", "ASOMBRO", "SORPRESA", "DISTRACCIÓN", "AFLICCIÓN", "TRISTEZA", "MELANCOLÍA",
+    "AVERSIÓN", "ASCO", "ABURRIMIENTO", "FURIA", "IRA", "ENFADO", "VIGILANCIA", "ANTICIPACIÓN", "INTERÉS", "OPTIMISMO",
+    "AMOR", "SUMISIÓN", "SUSTO", "DECEPCIÓN", "REMORDIMIENTO", "DESPRECIO", "AGRESIVIDAD", "ESPERANZA", "CULPA", "CURIOSIDAD",
+    "DESESPERACIÓN", "INCREDULIDAD", "ENVIDIA", "CINISMO", "ORGULLO", "ANSIEDAD", "DELEITE", "SENTIMENTALISMO", "VERGÜENZA",
+    "INDIGNACIÓN", "PESIMISMO", "MORBOSIDAD", "DOMINANCIA"};
 
     private static int index = 0;
 
@@ -126,6 +138,7 @@ public class ModuloConversacional extends TopBaseActivity {
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_modulo_conversacional);
 
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
@@ -146,16 +159,51 @@ public class ModuloConversacional extends TopBaseActivity {
         mensajeAEnviar = findViewById(R.id.cajaTexto);
         botonAjustes = findViewById(R.id.botonAjustes);
 
-        SharedPreferences sharedPref = this.getSharedPreferences("voces", MODE_PRIVATE);
-        Log.d("preferencias", sharedPref.getString("voz", ""));
-        String defaultValue = "Sanbot";
-        vozSeleccionada = sharedPref.getString("voz", defaultValue);
+        SharedPreferences sharedPrefVoz = this.getSharedPreferences("voces", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefVoz.getString("voz", ""));
+        String defaultValueVoz = "Sanbot";
+        vozSeleccionada = sharedPrefVoz.getString("voz", defaultValueVoz);
+
+        SharedPreferences sharedPrefNombre = this.getSharedPreferences("nombre", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefNombre.getString("nombre", ""));
+        String defaultValueNombre = "Pepe";
+        nombreUsuario = sharedPrefNombre.getString("nombre", defaultValueNombre);
+
+        SharedPreferences sharedPrefEdad = this.getSharedPreferences("edad", MODE_PRIVATE);
+        Log.d("preferencias", String.valueOf(sharedPrefEdad.getInt("edad", 0)));
+        int defaultValueEdad = 50;
+        edadUsuario = sharedPrefEdad.getInt("edad", defaultValueEdad);
+
+        SharedPreferences sharedPrefPersonalizacionGenero = this.getSharedPreferences("personalizacionGenero", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefPersonalizacionGenero.getString("personalizacionGenero", null));
+        String generoRobot = sharedPrefPersonalizacionGenero.getString("personalizacionGenero", null);
+
+        SharedPreferences sharedPrefPersonalizacionEdad = this.getSharedPreferences("personalizacionEdad", MODE_PRIVATE);
+        Log.d("preferencias", String.valueOf(sharedPrefPersonalizacionEdad.getInt("personalizacionEdad", 0)));
+        int edadRobot = sharedPrefPersonalizacionEdad.getInt("personalizacionEdad", 0);
+
+        SharedPreferences sharedPrefPersonalizacionContexto = this.getSharedPreferences("personalizacionContexto", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefPersonalizacionContexto.getString("personalizacionContexto", null));
+        String contexto = sharedPrefPersonalizacionContexto.getString("personalizacionContexto", null);
 
         Map<String, String> roleSystem = new HashMap<>();
         roleSystem.put("role", "system");
-        roleSystem.put("content", "You are a helpful assistant.");
+        //roleSystem.put("content", "You are a helpful assistant.");
+        roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
+                "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
+                "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
+                "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
+                "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
+                "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
+                "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
+                "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
+                "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
+                "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
+                "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años");
 
         messages.add(roleSystem);
+
 
         try {
             botonAjustes.setOnClickListener(new View.OnClickListener() {
@@ -200,6 +248,9 @@ public class ModuloConversacional extends TopBaseActivity {
             public boolean onRecognizeResult(Grammar grammar) {
                 // paso la gramática reconocida a String
                 String cadenaReconocida = grammar.getText();
+                //systemManager.showEmotion(EmotionsType.PICKNOSE); PREOCUPADO
+                //systemManager.showEmotion(EmotionsType.ABUSE); ENFADO FUERTE
+                //systemManager.showEmotion(EmotionsType.QUESTION);
 
                 mensajeAEnviar.setText(cadenaReconocida);
 
@@ -354,9 +405,60 @@ public class ModuloConversacional extends TopBaseActivity {
                 }
 
                 JSONObject request = new JSONObject();
+
+                /*
+
+                JSONArray jsonArrayTools = new JSONArray();
+
+                JSONObject jsonObjectAccion = new JSONObject();
+                try {
+                    jsonObjectAccion.put("type", "string");
+                    jsonObjectAccion.put("description", "la acción que debe realizar el robot");
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+                JSONObject jsonObjectProperties = new JSONObject();
+                try {
+                    jsonObjectProperties.put("append", jsonObjectAccion);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+                JSONObject jsonObjectParameters = new JSONObject();
+                try {
+                    jsonObjectParameters.put("type", "object");
+                    jsonObjectParameters.put("properties", jsonObjectProperties);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+                JSONArray jsonArrayRequired = new JSONArray();
+
+                jsonArrayRequired.put("append");
+
+                JSONObject jsonObjectFunction = new JSONObject();
+                try {
+                    jsonObjectFunction.put("name", "helloWorld");
+                    jsonObjectFunction.put("description", "permite utilizar las funciones propias del robot");
+                    jsonObjectFunction.put("parameters", jsonObjectParameters);
+                    jsonObjectFunction.put("require", jsonArrayRequired);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+
+                jsonArrayTools.put(jsonObjectFunction);
+
+                Log.d("Tools", String.valueOf(jsonArrayTools));
+
+                 */
+
                 try{
-                    request.put("model", "gpt-3.5-turbo");
+                    request.put("model", "gpt-4o-mini");
                     request.put("messages", jsonArray);
+                    //request.put("functions", jsonArrayTools);
+                    //request.put("function_call", "auto");
+                    request.put("max_tokens", 800);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -405,17 +507,124 @@ public class ModuloConversacional extends TopBaseActivity {
                     roleAssistant.put("content", r);
                     messages.add(roleAssistant);
 
+                    // TRATANDO DE SEPARAR LA STRING
+                    List<Integer> codigoEmocionesRobot = new ArrayList<Integer>();
+                    List<Integer> codigoEmocionesUsuario = new ArrayList<Integer>();
+                    // Respuesta sin valoración emocional
+                    String respuestaGPT = r.substring(r.indexOf("]")+1, r.length());
+                    Log.d("Respuesta GPT", respuestaGPT);
+
+                    // Apartamos la valoración emocional para utilizarla más tarde
+                    String valoracionEmocional = r.substring(0, r.indexOf("]")+1);
+                    Log.d("valoracion emocional", valoracionEmocional);
+                    String segmentos[] = valoracionEmocional.split("/");
+
+                    // Sentimiento del usuario
+                    String usuario = segmentos[0];
+                    Log.d("Respuesta usuario", usuario);
+                    String usuarioFinal = usuario.substring(usuario.indexOf("(") + 1, usuario.indexOf(")"));
+                    Log.d("Respuesta usuario final", usuarioFinal);
+                    String[] sentimientosUsuario = usuarioFinal.split("-");
+                    for(String su : sentimientosUsuario){
+                        Log.d("Sentimientos usuario", su);
+                    }
+                    // Sentimiento del robot
+                    String robot = segmentos[1];
+                    Log.d("Respuesta robot", robot);
+                    String robotFinal = robot.substring(robot.indexOf("(") + 1, robot.indexOf(")"));
+                    Log.d("Respuesta robot final", robotFinal);
+                    String[] sentimientosRobot = robotFinal.split("-");
+                    for(String sr : sentimientosRobot){
+                        Log.d("Sentimientos robot", sr);
+                    }
+
+                    for(String sentimientos : sentimientosRobot){
+                        codigoEmocionesRobot.add(Integer.valueOf(sentimientos));
+                    }
+
+                    for(String sentimientos : sentimientosUsuario){
+                        codigoEmocionesUsuario.add(Integer.valueOf(sentimientos));
+                    }
+
+
+                    int indexSentimiento;
+                    if(codigoEmocionesRobot.size()>1){
+                        indexSentimiento = codigoEmocionesRobot.get((int) Math.floor(Math.random() * codigoEmocionesRobot.size()));
+                    }
+                    else{
+                        indexSentimiento = codigoEmocionesRobot.get(0);
+                    }
+                    switch (indexSentimiento){
+                        case 1:
+                            systemManager.showEmotion(EmotionsType.SMILE);
+                            break;
+                        case 2:
+                            systemManager.showEmotion(EmotionsType.GOODBYE);
+                            break;
+                        case 3:
+                            systemManager.showEmotion(EmotionsType.ANGRY);
+                            break;
+                        case 4:
+                            systemManager.showEmotion(EmotionsType.ARROGANCE);
+                            break;
+                        case 5:
+                            systemManager.showEmotion(EmotionsType.SWEAT);
+                            break;
+                        case 6:
+                            systemManager.showEmotion(EmotionsType.SURPRISE);
+                            break;
+                        case 7:
+                            systemManager.showEmotion(EmotionsType.SHY);
+                            break;
+                        case 8:
+                            systemManager.showEmotion(EmotionsType.SLEEP);
+                            break;
+                        case 9:
+                            systemManager.showEmotion(EmotionsType.SMILE);
+                            break;
+                        case 10:
+                            systemManager.showEmotion(EmotionsType.SMILE);
+                            break;
+                        case 11:
+                            systemManager.showEmotion(EmotionsType.LAUGHTER);
+                            break;
+                        case 12:
+                            systemManager.showEmotion(EmotionsType.SMILE);
+                            break;
+                        case 13:
+                            systemManager.showEmotion(EmotionsType.SNICKER);
+                            break;
+                        case 14:
+                            systemManager.showEmotion(EmotionsType.PICKNOSE);
+                            break;
+                        case 15:
+                            systemManager.showEmotion(EmotionsType.PICKNOSE);
+                            break;
+                    }
+
+                    ArrayList<String> emocionesRobot = new ArrayList<String>();
+                    ArrayList<String> emocionesUsuario = new ArrayList<String>();
+                    //-------
                     textBox.post(new Runnable() {
                         public void run() {
-                            textBox.setText(r);
+                            for(int i=0; i<codigoEmocionesRobot.size(); i++){
+                                emocionesRobot.add(" " + emociones[codigoEmocionesRobot.get(i)-1]);
+                            }
+                            for(int i=0; i<codigoEmocionesUsuario.size(); i++){
+                                emocionesUsuario.add(emociones[codigoEmocionesUsuario.get(i)-1]);
+                            }
+
+
+                            textBox.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
+                                   emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
                         }
                     });
                     if(voz=="Sanbot"){
-                        speechManager.startSpeak(r, speakOption);
+                        speechManager.startSpeak(respuestaGPT, speakOption);
                     }
                     else {
                         Log.d("la voz de prueba es", voz);
-                        APIChatGPTVoz(r, voz.toLowerCase());
+                        APIChatGPTVoz(respuestaGPT, voz.toLowerCase());
                     }
 
                     Thread.sleep(5000);
@@ -431,6 +640,13 @@ public class ModuloConversacional extends TopBaseActivity {
 
 
     }
+
+    /*
+    public void helloWorld(String append){
+        Log.d("HelloWorld", "Hello world " + append);
+    }
+
+     */
 
     @Override
     protected void onMainServiceConnected() {

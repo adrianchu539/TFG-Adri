@@ -7,7 +7,6 @@
     android:orientation="horizontal">
 
     <LinearLayout
-        android:id="@+id/EWEW"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="48dp"
@@ -20,13 +19,13 @@
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:text="Selecciona la voz que deseas utilizar"
+            android:text="Género del robot"
             android:textSize="20dp"
             tools:layout_editor_absoluteX="7dp"
             tools:layout_editor_absoluteY="431dp" />
 
         <Spinner
-            android:id="@+id/dropdownVoces"
+            android:id="@+id/dropdownGenero"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:drawable/btn_dropdown"
@@ -40,69 +39,69 @@
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:text="Selecciona el volumen que deseas utilizar"
+            android:text="Edad del robot"
             android:textSize="20dp"
             tools:layout_editor_absoluteX="7dp"
             tools:layout_editor_absoluteY="431dp" />
 
+        <EditText
+            android:id="@+id/edadRobot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="28dp"
+            android:background="@android:color/transparent"
+            android:hint="Enter Message"
+            android:inputType="number"
+            android:maxLines="6"
+            tools:ignore="Autofill" />
+
         <TextView
-            android:id="@+id/pruebaVolumen"
+            android:id="@+id/tituloContexto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:layout_gravity="center_horizontal"
-            android:text=""
+            android:text="Contexto (Opcional)"
             android:textSize="20dp"
             tools:layout_editor_absoluteX="7dp"
             tools:layout_editor_absoluteY="431dp" />
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/textoContexto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:maxLines="8"
+            android:textSize="20dp"
+            tools:layout_editor_absoluteX="7dp"
+            tools:layout_editor_absoluteY="431dp" />
 
-            <Button
-                android:id="@+id/volumeDown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="-"
-                android:textSize="30dp"/>
-            <SeekBar
-                android:id="@+id/seekBarVolumen"
-                android:layout_width="700dp"
-                android:layout_height="17dp"
-                android:layout_gravity="center_vertical"
-                tools:layout_editor_absoluteX="219dp"
-                tools:layout_editor_absoluteY="178dp">
-            </SeekBar>
-
-            <Button
-                android:id="@+id/volumeUp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="+"
-                android:textSize="30dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <Button
+            android:id="@+id/grabarRespuesta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp">
+            android:layout_gravity="center_horizontal"
+            android:background="?attr/selectableItemBackground"
+            android:text="Grabar Respuesta"
+            android:layout_marginTop="50dp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="30dp" />
 
-            <Button
-                android:id="@+id/botonSimular"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:background="?attr/selectableItemBackground"
-                android:text="Simulación"
-                android:textColor="@color/colorPrimary"
-                android:textSize="30dp" />
-
-        </LinearLayout>
+        <Button
+            android:id="@+id/botonOmitir"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="?attr/selectableItemBackground"
+            android:text="Omitir"
+            android:layout_marginTop="50dp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="30dp" />
 
         <Button
             android:id="@+id/botonAceptar"

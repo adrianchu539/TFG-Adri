@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/textoEdad"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:paddingTop="270dp"
+            android:text="Introduce tu edad"
+            android:textSize="28dp"
+            android:layout_alignParentBottom="true" />
+        <EditText
+            android:id="@+id/edadUsuario"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:textSize="28dp"
+            android:background="@android:color/transparent"
+            android:hint="Enter Message"
+            android:inputType="number"
+            android:maxLines="6"
+            tools:ignore="Autofill" />
+
+            <Button
+                android:id="@+id/okEdad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="420dp"
+                android:text="Aceptar">
+
+            </Button>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

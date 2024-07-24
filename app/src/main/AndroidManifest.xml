@@ -25,7 +25,7 @@
         android:theme="@style/AppTheme">
         <meta-data android:name="RECOGNIZE_MODE" android:value="1"/>
         <activity
-            android:name=".ModuloConversacional"
+            android:name=".CuestionarioNombre"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -38,6 +38,9 @@
         <activity android:name=".MediaControlActivity" />
         <activity android:name=".WheelControlActivity"/>
         <activity android:name=".SettingsActivity"/>
+        <activity android:name=".ModuloConversacional"/>
+        <activity android:name=".CuestionarioEdad"/>
+        <activity android:name=".PersonalizacionActivity"/>
 
 
     </application>
