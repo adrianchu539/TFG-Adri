@@ -9,12 +9,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -42,6 +45,12 @@ public class SettingsActivity extends TopBaseActivity {
 
     private AudioManager audioManager;
 
+    private CheckBox checkConversacionAutomatica;
+
+    private Button botonPersonalizacion;
+
+    private Boolean conversacionAuto;
+
     private static final int MAX_VOLUMEN_SANBOT = 12;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,8 +59,11 @@ public class SettingsActivity extends TopBaseActivity {
 
         SharedPreferences sharedPref = this.getSharedPreferences("voces", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
+        SharedPreferences sharedPrefConversacionAuto = this.getSharedPreferences("conversacionAutomatica", MODE_PRIVATE);
+        SharedPreferences.Editor editorConversacionAuto = sharedPrefConversacionAuto.edit();
         dropdownIndex = sharedPref.getInt("dropdownIndex", 0);
         volumenSanbot = sharedPref.getInt("volumenSanbot", 0);
+        conversacionAuto = sharedPrefConversacionAuto.getBoolean("conversacionAutomatica", false);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
@@ -63,6 +75,8 @@ public class SettingsActivity extends TopBaseActivity {
         try {
             Spinner dropdown = findViewById(R.id.dropdownVoces);
             botonAceptar = findViewById(R.id.botonAceptar);
+            botonPersonalizacion = findViewById(R.id.botonPersonalizar);
+            checkConversacionAutomatica = findViewById(R.id.checkboxConversacionAutomatica);
             SeekBar volumenSB = findViewById(R.id.seekBarVolumen);
             volumenSB.setMax(MAX_VOLUMEN_SANBOT);
             TextView textoPrueba = findViewById(R.id.pruebaVolumen);
@@ -79,6 +93,13 @@ public class SettingsActivity extends TopBaseActivity {
             dropdown.setSelection(dropdownIndex);
             volumenSB.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
             textoPrueba.setText("El volumen es de " + volumenSB.getProgress() + "/" + volumenSB.getMax());
+
+            if(conversacionAuto){
+                checkConversacionAutomatica.setChecked(true);
+            }
+            else{
+                checkConversacionAutomatica.setChecked(false);
+            }
             dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -93,6 +114,20 @@ public class SettingsActivity extends TopBaseActivity {
                 }
 
             });
+
+            checkConversacionAutomatica.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if(b){
+                        conversacionAuto = true;
+                        Log.d("Checked?", "si");
+                    }
+                    else{
+                        conversacionAuto = false;
+                        Log.d("Checked?", "no");
+                    }
+                }
+            });
             botonAceptar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
@@ -101,6 +136,10 @@ public class SettingsActivity extends TopBaseActivity {
                     editor.putInt("dropdownIndex", dropdownIndex);
                     editor.putInt("volumenSanbot", volumenSanbot);
                     editor.apply();
+                    editorConversacionAuto.putBoolean("conversacionAutomatica", checkConversacionAutomatica.isChecked());
+                    Log.d("conversacionAutomatica", "conversacion automatica es " + checkConversacionAutomatica.isChecked());
+                    editorConversacionAuto.apply();
+                    Log.d("checkbox", String.valueOf(checkConversacionAutomatica.isChecked()));
                     //Intent moduloConversacionalActivity = new Intent(SettingsActivity.this, ModuloConversacional.class);
                     //startActivity(moduloConversacionalActivity);
                     finish();
@@ -144,6 +183,14 @@ public class SettingsActivity extends TopBaseActivity {
                     }
                     volumenSB.setProgress(volumenSB.getProgress() - 1);
                     audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volumenSB.getProgress(), 0);
+                }
+            });
+
+            botonPersonalizacion.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick (View v){
+                    Intent personalizacionActivity = new Intent(SettingsActivity.this, PersonalizacionActivity.class);
+                    startActivity(personalizacionActivity);
                 }
             });
 

@@ -86,6 +86,12 @@
 
         </LinearLayout>
 
+        <CheckBox android:id="@+id/checkboxConversacionAutomatica"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Conversación automática"
+            android:textSize="32dp"/>
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -93,16 +99,17 @@
             android:layout_marginTop="20dp">
 
             <Button
-                android:id="@+id/botonSimular"
+                android:id="@+id/botonPersonalizar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:background="?attr/selectableItemBackground"
-                android:text="Simulación"
+                android:text="Personalización"
                 android:textColor="@color/colorPrimary"
                 android:textSize="30dp" />
 
         </LinearLayout>
+
 
         <Button
             android:id="@+id/botonAceptar"

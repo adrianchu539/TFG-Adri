@@ -50,6 +50,7 @@ import com.qihancloud.opensdk.function.unit.SystemManager;
 import com.qihancloud.opensdk.function.unit.WheelMotionManager;
 import com.qihancloud.opensdk.function.unit.interfaces.media.FaceRecognizeListener;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
+import com.qihancloud.opensdk.function.unit.interfaces.speech.SpeakListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,11 +60,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.LongFunction;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -92,6 +98,8 @@ public class ModuloConversacional extends TopBaseActivity {
 
     private Button botonEnviar;
 
+    private Button botonSilenciar;
+
     private Button botonAjustes;
 
     private EditText mensajeAEnviar;
@@ -107,6 +115,14 @@ public class ModuloConversacional extends TopBaseActivity {
     private List<Map<String, String>> messages = new ArrayList<>();
 
     private MediaPlayer mediaPlayer = new MediaPlayer();
+
+    private boolean consultaRobot = false;
+
+    private boolean conversacionAutomatica;
+
+    private boolean consultaGoogle = false;
+
+    private boolean consultaPeliculas = false;
 
     private String emociones[] = {"ÉXTASIS", "ALEGRÍA", "SERENIDAD", "ADMIRACIÓN", "CONFIANZA", "ACEPTACIÓN",
     "TERROR", "MIEDO", "TEMOR", "ASOMBRO", "SORPRESA", "DISTRACCIÓN", "AFLICCIÓN", "TRISTEZA", "MELANCOLÍA",
@@ -127,6 +143,9 @@ public class ModuloConversacional extends TopBaseActivity {
         Log.d("preferencias", sharedPref.getString("voz", ""));
         String defaultValue = "Sanbot";
         vozSeleccionada = sharedPref.getString("voz", defaultValue);
+        SharedPreferences sharedPrefConversacionAutomatica = this.getSharedPreferences("conversacionAutomatica", MODE_PRIVATE);
+        Log.d("preferenciasCA", String.valueOf(sharedPrefConversacionAutomatica.getBoolean("conversacionAutomatica", false)));
+        conversacionAutomatica = sharedPrefConversacionAutomatica.getBoolean("conversacionAutomatica", false);
     }
 
 
@@ -158,6 +177,7 @@ public class ModuloConversacional extends TopBaseActivity {
         botonEnviar = findViewById(R.id.botonEnviar);
         mensajeAEnviar = findViewById(R.id.cajaTexto);
         botonAjustes = findViewById(R.id.botonAjustes);
+        botonSilenciar = findViewById(R.id.botonSilenciar);
 
         SharedPreferences sharedPrefVoz = this.getSharedPreferences("voces", MODE_PRIVATE);
         Log.d("preferencias", sharedPrefVoz.getString("voz", ""));
@@ -186,26 +206,94 @@ public class ModuloConversacional extends TopBaseActivity {
         Log.d("preferencias", sharedPrefPersonalizacionContexto.getString("personalizacionContexto", null));
         String contexto = sharedPrefPersonalizacionContexto.getString("personalizacionContexto", null);
 
+        SharedPreferences sharedPrefConversacionAutomatica = this.getSharedPreferences("conversacionAutomatica", MODE_PRIVATE);
+        Log.d("preferenciasCA", String.valueOf(sharedPrefConversacionAutomatica.getBoolean("conversacionAutomatica", false)));
+        conversacionAutomatica = sharedPrefConversacionAutomatica.getBoolean("conversacionAutomatica", false);
+
+        Log.d("info", "genero: " + generoRobot + " edad " + edadRobot + " contexto " + contexto);
+
         Map<String, String> roleSystem = new HashMap<>();
         roleSystem.put("role", "system");
         //roleSystem.put("content", "You are a helpful assistant.");
-        roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
-                "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
-                "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
-                "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
-                "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
-                "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
-                "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
-                "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
-                "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
-                "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
-                "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
-                "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años");
+        if(generoRobot == null || edadRobot == 0) {
+            roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
+                    "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
+                    "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
+                    "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
+                    "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
+                    "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
+                    "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
+                    "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
+                    "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
+                    "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
+                    "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                    "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años");
 
+        }
+        else if (contexto == ""){
+            roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
+                    "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
+                    "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
+                    "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
+                    "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
+                    "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
+                    "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
+                    "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
+                    "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
+                    "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
+                    "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                    "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años. Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + edadRobot);
+        }
+        else{
+            roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
+                    "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
+                    "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
+                    "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
+                    "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
+                    "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
+                    "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
+                    "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
+                    "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
+                    "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
+                    "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                    "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años. Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + edadRobot + " y además " + contexto);
+        }
         messages.add(roleSystem);
 
 
         try {
+            speechManager.setOnSpeechListener(new SpeakListener() {
+                @Override
+                public void onSpeakFinish() {
+                    if(conversacionAutomatica){
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        botonGrabar.performClick();
+                    }
+                }
+
+                @Override
+                public void onSpeakProgress(int i) {
+
+                }
+            });
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp)
+                {
+                    if(conversacionAutomatica){
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        botonGrabar.performClick();
+                    }
+                }
+            });
             botonAjustes.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
@@ -213,9 +301,24 @@ public class ModuloConversacional extends TopBaseActivity {
                     startActivity(settingsActivity);
                 }
             });
+            botonSilenciar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick (View v){
+                    Log.d("silenciar", "entro");
+                    OperationResult or = speechManager.isSpeaking();
+                    if(or.getResult().equals("1")){
+                        Log.d("robotHablando", "esta hablando");
+                        speechManager.stopSpeak();
+                    }
+                    if(mediaPlayer.isPlaying()){
+                        mediaPlayer.stop();
+                    }
+                }
+            });
             botonGrabar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
+
                     registrarPregunta();
                 }
             });
@@ -223,16 +326,38 @@ public class ModuloConversacional extends TopBaseActivity {
             botonEnviar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    if(mensajeAEnviar!=null) {
+                    if(conversacionAutomatica && preguntaChatGPT.equals("fin conversacion"))
+                    if(!conversacionAutomatica){
                         preguntaChatGPT = mensajeAEnviar.getText().toString();
+                    }
+                    mensajeAEnviar.setText("");
+                    if(consultaRobot){
+                        Calendar cal = Calendar.getInstance();
+                        int dia = cal.get(Calendar.DAY_OF_MONTH);
+                        int mes = cal.get(Calendar.MONTH);
+                        int agno = cal.get(Calendar.YEAR);
+                        int hora = cal.get(Calendar.HOUR_OF_DAY);
+                        int minutos = cal.get(Calendar.MINUTE);
+                        int segundos = cal.get(Calendar.SECOND);
+
                         try {
-                            APIChatGPT(preguntaChatGPT, vozSeleccionada);
+                            APIChatGPTVoz("Hoy es " + dia + " del " + mes + " de " + agno + " y son las " + hora + minutos + segundos, vozSeleccionada.toLowerCase());
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                     }
+                    else if(consultaPeliculas){
+                        peliculasAPI();
+                    }
+
+                    try {
+                        APIChatGPT(preguntaChatGPT, vozSeleccionada);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             });
 
@@ -248,14 +373,30 @@ public class ModuloConversacional extends TopBaseActivity {
             public boolean onRecognizeResult(Grammar grammar) {
                 // paso la gramática reconocida a String
                 String cadenaReconocida = grammar.getText();
-                //systemManager.showEmotion(EmotionsType.PICKNOSE); PREOCUPADO
-                //systemManager.showEmotion(EmotionsType.ABUSE); ENFADO FUERTE
-                //systemManager.showEmotion(EmotionsType.QUESTION);
 
+                consultaRobot = false;
+                consultaGoogle = false;
+                consultaPeliculas = false;
+
+                if(cadenaReconocida.startsWith("robot")){
+                    consultaRobot = true;
+                }
+                else if(cadenaReconocida.startsWith("google")){
+                    consultaGoogle = true;
+                }
+                else if(cadenaReconocida.startsWith("películas")){
+                    consultaPeliculas = true;
+                }
+                else{
+                    preguntaChatGPT = cadenaReconocida;
+                }
+                Log.d("preguntaChatGPT", preguntaChatGPT);
                 mensajeAEnviar.setText(cadenaReconocida);
-
-                preguntaChatGPT = cadenaReconocida;
-
+                if(conversacionAutomatica){
+                    if(!preguntaChatGPT.toLowerCase().equals("fin")) {
+                        botonEnviar.performClick();
+                    }
+                }
                 return true;
             }
 
@@ -268,7 +409,7 @@ public class ModuloConversacional extends TopBaseActivity {
             }
 
             public void onStopRecognize() {
-                //Log.i("Cris", "onStopRecognize: ");
+                Log.d("StopRecognize", "acabé y preguntachatgpt es " + preguntaChatGPT);
             }
 
             public void onError(int i, int i1) {
@@ -289,17 +430,30 @@ public class ModuloConversacional extends TopBaseActivity {
         speakOption.setSpeed(60);
         speakOption.setIntonation(50);
 
-        if(mensajeAEnviar!=null){
-            preguntaChatGPT = "";
-            mensajeAEnviar.setText("");
-        }
+        Log.d("preguntaChatGPT", "vacío preguntaChatGPT");
+        preguntaChatGPT = "";
+        mensajeAEnviar.setText("");
+
 
         speechManager.doWakeUp();
         reconocerRespuesta();
 
+        if(consultaRobot){
+            DateTimeFormatter dtf = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                dtf = DateTimeFormatter.ofPattern("dd/MM/uuuu");
+            }
+            LocalDate localDate = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                localDate = LocalDate.now();
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Log.d("Fecha", dtf.format(localDate));
+            }
+        }
 
-        if (preguntaChatGPT != null) {
-            Log.d("pregunta", preguntaChatGPT);
+        if (preguntaChatGPT != "") {
+            Log.d("preguntaChatGPT", "ahora la pregunta es " + preguntaChatGPT);
         }
     }
 
@@ -619,7 +773,8 @@ public class ModuloConversacional extends TopBaseActivity {
                                    emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
                         }
                     });
-                    if(voz=="Sanbot"){
+                    Log.d("voz", voz);
+                    if(voz.equals("Sanbot")){
                         speechManager.startSpeak(respuestaGPT, speakOption);
                     }
                     else {
@@ -647,6 +802,61 @@ public class ModuloConversacional extends TopBaseActivity {
     }
 
      */
+
+    public void peliculasAPI(){
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                .permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        final OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("https://api.themoviedb.org/3/movie/popular?language=es-ES&page=1")
+                .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5ZjRhZTM4MjY5ZWEzODY2Yzc4MjcyZTMzNDc1ZTQwNiIsInN1YiI6IjY2MDMzNDhjZDM4YjU4MDE3ZDFiNzExMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.sGinrHt3C4Ko683tmaYIHZNeUgK87Vg8FSmJfiwvyRI")
+                .header("accept", "application/json")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            SpeakOption speakOption = new SpeakOption();
+            speakOption.setSpeed(50);
+            speakOption.setIntonation(50);
+            System.out.println("Configurado opcion de voz");
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            System.out.println("Primera frase a decir");
+            speechManager.startSpeak("Hola, las novedades de peliculas son las siguientes", speakOption);
+            ArrayList<String> nombresPeliculas = new ArrayList<String>();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                JSONObject jsonObject = new JSONObject(response.body().string());
+                JSONArray results = new JSONArray(jsonObject.getString("results"));
+                for(int i=0; i<results.length(); i++){
+                    JSONObject pelicula = results.getJSONObject(i);
+                    nombresPeliculas.add(pelicula.getString("title"));
+                }
+
+
+
+                for(String nP: nombresPeliculas){
+                    System.out.println("Voy a decir la pelicula " + nP);
+                    speechManager.startSpeak(nP + ",", speakOption);
+                    Thread.sleep(3000);
+                }
+                //System.out.println(jsonObject.getString("results"));
+            }
+            /*
+            JSONObject obj = new JSONObject(response.body().string());
+            JSONObject results = obj.getJSONObject("results");
+            for(int i=0; i<results.length(); i++){
+                nombresPeliculas[i] = results.getJSONObject("title").toString();
+            }
+
+             */
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     protected void onMainServiceConnected() {
