@@ -3,22 +3,16 @@ package com.example.sanbotapp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
 
-import kotlin.experimental.ExperimentalObjCName;
-
 public class CuestionarioEdad extends TopBaseActivity {
 
-    private TextView textoEdad;
-
-    private Button aceptarEdad;
+    private Button botonContinuar;
 
     private EditText edadUsuario;
     @Override
@@ -34,12 +28,11 @@ public class CuestionarioEdad extends TopBaseActivity {
         setContentView(R.layout.activity_cuestionario_previo_edad);
 
         try {
-            textoEdad = findViewById(R.id.textoEdad);
-            aceptarEdad = findViewById(R.id.okEdad);
+            botonContinuar = findViewById(R.id.botonContinuar);
             edadUsuario = findViewById(R.id.edadUsuario);
             //create an adapter to describe how the items are displayed, adapters are used in several places in android.
             //There are multiple variations of this, but this is the basic variant.
-            aceptarEdad.setOnClickListener(new View.OnClickListener() {
+            botonContinuar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
                     editor.putInt("edad", Integer.parseInt(String.valueOf(edadUsuario.getText())));

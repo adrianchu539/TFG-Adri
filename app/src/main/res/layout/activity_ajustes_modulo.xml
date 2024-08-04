@@ -26,13 +26,16 @@
             tools:layout_editor_absoluteY="431dp" />
 
         <Spinner
-            android:id="@+id/dropdownVoces"
-            android:layout_width="wrap_content"
+            android:id="@+id/spinnerOptions"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@android:drawable/btn_dropdown"
-            android:spinnerMode="dropdown"
-            tools:layout_editor_absoluteX="10dp"
-            tools:layout_editor_absoluteY="455dp" />
+            android:layout_margin="16dp"
+            android:textColor="@color/colorPurple"
+            android:textSize="18sp"
+            android:background="@drawable/edittext_border"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textoVoz"/>
 
         <TextView
             android:id="@+id/textoVolumen"

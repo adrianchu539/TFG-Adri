@@ -48,7 +48,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class ModuloConversacional extends TopBaseActivity {
+public class ModuloConversacionalTeclado extends TopBaseActivity {
 
     // Componentes módulo conversacional
     private Button botonAjustes;
@@ -67,6 +67,7 @@ public class ModuloConversacional extends TopBaseActivity {
     private HandMotionManager handMotionManager;
     private SystemManager systemManager;
     private HardWareManager hardWareManager;
+    private AudioManager audioManager;
 
 
     // Gestión emociones robot
@@ -90,17 +91,9 @@ public class ModuloConversacional extends TopBaseActivity {
     private String vozSeleccionada; // Voz seleccionada por el usuario
     private String nombreUsuario; // Nombre del usuario
     private int edadUsuario; // Edad del usuario
-    private String generoRobot;
-    private String grupoEdadRobot;
-    private String contexto;
     private boolean consultaRobot = false; // Variable para consultas internas del robot
     private boolean consultaPeliculas = false; // Variable para consultas API de películas
     private boolean conversacionAutomatica; // Variable para indicar si la conversación está en modo automático
-    private boolean modoTeclado; // Variable para indicar si la conversación está en modo automático
-    private boolean personalizacionActivada; // Variable para indicar si la conversación está en modo automático
-    private boolean contextualizacionActivada;
-    private boolean interpretacionEmocionalActivada;
-    private boolean contextoVacio;
 
     // Lista de variables necesarias para el envío de requests en la API de ChatGPT
 
@@ -108,28 +101,6 @@ public class ModuloConversacional extends TopBaseActivity {
 
     Map<String, String> roleUser = new HashMap<>();
     private List<Map<String, String>> messages = new ArrayList<>();
-
-    private String contentConversacion = "quiero que mantengamos una conversación";
-
-    private String contentInterpretacionEmocional = "en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
-            "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
-            "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
-            "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
-            "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
-            "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
-            "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
-            "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y " +
-            "que trates de empatizar lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, " +
-            "así que [(14)/(25-35)], si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
-            "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. ";
-
-    private String contentPersonalizacion = "También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
-            "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años";
-
-
-    private String contentContextualizacionSinContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot;
-
-    private String contentContextualizacionConContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot + " y además " + contexto;
 
     @Override
     public void onResume() {
@@ -164,20 +135,17 @@ public class ModuloConversacional extends TopBaseActivity {
         handMotionManager = (HandMotionManager) getUnitManager(FuncConstant.HANDMOTION_MANAGER);
         hardWareManager = (HardWareManager) getUnitManager(FuncConstant.HARDWARE_MANAGER);
         systemManager = (SystemManager) getUnitManager(FuncConstant.SYSTEM_MANAGER);
-
-        // Modularización de las funciones Sanbot
-
-        // POR COMPLETAR !!
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         // Inicialización de los componentes de la vista del módulo conversacional
 
         botonAjustes = findViewById(R.id.botonAjustes);
         botonPlayPause = findViewById(R.id.botonPlayPause);
         botonRepetir = findViewById(R.id.botonRepetir);
-        dialogoUsuario = findViewById(R.id.burbujaDialogoUsuario); // LISTVIEW ??
-        dialogoRobot = findViewById(R.id.burbujaDialogoRobot); // LISTVIEW ??
+        dialogoUsuario = findViewById(R.id.burbujaDialogoUsuario);
+        dialogoRobot = findViewById(R.id.burbujaDialogoRobot);
         textoConsulta = findViewById(R.id.textoConsulta);
-        botonHablar = findViewById(R.id.botonHablar);
+        botonHablar = findViewById(R.id.botonHablar);;
         botonEnviar = findViewById(R.id.botonEnviar);
 
         botonPlayPause.setText("Pausar");
@@ -186,8 +154,6 @@ public class ModuloConversacional extends TopBaseActivity {
 
         // Velocidad y entonación de la voz propia del robot
 
-        // POR CAMBIAR !!
-
         SpeakOption speakOption = new SpeakOption();
         speakOption.setSpeed(60);
         speakOption.setIntonation(50);
@@ -195,52 +161,90 @@ public class ModuloConversacional extends TopBaseActivity {
 
         // Obtención de las variables guardadas en el almacenamiento local
 
-        vozSeleccionada = getStringSharedPreferences("vozSeleccionada", "Sanbot");
-        nombreUsuario = getStringSharedPreferences("nombreUsuario", null);
-        edadUsuario = getIntSharedPreferences("edadUsuario", 0);
-        generoRobot = getStringSharedPreferences("generoRobotPersonalizacion", null);
-        grupoEdadRobot = getStringSharedPreferences("grupoEdadRobotPersonalizacion", null);
-        contexto = getStringSharedPreferences("contextoPersonalizacion", null);
-        conversacionAutomatica = getBooleanSharedPreferences("conversacionAutomatica", false);
-        modoTeclado = getBooleanSharedPreferences("modoTeclado", false);
-        personalizacionActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        contextualizacionActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        interpretacionEmocionalActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        contextoVacio = getBooleanSharedPreferences("personalizacionActivada", false);
+        SharedPreferences sharedPrefVoz = this.getSharedPreferences("voces", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefVoz.getString("voz", ""));
+        String defaultValueVoz = "Sanbot";
+        vozSeleccionada = sharedPrefVoz.getString("voz", defaultValueVoz);
+
+        SharedPreferences sharedPrefNombre = this.getSharedPreferences("nombre", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefNombre.getString("nombre", ""));
+        String defaultValueNombre = "Pepe";
+        nombreUsuario = sharedPrefNombre.getString("nombre", defaultValueNombre);
+
+        SharedPreferences sharedPrefEdad = this.getSharedPreferences("edad", MODE_PRIVATE);
+        Log.d("preferencias", String.valueOf(sharedPrefEdad.getInt("edad", 0)));
+        int defaultValueEdad = 50;
+        edadUsuario = sharedPrefEdad.getInt("edad", defaultValueEdad);
+
+        SharedPreferences sharedPrefPersonalizacionGenero = this.getSharedPreferences("personalizacionGenero", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefPersonalizacionGenero.getString("personalizacionGenero", null));
+        String generoRobot = sharedPrefPersonalizacionGenero.getString("personalizacionGenero", null);
+
+        SharedPreferences sharedPrefPersonalizacionEdad = this.getSharedPreferences("personalizacionEdad", MODE_PRIVATE);
+        Log.d("preferencias", String.valueOf(sharedPrefPersonalizacionEdad.getInt("personalizacionEdad", 0)));
+        int edadRobot = sharedPrefPersonalizacionEdad.getInt("personalizacionEdad", 0);
+
+        SharedPreferences sharedPrefPersonalizacionContexto = this.getSharedPreferences("personalizacionContexto", MODE_PRIVATE);
+        Log.d("preferencias", sharedPrefPersonalizacionContexto.getString("personalizacionContexto", null));
+        String contexto = sharedPrefPersonalizacionContexto.getString("personalizacionContexto", null);
+
+        SharedPreferences sharedPrefConversacionAutomatica = this.getSharedPreferences("conversacionAutomatica", MODE_PRIVATE);
+        Log.d("preferenciasCA", String.valueOf(sharedPrefConversacionAutomatica.getBoolean("conversacionAutomatica", false)));
+        conversacionAutomatica = sharedPrefConversacionAutomatica.getBoolean("conversacionAutomatica", false);
+
+        Log.d("info", "genero: " + generoRobot + " edad " + edadRobot + " contexto " + contexto);
 
         // ROLESYSTEM API OPENAI
-
         roleSystem.put("role", "system");
+        if(generoRobot == null || edadRobot == 0) {
+            roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
+                    "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
+                    "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
+                    "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
+                    "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
+                    "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
+                    "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
+                    "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
+                    "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
+                    "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
+                    "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                    "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años");
 
-        // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN CON CONTEXTO
-
-        if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && !contextoVacio){
-            roleSystem.put("content", contentConversacion + "," + contentInterpretacionEmocional + contentContextualizacionConContexto);
         }
-        // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN SIN CONTEXTO
-        else if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && contextoVacio){
-            roleSystem.put("content", contentConversacion + "," + contentInterpretacionEmocional + contentContextualizacionSinContexto);
+        else if (contexto == ""){
+            roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
+                    "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
+                    "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
+                    "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
+                    "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
+                    "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
+                    "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
+                    "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
+                    "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
+                    "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
+                    "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                    "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años. Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + edadRobot);
         }
-        // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL
-        else if(personalizacionActivada && interpretacionEmocionalActivada && !contextualizacionActivada){
-            roleSystem.put("content", contentConversacion + "," + contentInterpretacionEmocional);
-        }
-        // PERSONALIZACIÓN + CONVERSACIÓN
-        else if(personalizacionActivada && !interpretacionEmocionalActivada){
-            roleSystem.put("content", contentConversacion);
-        }
-        // CONVERSACIÓN
         else{
-            roleSystem.put("content", contentConversacion);
+            roleSystem.put("content", "quiero que mantengamos una conversación, en cada respuesta que te envíe quiero que me envíes al principio de tu respuesta entre corchetes" +
+                    "un número o varios entre paréntesis en función de la emoción que transmiten mis respuestas: 1 éxtasis, 2 alegría, 3 serenidad, 4 admiración, 5 confianza " +
+                    "6 aceptación, 7 terror, 8 miedo, 9 temor, 10 asombro, 11 sorpresa, 12 distracción, 13 aflicción, 14 tristeza, 15 melancolía, 16 aversión, 17 asco, 18 aburrimiento," +
+                    "19 furia, 20 ira, 21 enfado, 22 vigilancia, 23 anticipación, 24 interés, 25 optimismo, 26 amor, 27 sumisión, 28 susto, 29 decepción, 30 remordimiento, 31 desprecio, 32 agresividad," +
+                    "33 esperanza, 34 culpa, 35 curiosidad, 36 desesperación, 37 incredulidad, 38 envidia, 39 cinismo, 40 orgullo, 41 ansiedad, 42 deleite, 43 sentimentalismo, 44 vergüenza, 45 indignación, " +
+                    "46 pesimismo, 47 morbosidad y 48 dominancia, añadas un guión y un número en función de la emoción que quieres intentar transmitir con tu respuesta " +
+                    "siguiendo el mismo código numérico. Es decir seguirá el siguiente patrón: [(<número o números de emoción o emociones separados por guiones de mi respuesta>)" +
+                    "/ (<número o números de emoción o emociones de la respuesta que quieres transmitir>)] + tu respuesta a la conversación." + "Quiero que reconduzcas la conversación en función de la emoción que interpretes y que trates de empatizar" +
+                    "lo máximo posible con mis respuestas. Aquí te dejo algunos ejemplos: Si te digo algo triste, tú puedes tratar de animarme siendo optimista y mostrarás curiosidad por saber lo que me pasa, así que [(14)/(25-35)]," +
+                    "si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
+                    "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                    "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años. Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + edadRobot + " y además " + contexto);
         }
-
         messages.add(roleSystem);
 
 
         try {
-
             // Gestión de los speakers del robot mediante el módulo SpeechManager
-            speechManager.setOnSpeechListener(new SpeakListener(){
+            speechManager.setOnSpeechListener(new SpeakListener() {
 
                 // Acción que se ejecuta cuando el robot termina de hablar
                 @Override
@@ -277,11 +281,12 @@ public class ModuloConversacional extends TopBaseActivity {
                     }
                 }
             });
+
             // Gestión de la pulsación del botón de ajustes
             botonAjustes.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent settingsActivity = new Intent(ModuloConversacional.this, SettingsActivity.class);
+                    Intent settingsActivity = new Intent(ModuloConversacionalTeclado.this, SettingsActivity.class);
                     startActivity(settingsActivity);
                 }
             });
@@ -290,17 +295,29 @@ public class ModuloConversacional extends TopBaseActivity {
             botonPlayPause.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
+                    Log.d("Le estoy dando", "dando");
 
                     if(vozSeleccionada.equals("Sanbot")) {
 
                         // Si el robot está hablando (voz Sanbot)
                         OperationResult or = speechManager.isSpeaking();
                         if (or.getResult().equals("1")) {
-                            gestionVozSanbot(AccionVoz.PAUSAR);
+                            Log.d("Le estoy dando", "robot hablando, intentando callar");
+                            // Se silencia
+                            speechManager.pauseSpeak();
+                            Drawable play = getContext().getResources().getDrawable(R.drawable.baseline_play_arrow_24);
+                            botonPlayPause.setCompoundDrawablesWithIntrinsicBounds(play, null, null, null);
+                            botonPlayPause.setText("Reanudar");
                         } else {
+                            Log.d("Le estoy dando", "robot sin hablar, intentando reaundar");
+                            speechManager.resumeSpeak();
+                            Drawable pause = getContext().getResources().getDrawable(R.drawable.baseline_pause_24);
+                            botonPlayPause.setCompoundDrawablesWithIntrinsicBounds(pause, null, null, null);
+                            botonPlayPause.setText("Pausar");
                         }
                     }
                     else{
+
                         // Si el mediaPlayer está reproduciéndose (voz OpenAI)
                         if (mediaPlayer.isPlaying()) {
                             Log.d("Le estoy dando", "mediaplauer habladno, intentando parar");
@@ -381,7 +398,7 @@ public class ModuloConversacional extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     if(vozSeleccionada.equals("Sanbot")){
-                        hablar(respuestaGPT, speakOption);
+                        speechManager.startSpeak(respuestaGPT, speakOption);
                     }
                     else{
                         try {
@@ -837,7 +854,7 @@ public class ModuloConversacional extends TopBaseActivity {
             System.out.println("Primera frase a decir");
             speechManager.startSpeak("Hola, las novedades de peliculas son las siguientes", speakOption);
             ArrayList<String> nombresPeliculas = new ArrayList<String>();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 JSONObject jsonObject = new JSONObject(response.body().string());
                 JSONArray results = new JSONArray(jsonObject.getString("results"));
                 for(int i=0; i<results.length(); i++){
@@ -866,62 +883,6 @@ public class ModuloConversacional extends TopBaseActivity {
     private String capitalizeCadena(String c){
         if (c.length() > 0) return c.substring(0,1).toUpperCase() + c.substring(1);
         else return "";
-    }
-
-    private String getStringSharedPreferences(String nombreSharedPreferences, String defaultValue){
-        SharedPreferences sp = this.getSharedPreferences(nombreSharedPreferences, MODE_PRIVATE);
-        return sp.getString(nombreSharedPreferences, defaultValue);
-    }
-    private int getIntSharedPreferences(String nombreSharedPreferences, int defaultValue){
-        SharedPreferences sp = this.getSharedPreferences(nombreSharedPreferences, MODE_PRIVATE);
-        return sp.getInt(nombreSharedPreferences, defaultValue);
-    }
-    private boolean getBooleanSharedPreferences(String nombreSharedPreferences, boolean defaultValue){
-        SharedPreferences sp = this.getSharedPreferences(nombreSharedPreferences, MODE_PRIVATE);
-        return sp.getBoolean(nombreSharedPreferences, defaultValue);
-    }
-
-    private void gestionVozSanbot(AccionVoz accionVoz){
-        switch (accionVoz) {
-            case PAUSAR:
-                Log.d("Le estoy dando", "robot hablando, intentando callar");
-                // Se silencia
-                speechManager.pauseSpeak();
-                Drawable play = getContext().getResources().getDrawable(R.drawable.baseline_play_arrow_24);
-                botonPlayPause.setCompoundDrawablesWithIntrinsicBounds(play, null, null, null);
-                botonPlayPause.setText("Reanudar");
-                break;
-            case REANUDAR:
-                Log.d("Le estoy dando", "robot sin hablar, intentando reaundar");
-                speechManager.resumeSpeak();
-                Drawable pause = getContext().getResources().getDrawable(R.drawable.baseline_pause_24);
-                botonPlayPause.setCompoundDrawablesWithIntrinsicBounds(pause, null, null, null);
-                botonPlayPause.setText("Pausar");
-        }
-    }
-
-    private void gestionMediaPlayer(AccionVoz accionVoz){
-        switch (accionVoz) {
-            case PAUSAR:
-                Log.d("Le estoy dando", "robot hablando, intentando callar");
-                // Se silencia
-                speechManager.pauseSpeak();
-                Drawable play = getContext().getResources().getDrawable(R.drawable.baseline_play_arrow_24);
-                botonPlayPause.setCompoundDrawablesWithIntrinsicBounds(play, null, null, null);
-                botonPlayPause.setText("Reanudar");
-                break;
-            case REANUDAR:
-                Log.d("Le estoy dando", "robot sin hablar, intentando reaundar");
-                speechManager.resumeSpeak();
-                Drawable pause = getContext().getResources().getDrawable(R.drawable.baseline_pause_24);
-                botonPlayPause.setCompoundDrawablesWithIntrinsicBounds(pause, null, null, null);
-                botonPlayPause.setText("Pausar");
-        }
-    }
-
-    private enum AccionVoz {
-        PAUSAR,
-        REANUDAR;
     }
     @Override
     protected void onMainServiceConnected() {

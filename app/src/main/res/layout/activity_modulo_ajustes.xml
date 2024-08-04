@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/Ajustes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="10dp">
+
+        <TextView
+            android:id="@+id/textViewTitleSeleccionarVoz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"
+            android:text="Selecciona la voz que deseas utilizar"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/spinnerVoces"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textColor="@color/colorPurple"
+            android:textSize="30sp"
+            android:spinnerMode="dropdown"
+            android:background="@android:drawable/btn_dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textViewTitleSeleccionarVoz"/>
+
+        <TextView
+            android:id="@+id/textViewTitleSeleccionarVolumen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"
+            android:text="Selecciona el volumen que deseas utilizar"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/visualizarVolumen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"
+            android:layout_gravity="center_horizontal"
+            android:text=""
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/layoutModificarVolumen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <Button
+                android:id="@+id/botonBajarVolumen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableStart="@drawable/baseline_volume_down_24"
+                android:drawablePadding="0dp"
+                android:padding="10dp"
+                android:text="-"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <SeekBar
+                android:id="@+id/seekBarVolumen"
+                android:layout_width="700dp"
+                android:layout_height="17dp"
+                android:progressTint="@color/colorPurple"
+                android:thumbTint="@color/colorPurple"
+                android:layout_gravity="center_vertical"
+                tools:layout_editor_absoluteX="219dp"
+                tools:layout_editor_absoluteY="178dp">
+            </SeekBar>
+
+            <Button
+                android:id="@+id/botonSubirVolumen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableStart="@drawable/baseline_volume_down_24"
+                android:drawablePadding="0dp"
+                android:padding="10dp"
+                android:text="+"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </LinearLayout>
+
+        <CheckBox android:id="@+id/checkboxConversacionAutomatica"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Conversación automática"
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"/>
+
+        <CheckBox android:id="@+id/checkboxModoTeclado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Activar teclado"
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"/>
+
+        <Button
+            android:id="@+id/botonPersonalizar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_rounded"
+            android:textSize="30sp"
+            android:textAllCaps="false"
+            android:drawableStart="@drawable/baseline_palette_24"
+            android:drawablePadding="8dp"
+            android:text="Personalización"
+            android:padding="10dp"
+            android:layout_margin="15dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_gravity="center"/>
+
+        <Button
+            android:id="@+id/botonGuardarCambios"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_rounded"
+            android:textSize="30sp"
+            android:textAllCaps="false"
+            android:drawableStart="@drawable/baseline_done_24"
+            android:drawablePadding="8dp"
+            android:text="Guardar cambios"
+            android:padding="10dp"
+            android:layout_margin="15dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_gravity="center"/>
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

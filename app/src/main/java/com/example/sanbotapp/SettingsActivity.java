@@ -70,18 +70,18 @@ public class SettingsActivity extends TopBaseActivity {
         Log.d("dropdown", "mi posicion es la " + dropdownIndex);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ajustes_modulo);
+        setContentView(R.layout.activity_modulo_ajustes);
 
         try {
-            Spinner dropdown = findViewById(R.id.dropdownVoces);
-            botonAceptar = findViewById(R.id.botonAceptar);
+            Spinner dropdown = findViewById(R.id.spinnerVoces);
+            botonAceptar = findViewById(R.id.botonGuardarCambios);
             botonPersonalizacion = findViewById(R.id.botonPersonalizar);
             checkConversacionAutomatica = findViewById(R.id.checkboxConversacionAutomatica);
             SeekBar volumenSB = findViewById(R.id.seekBarVolumen);
             volumenSB.setMax(MAX_VOLUMEN_SANBOT);
-            TextView textoPrueba = findViewById(R.id.pruebaVolumen);
-            Button volumenUp = findViewById(R.id.volumeUp);
-            Button volumenDown = findViewById(R.id.volumeDown);
+            TextView textoPrueba = findViewById(R.id.visualizarVolumen);
+            Button volumenUp = findViewById(R.id.botonSubirVolumen);
+            Button volumenDown = findViewById(R.id.botonBajarVolumen);
             //create a list of items for the spinner.
             String[] items = new String[]{"Sanbot","Alloy", "Echo", "Fable", "Onyx", "Nova", "Shimmer"};
             //create an adapter to describe how the items are displayed, adapters are used in several places in android.

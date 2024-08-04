@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ModuloConversacional"
+    tools:ignore="MissingClass"
+    android:orientation="horizontal">
+        <Button
+            android:id="@+id/buttonAjustes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_rounded"
+            android:textSize="18sp"
+            android:textAllCaps="false"
+            android:drawableStart="@drawable/baseline_settings_24"
+            android:drawablePadding="8dp"
+            android:text="Configuración"
+            android:padding="10dp"
+            android:layout_margin="15dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+    <Button
+        android:id="@+id/botonSilenciar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_rounded"
+        android:textSize="18sp"
+        android:textAllCaps="false"
+        android:drawableStart="@drawable/baseline_volume_off_24"
+        android:drawablePadding="8dp"
+        android:text="Silenciar"
+        android:padding="10dp"
+        android:layout_margin="15dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Button
+        android:id="@+id/botonRepetir"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_rounded"
+        android:textSize="18sp"
+        android:textAllCaps="false"
+        android:drawableStart="@drawable/baseline_loop_24"
+        android:drawablePadding="8dp"
+        android:text="Repetir"
+        android:padding="10dp"
+        android:layout_margin="15dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/botonSilenciar"/>
+
+    <TextView
+        android:id="@+id/textBox"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="vertical"
+        android:textSize="28dp"
+        app:layout_constraintBottom_toTopOf="@id/barra_inferior"
+        app:layout_constraintTop_toBottomOf="@id/buttonAjustes"
+        app:layout_constraintVertical_bias="0.0"
+        tools:layout_editor_absoluteX="-64dp" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#e0e0e0"
+        app:layout_constraintBottom_toTopOf="@+id/barra_inferior" />
+
+    <RelativeLayout
+        android:id="@+id/barra_inferior"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:paddingLeft="10dp">
+
+        <EditText
+            android:id="@+id/textoConsulta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:background="@android:color/transparent"
+            android:hint="Escribe un mensaje..."
+            android:inputType="text"
+            android:maxLines="6"
+            tools:ignore="Autofill" />
+
+        <Button
+            android:id="@+id/botonHablar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/button_rounded"
+            android:drawablePadding="8dp"
+            android:drawableEnd="@drawable/baseline_mic_24"
+            android:text="Hablar"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/botonEnviar"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_rounded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="110dp"
+            android:drawablePadding="8dp"
+            android:drawableEnd="@drawable/baseline_send_24"
+            android:text="Enviar"
+            android:layout_alignEnd="@id/botonHablar"/>
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
