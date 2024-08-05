@@ -2,6 +2,7 @@ package com.example.sanbotapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -12,33 +13,67 @@ import com.qihancloud.opensdk.base.TopBaseActivity;
 
 public class CuestionarioEdad extends TopBaseActivity {
 
+    // Componentes de la pantalla de cuestionario edad
     private Button botonContinuar;
-
+    private Button botonAtras;
     private EditText edadUsuario;
+    private int edad;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        botonContinuar.setText("Aceptar");
+        Drawable done = getContext().getResources().getDrawable(R.drawable.baseline_done_24);
+        botonContinuar.setCompoundDrawablesWithIntrinsicBounds(null, null, done, null);
+        botonContinuar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent moduloConversacionalActivity = new Intent(CuestionarioEdad.this, ModuloConversacional.class);
+                startActivity(moduloConversacionalActivity);
+                finish();
+            }
+        });
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //register(PresentacionActivity.class);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        SharedPreferences sharedPref = this.getSharedPreferences("edad", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cuestionario_previo_edad);
 
+        // Creo una sección de almacenamiento local donde se guardará la edad del usuario
+        SharedPreferences sharedPref = this.getSharedPreferences("edadUsuario", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        edad = sharedPref.getInt("edadUsuario", 0);
+
         try {
             botonContinuar = findViewById(R.id.botonContinuar);
+            botonAtras = findViewById(R.id.botonAtras);
             edadUsuario = findViewById(R.id.edadUsuario);
-            //create an adapter to describe how the items are displayed, adapters are used in several places in android.
-            //There are multiple variations of this, but this is the basic variant.
+
+            if(edad!=0){
+                edadUsuario.setText(edad);
+            }
             botonContinuar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    editor.putInt("edad", Integer.parseInt(String.valueOf(edadUsuario.getText())));
+                    // Guardamos en el almacenamiento local la edad del usuario
+                    editor.putInt("edadUsuario", Integer.parseInt(String.valueOf(edadUsuario.getText())));
                     editor.apply();
-                    Intent personalizacionActivity = new Intent(CuestionarioEdad.this, PersonalizacionActivity.class);
+                    // Pasamos a la actividad de personalización
+                    Intent personalizacionActivity = new Intent(CuestionarioEdad.this, ContextualizacionActivity.class);
                     startActivity(personalizacionActivity);
+                    finish();
+                }
+            });
+            botonAtras.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick (View v){
+                    // Pasamos a la actividad de cuestionario nombre
+                    Intent cuestionarioNombreActivity = new Intent(CuestionarioEdad.this, CuestionarioNombre.class);
+                    startActivity(cuestionarioNombreActivity);
                     finish();
                 }
             });

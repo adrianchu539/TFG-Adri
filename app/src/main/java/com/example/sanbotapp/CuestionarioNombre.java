@@ -13,33 +13,59 @@ import com.qihancloud.opensdk.base.TopBaseActivity;
 public class CuestionarioNombre extends TopBaseActivity {
 
     private EditText nombreUsuario;
-
+    private String nombre;
     private Button botonContinuar;
+    private Button botonAtras;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        botonAtras.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent menuConfiguracionActivity = new Intent(CuestionarioNombre.this, MenuConfiguracion.class);
+                startActivity(menuConfiguracionActivity);
+                finish();
+            }
+        });
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        //register(PresentacionActivity.class);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        SharedPreferences sharedPref = this.getSharedPreferences("nombre", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cuestionario_previo_nombre);
 
+        // Creo una sección de almacenamiento local donde se guardará el nombre del usuario
+        SharedPreferences sharedPref = this.getSharedPreferences("nombreUsuario", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        nombre = sharedPref.getString("nombreUsuario", null);
+
         try {
             nombreUsuario = findViewById(R.id.nombreUsuario);
             botonContinuar = findViewById(R.id.botonContinuar);
-            //create an adapter to describe how the items are displayed, adapters are used in several places in android.
-            //There are multiple variations of this, but this is the basic variant.
+            botonAtras = findViewById(R.id.botonAtras);
+
+            if(nombre!=null){
+                nombreUsuario.setText(nombre);
+            }
             botonContinuar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    editor.putString("nombre", String.valueOf(nombreUsuario.getText()));
+                    editor.putString("nombreUsuario", String.valueOf(nombreUsuario.getText()));
                     editor.apply();
                     Intent cuestionarioEdadActivity = new Intent(CuestionarioNombre.this, CuestionarioEdad.class);
                     startActivity(cuestionarioEdadActivity);
+                    finish();
+                }
+            });
+            botonAtras.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick (View v){
+                    Intent menuPruebasActivity = new Intent(CuestionarioNombre.this, MenuPruebas.class);
+                    startActivity(menuPruebasActivity);
                     finish();
                 }
             });

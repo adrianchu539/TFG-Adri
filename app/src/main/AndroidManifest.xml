@@ -40,7 +40,7 @@
         <activity android:name=".SettingsActivity"/>
         <activity android:name=".ModuloConversacional"/>
         <activity android:name=".CuestionarioEdad"/>
-        <activity android:name=".PersonalizacionActivity"/>
+        <activity android:name=".ContextualizacionActivity"/>
 
 
     </application>

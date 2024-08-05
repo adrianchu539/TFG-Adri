@@ -12,26 +12,35 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.qihancloud.opensdk.beans.FuncConstant;
 import com.qihancloud.opensdk.function.beans.SpeakOption;
+import com.qihancloud.opensdk.function.unit.SpeechManager;
+
+import java.io.IOException;
 
 public class TutorialModuloConversacional extends TopBaseActivity {
 
     private TextView textoTutorial;
     private Button botonAtras;
     private Button botonSiguiente;
+    private SpeechManager speechManager;
 
     private static int paso = 0;
 
     @Override
     public void onResume(){
         super.onResume();
-        SanbotSpeechControl sanbotSpeechControl = new SanbotSpeechControl();
+        speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
         SpeakOption so = new SpeakOption();
         switch(paso){
             case 0:
                 botonAtras.setVisibility(View.INVISIBLE);
                 textoTutorial.setText("Hola. Soy Sanbot. Bienvenido al ....");
-                sanbotSpeechControl.hablar(textoTutorial.getText().toString(), so);
+                try {
+                    ModuloConversacional.hablar("sanbot", textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case 1:
                 botonAtras.setVisibility(View.VISIBLE);
@@ -52,7 +61,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
 
-        SanbotSpeechControl sanbotSpeechControl = new SanbotSpeechControl();
+        speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
 
         textoTutorial = findViewById(R.id.textoTutorial);
         botonAtras = findViewById(R.id.botonAtras);

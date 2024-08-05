@@ -6,12 +6,46 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <LinearLayout
         android:id="@+id/Personalizacion"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingLeft="10dp">
+
+        <TextView
+            android:id="@+id/textViewTitleSeleccionarVoz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"
+            android:text="Selecciona la voz que deseas utilizar"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/spinnerVoces"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textColor="@color/colorPurple"
+            android:textSize="30sp"
+            android:spinnerMode="dropdown"
+            android:background="@android:drawable/btn_dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textViewTitleSeleccionarVoz"/>
 
         <TextView
             android:id="@+id/textViewTitleSeleccionarGeneroRobot"
@@ -24,7 +58,7 @@
             android:textAlignment="textStart"
             android:textColor="@color/colorPurple"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -54,7 +88,7 @@
             android:textAlignment="textStart"
             android:textColor="@color/colorPurple"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -84,11 +118,28 @@
             android:textAlignment="textStart"
             android:textColor="@color/colorPurple"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/botonGrabarRespuesta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:background="@drawable/button_rounded"
+            android:textSize="30sp"
+            android:textAllCaps="false"
+            android:drawableEnd="@drawable/baseline_mic_24"
+            android:drawablePadding="8dp"
+            android:text="Modo habla"
+            android:padding="10dp"
+            android:layout_margin="15dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_gravity="left"/>
 
         <EditText
             android:id="@+id/textoContexto"
@@ -108,31 +159,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/botonGrabarRespuesta"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:background="@drawable/button_rounded"
-            android:textSize="18sp"
-            android:textAllCaps="false"
-            android:drawableStart="@drawable/baseline_mic_24"
-            android:drawablePadding="8dp"
-            android:text="Grabar respuesta"
-            android:padding="10dp"
-            android:layout_margin="15dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_gravity="center"/>
-
-        <Button
             android:id="@+id/botonOmitir"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:background="@drawable/button_rounded"
-            android:textSize="18sp"
+            android:textSize="30sp"
             android:textAllCaps="false"
-            android:drawableStart="@drawable/baseline_skip_next_24"
+            android:drawableEnd="@drawable/baseline_skip_next_24"
             android:drawablePadding="8dp"
             android:text="Omitir"
             android:padding="10dp"
@@ -141,23 +175,44 @@
             app:layout_constraintStart_toStartOf="parent"
             android:layout_gravity="center"/>
 
-        <Button
-            android:id="@+id/botonAceptar"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:background="@drawable/button_rounded"
-            android:textSize="18sp"
-            android:textAllCaps="false"
-            android:drawableStart="@drawable/baseline_done_24"
-            android:drawablePadding="8dp"
-            android:text="Guardar cambios"
-            android:padding="10dp"
-            android:layout_margin="15dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center">
+            <Button
+                android:id="@+id/botonAtras"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:background="@drawable/button_rounded"
+                android:textSize="30sp"
+                android:textAllCaps="false"
+                android:drawableStart="@drawable/baseline_arrow_back_24"
+                android:drawablePadding="8dp"
+                android:text="Atrás"
+                android:padding="10dp"
+                android:layout_margin="15dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/botonAceptar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:background="@drawable/button_rounded"
+                android:textSize="30sp"
+                android:textAllCaps="false"
+                android:drawableEnd="@drawable/baseline_done_24"
+                android:drawablePadding="8dp"
+                android:text="Aceptar"
+                android:padding="10dp"
+                android:layout_margin="15dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+        </LinearLayout>
     </LinearLayout>
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
