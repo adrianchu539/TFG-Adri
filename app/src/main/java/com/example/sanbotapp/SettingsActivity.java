@@ -83,20 +83,23 @@ public class SettingsActivity extends TopBaseActivity {
             }
             if(modoTeclado){
                 checkModoTeclado.setChecked(true);
+                checkConversacionAutomatica.setVisibility(View.VISIBLE);
             }
             else{
                 checkModoTeclado.setChecked(false);
+                checkConversacionAutomatica.setVisibility(View.INVISIBLE);
+                checkConversacionAutomatica.setChecked(true);
             }
 
             checkConversacionAutomatica.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if(b){
-                        conversacionAuto = true;
+                        checkConversacionAutomatica.setChecked(true);
                         Log.d("Checked?", "si");
                     }
                     else{
-                        conversacionAuto = false;
+                        checkConversacionAutomatica.setChecked(false);
                         Log.d("Checked?", "no");
                     }
                 }
@@ -105,11 +108,11 @@ public class SettingsActivity extends TopBaseActivity {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                     if(b){
-                        modoTeclado = true;
+                        checkConversacionAutomatica.setVisibility(View.VISIBLE);
                         Log.d("Checked?", "si");
                     }
                     else{
-                        modoTeclado = false;
+                        checkConversacionAutomatica.setVisibility(View.INVISIBLE);
                         Log.d("Checked?", "no");
                     }
                 }
@@ -119,10 +122,16 @@ public class SettingsActivity extends TopBaseActivity {
                 public void onClick (View v){
                     editorVolumen.putInt("volumenSanbot", volumenSanbot);
                     editorVolumen.apply();
-                    editorConversacionAuto.putBoolean("conversacionAutomatica", checkConversacionAutomatica.isChecked());
-                    Log.d("conversacionAutomatica", "conversacion automatica es " + checkConversacionAutomatica.isChecked());
                     editorModoTeclado.putBoolean("modoTeclado", checkModoTeclado.isChecked());
                     Log.d("conversacionAutomatica", "modo teclado es " + checkModoTeclado.isChecked());
+                    if(checkModoTeclado.isChecked()){
+                        editorConversacionAuto.putBoolean("conversacionAutomatica", checkConversacionAutomatica.isChecked());
+                        Log.d("conversacionAutomatica", "conversacion automatica es " + checkConversacionAutomatica.isChecked());
+                    }
+                    else{
+                        editorConversacionAuto.putBoolean("conversacionAutomatica", true);
+                        Log.d("conversacionAutomatica", "conversacion automatica es " + true);
+                    }
                     editorConversacionAuto.apply();
                     editorModoTeclado.apply();
                     finish();

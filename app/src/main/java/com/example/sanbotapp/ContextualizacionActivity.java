@@ -61,7 +61,7 @@ public class ContextualizacionActivity extends TopBaseActivity {
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
 
         // Creo una sección de almacenamiento local donde se guardará la voz seleccionada del robot
-        SharedPreferences sharedPrefVoz = this.getSharedPreferences("voces", MODE_PRIVATE);
+        SharedPreferences sharedPrefVoz = this.getSharedPreferences("vozSeleccionada", MODE_PRIVATE);
         SharedPreferences.Editor editorVoz = sharedPrefVoz.edit();
 
         // Creo una sección de almacenamiento local donde se guardará el género del robot
@@ -159,8 +159,9 @@ public class ContextualizacionActivity extends TopBaseActivity {
                 @Override
                 public void onClick(View v) {
 
-                    editorVoz.putString("voz", vozSeleccionada);
-                    editorVoz.putInt("dropdownIndex", dropdownIndexVoz);
+                    Log.d("voz", "voy a meter " + vozSeleccionada);
+                    editorVoz.putString("vozSeleccionada", vozSeleccionada);
+                    editorVoz.putInt("dropdownIndexVoz", dropdownIndexVoz);
                     editorVoz.apply();
 
                     if (grupoEdadSeleccionado.equals("-")) {
@@ -191,7 +192,7 @@ public class ContextualizacionActivity extends TopBaseActivity {
                         editorContexto.apply();
                     }
                     // Pasamos a la actividad de modulo conversacional
-                    Intent moduloConversacionalActivity = new Intent(ContextualizacionActivity.this, ModuloConversacional.class);
+                    Intent moduloConversacionalActivity = new Intent(ContextualizacionActivity.this, TutorialModuloConversacional.class);
                     startActivity(moduloConversacionalActivity);
                     finish();
                 }
@@ -208,7 +209,7 @@ public class ContextualizacionActivity extends TopBaseActivity {
                 // Pasamos a la actividad de modulo conversacional
                 @Override
                 public void onClick(View v) {
-                    Intent moduloConversacionalActivity = new Intent(ContextualizacionActivity.this, ModuloConversacional.class);
+                    Intent moduloConversacionalActivity = new Intent(ContextualizacionActivity.this, TutorialModuloConversacional.class);
                     startActivity(moduloConversacionalActivity);
                     finish();
                 }

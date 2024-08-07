@@ -2,25 +2,35 @@ package com.example.sanbotapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.graphics.drawable.Drawable;
 import android.media.MediaDataSource;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.StrictMode;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.FuncConstant;
 import com.qihancloud.opensdk.beans.OperationResult;
 import com.qihancloud.opensdk.function.beans.EmotionsType;
+import com.qihancloud.opensdk.function.beans.LED;
 import com.qihancloud.opensdk.function.beans.SpeakOption;
+import com.qihancloud.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
+import com.qihancloud.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
+import com.qihancloud.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
 import com.qihancloud.opensdk.function.beans.speech.Grammar;
 import com.qihancloud.opensdk.function.unit.HandMotionManager;
 import com.qihancloud.opensdk.function.unit.HardWareManager;
@@ -51,18 +61,18 @@ public class ModuloConversacional extends TopBaseActivity {
 
     // Componentes módulo conversacional
     private Button botonAjustes;
+    private Button botonNuevaConversacion;
     private Button botonPlayPause;
+    private Button botonTutorial;
     private Button botonRepetir;
-    private TextView dialogoUsuario;
-    private TextView dialogoRobot;
+    private ListView dialogo;
     private Button botonHablar;
     private Button botonHablarTeclado;
     private Button botonEnviarTeclado;
     private EditText textoConsulta;
 
     // Modulos del robot
-
-    private static SpeechManager speechManager;
+    private SpeechManager speechManager;
     private HeadMotionManager headMotionManager;
     private HandMotionManager handMotionManager;
     private SystemManager systemManager;
@@ -78,7 +88,6 @@ public class ModuloConversacional extends TopBaseActivity {
             "AMOR", "SUMISIÓN", "SUSTO", "DECEPCIÓN", "REMORDIMIENTO", "DESPRECIO", "AGRESIVIDAD", "ESPERANZA", "CULPA", "CURIOSIDAD",
             "DESESPERACIÓN", "INCREDULIDAD", "ENVIDIA", "CINISMO", "ORGULLO", "ANSIEDAD", "DELEITE", "SENTIMENTALISMO", "VERGÜENZA",
             "INDIGNACIÓN", "PESIMISMO", "MORBOSIDAD", "DOMINANCIA"};
-    private static int indexEmociones = 0;
 
     // Gestión MediaPlayer
     private static MediaPlayer mediaPlayer = new MediaPlayer();
@@ -106,8 +115,6 @@ public class ModuloConversacional extends TopBaseActivity {
     // Lista de variables necesarias para el envío de requests en la API de ChatGPT
 
     private Map<String, String> roleSystem = new HashMap<>();
-
-    Map<String, String> roleUser = new HashMap<>();
     private List<Map<String, String>> messages = new ArrayList<>();
 
     private boolean forzarParada = false;
@@ -126,15 +133,20 @@ public class ModuloConversacional extends TopBaseActivity {
             "así que [(14)/(25-35)], si mi respuesta es de enfado, tú tratarás de calmarme y mostrarás curiosidad por saber qué me ocurre, asi que [(21)/(3-35)], si te digo que me gusta alguien" +
             "mi respuesta será de amor y vergüenza, y tú puedes sentir sorpresa, así que [(26-44)/(11)]. ";
 
-    private String contentPersonalizacion = "También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
-            "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años";
-
-
-    private String contentContextualizacionSinContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot;
-
-    private String contentContextualizacionConContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot + " y además " + contexto;
 
     private static SpeakOption so = new SpeakOption();
+
+    // ------------------- PRUEBAS CHAT -----------------
+
+
+
+
+    //to scroll the list view to bottom on data change
+
+    private ChatArrayAdapter chatArrayAdapter;
+
+    private List<ChatMessage> conversacion;
+
 
     @Override
     public void onResume() {
@@ -153,10 +165,30 @@ public class ModuloConversacional extends TopBaseActivity {
         modoTeclado = getBooleanSharedPreferences("modoTeclado", false);
 
         personalizacionActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        contextualizacionActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        interpretacionEmocionalActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        contextoVacio = getBooleanSharedPreferences("personalizacionActivada", false);
+        contextualizacionActivada = getBooleanSharedPreferences("contextualizacionActivada", false);
+        interpretacionEmocionalActivada = getBooleanSharedPreferences("interpretacionEmocionalActivada", false);
+        contextoVacio = getBooleanSharedPreferences("contextoVacio", false);
 
+        // ------------------- PRUEBAS CHAT -----------------
+        dialogo.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.activity_chat_singlemessage);
+        if(chatArrayAdapter.isEmpty()){
+            for(ChatMessage cm : conversacion){
+                Log.d("cm", cm.toString());
+                chatArrayAdapter.add(cm);
+            }
+            Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
+            dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+        }
+        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
+                dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+            }
+        });
+        dialogo.setAdapter(chatArrayAdapter);
 
         if(modoTeclado){
             botonEnviarTeclado.setVisibility(View.VISIBLE);
@@ -170,26 +202,30 @@ public class ModuloConversacional extends TopBaseActivity {
             textoConsulta.setVisibility(View.INVISIBLE);
             botonHablar.setVisibility(View.VISIBLE);
         }
-        if(nombreUsuario==null || edadUsuario==0){
+        if(nombreUsuario == null || edadUsuario==0){
             personalizacionActivada = false;
+            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionActivada);
         }
         else{
             personalizacionActivada = true;
+            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionActivada);
         }
-        if(generoRobot==null && grupoEdadRobot == null){
+        if(generoRobot == null || grupoEdadRobot == null){
             contextualizacionActivada = false;
+            Log.d("contextualizacionActiva", "contextualizacionActivada es " + contextualizacionActivada);
         }
         else{
             contextualizacionActivada = true;
+            Log.d("contextualizacionActiva", "contextualizacionActivada es " + contextualizacionActivada);
         }
-        if(contexto==null){
+        if(contexto == null || contexto.equals("")){
             contextoVacio = true;
+            Log.d("contextoVacio", "contextoVacio es " + contextoVacio);
         }
         else{
             contextoVacio = false;
+            Log.d("contextoVacio", "contextoVacio es " + contextoVacio);
         }
-
-
     }
 
 
@@ -201,17 +237,21 @@ public class ModuloConversacional extends TopBaseActivity {
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_modulo_conversacional);
+        setContentView(R.layout.activity_modulo_conversacional_prueba);
+
+        conversacion = new ArrayList<>();
 
         botonAjustes = findViewById(R.id.botonAjustes);
+        botonTutorial = findViewById(R.id.botonTutorial);
         botonPlayPause = findViewById(R.id.botonDetener);
         botonRepetir = findViewById(R.id.botonRepetir);
-        dialogoUsuario = findViewById(R.id.burbujaDialogoUsuario); // LISTVIEW ??
-        dialogoRobot = findViewById(R.id.burbujaDialogoRobot); // LISTVIEW ??
+        //dialogoUsuario = findViewById(R.id.burbujaDialogoUsuario); // LISTVIEW ??
+        dialogo = findViewById(R.id.burbujaDialogo); // LISTVIEW ??
         botonHablar = findViewById(R.id.botonHablar);
         botonHablarTeclado = findViewById(R.id.botonHablarTeclado);
         botonEnviarTeclado = findViewById(R.id.botonEnviarTeclado);
         textoConsulta = findViewById(R.id.textoConsultaTeclado);
+        botonNuevaConversacion = findViewById(R.id.botonNuevaConversacion);
 
         if(modoTeclado){
             botonEnviarTeclado.setVisibility(View.VISIBLE);
@@ -225,6 +265,26 @@ public class ModuloConversacional extends TopBaseActivity {
             textoConsulta.setVisibility(View.INVISIBLE);
             botonHablar.setVisibility(View.VISIBLE);
         }
+
+        dialogo.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.activity_chat_singlemessage);
+        if(chatArrayAdapter.isEmpty()){
+            for(ChatMessage cm : conversacion){
+                Log.d("cm", cm.toString());
+                chatArrayAdapter.add(cm);
+            }
+            Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
+            dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+        }
+        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
+                dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+            }
+        });
+        dialogo.setAdapter(chatArrayAdapter);
 
         // Inicialización de las unidades del robot
 
@@ -265,30 +325,44 @@ public class ModuloConversacional extends TopBaseActivity {
         contexto = getStringSharedPreferences("contextoPersonalizacion", null);
         conversacionAutomatica = getBooleanSharedPreferences("conversacionAutomatica", true);
         personalizacionActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        contextualizacionActivada = getBooleanSharedPreferences("personalizacionActivada", false);
-        interpretacionEmocionalActivada = getBooleanSharedPreferences("personalizacionActivada", true);
+        contextualizacionActivada = getBooleanSharedPreferences("contextualizacionActivada", false);
+        interpretacionEmocionalActivada = getBooleanSharedPreferences("interpretacionEmocionalActivada", false);
         contextoVacio = getBooleanSharedPreferences("personalizacionActivada", false);
         modoTeclado = getBooleanSharedPreferences("modoTeclado", false);
 
 
-        if(nombreUsuario==null || edadUsuario==0){
+        if(nombreUsuario == null || edadUsuario==0){
             personalizacionActivada = false;
+            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionActivada);
         }
         else{
             personalizacionActivada = true;
+            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionActivada);
         }
-        if(generoRobot==null && grupoEdadRobot == null){
+        if(generoRobot == null || grupoEdadRobot == null){
             contextualizacionActivada = false;
+            Log.d("contextualizacionActiva", "contextualizacionActivada es " + contextualizacionActivada);
         }
         else{
             contextualizacionActivada = true;
+            Log.d("contextualizacionActiva", "contextualizacionActivada es " + contextualizacionActivada);
         }
-        if(contexto==null){
+        if(contexto == null){
             contextoVacio = true;
+            Log.d("contextoVacio", "contextoVacio es " + contextoVacio);
         }
         else{
             contextoVacio = false;
+            Log.d("contextoVacio", "contextoVacio es " + contextoVacio);
         }
+
+        String contentPersonalizacion = "También quiero que a veces me llames por mi nombre que es " + nombreUsuario + " y " +
+                "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años";
+
+
+        String contentContextualizacionSinContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot;
+
+        String contentContextualizacionConContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot + " y además " + contexto;
 
         // ROLESYSTEM API OPENAI
 
@@ -297,19 +371,19 @@ public class ModuloConversacional extends TopBaseActivity {
         // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN CON CONTEXTO
 
         if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && !contextoVacio){
-            roleSystem.put("content", contentConversacion + "," + contentInterpretacionEmocional + contentContextualizacionConContexto);
+            roleSystem.put("content", contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional + contentContextualizacionConContexto);
         }
         // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN SIN CONTEXTO
         else if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && contextoVacio){
-            roleSystem.put("content", contentConversacion + "," + contentInterpretacionEmocional + contentContextualizacionSinContexto);
+            roleSystem.put("content", contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional + contentContextualizacionSinContexto);
         }
         // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL
         else if(personalizacionActivada && interpretacionEmocionalActivada && !contextualizacionActivada){
-            roleSystem.put("content", contentConversacion + "," + contentInterpretacionEmocional);
+            roleSystem.put("content", contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional);
         }
         // PERSONALIZACIÓN + CONVERSACIÓN
         else if(personalizacionActivada && !interpretacionEmocionalActivada){
-            roleSystem.put("content", contentConversacion);
+            roleSystem.put("content", contentPersonalizacion);
         }
         // CONVERSACIÓN
         else{
@@ -320,6 +394,44 @@ public class ModuloConversacional extends TopBaseActivity {
 
 
         try {
+
+            botonNuevaConversacion.setOnClickListener(new View.OnClickListener() {
+                // Al pulsarlo muestra la pantalla de ajustes
+                @Override
+                public void onClick (View v){
+                    roleSystem.clear();
+                    // ROLESYSTEM API OPENAI
+
+                    roleSystem.put("role", "system");
+
+                    // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN CON CONTEXTO
+
+                    if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && !contextoVacio){
+                        roleSystem.put("content", contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional + contentContextualizacionConContexto);
+                    }
+                    // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN SIN CONTEXTO
+                    else if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && contextoVacio){
+                        roleSystem.put("content", contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional + contentContextualizacionSinContexto);
+                    }
+                    // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL
+                    else if(personalizacionActivada && interpretacionEmocionalActivada && !contextualizacionActivada){
+                        roleSystem.put("content", contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional);
+                    }
+                    // PERSONALIZACIÓN + CONVERSACIÓN
+                    else if(personalizacionActivada && !interpretacionEmocionalActivada){
+                        roleSystem.put("content", contentPersonalizacion);
+                    }
+                    // CONVERSACIÓN
+                    else{
+                        roleSystem.put("content", contentConversacion);
+                    }
+
+                    messages.clear();
+                    messages.add(roleSystem);
+                    chatArrayAdapter.clear();
+                    dialogo.setAdapter(chatArrayAdapter);
+                }
+            });
 
             // Gestión de los speakers del robot mediante el módulo SpeechManager
             speechManager.setOnSpeechListener(new SpeakListener(){
@@ -363,6 +475,16 @@ public class ModuloConversacional extends TopBaseActivity {
                         botonHablar.performClick();
                     }
                     forzarParada = false;
+                }
+            });
+
+            // Gestión de la pulsación del botón de ajustes
+            botonTutorial.setOnClickListener(new View.OnClickListener() {
+                // Al pulsarlo muestra la pantalla de ajustes
+                @Override
+                public void onClick (View v){
+                    Intent menuConfiguracionActivity = new Intent(ModuloConversacional.this, TutorialModuloConversacional.class);
+                    startActivity(menuConfiguracionActivity);
                 }
             });
             // Gestión de la pulsación del botón de ajustes
@@ -482,6 +604,7 @@ public class ModuloConversacional extends TopBaseActivity {
             public boolean onRecognizeResult(Grammar grammar) {
 
                 Log.d("prueba", "reconociendo consulta...");
+
 
                 String cadenaReconocida = grammar.getText();
 
@@ -641,6 +764,7 @@ public class ModuloConversacional extends TopBaseActivity {
 
                 // ----------- DATOS PARA REALIZAR PETICIÓN A LA API DE OPENAI ---------
 
+                Map<String, String> roleUser = new HashMap<>();
                 roleUser.put("role", "user");
                 roleUser.put("content", pregunta);
 
@@ -724,12 +848,12 @@ public class ModuloConversacional extends TopBaseActivity {
                     if(interpretacionEmocionalActivada) {
                         String[] cadena = separarEmociones(r);
 
-                        sentimientosUsuario(cadena[0], (ArrayList<Integer>) codigoEmocionesUsuario);
+                        sentimientosUsuario(cadena[0]);
 
-                        sentimientosRobot(cadena[1], (ArrayList<Integer>) codigoEmocionesRobot);
+                        sentimientosRobot(cadena[1]);
                     }
                     //-------
-                    dialogoRobot.post(new Runnable() {
+                    dialogo.post(new Runnable() {
                         public void run() {
                             if(interpretacionEmocionalActivada) {
 
@@ -742,10 +866,12 @@ public class ModuloConversacional extends TopBaseActivity {
                             }
 
 
-                            dialogoRobot.setVisibility(View.VISIBLE);
+                            //dialogo.setVisibility(View.VISIBLE);
 
                             // DEBUG!!
-                            dialogoRobot.setText(respuestaGPT);
+                            //dialogoRobot.setText(respuestaGPT);
+                            chatArrayAdapter.add(new ChatMessage(true, respuestaGPT));
+                            conversacion.add(new ChatMessage(true, respuestaGPT));
                             //dialogoRobot.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
                             //       emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
                         }
@@ -810,7 +936,7 @@ public class ModuloConversacional extends TopBaseActivity {
         else return "";
     }
 
-    private String getStringSharedPreferences(String nombreSharedPreferences, String defaultValue){
+    public String getStringSharedPreferences(String nombreSharedPreferences, String defaultValue){
         SharedPreferences sp = this.getSharedPreferences(nombreSharedPreferences, MODE_PRIVATE);
         Log.d("getStringPreferences", "el valor de " + nombreSharedPreferences + " es " + sp.getString(nombreSharedPreferences, defaultValue));
         return sp.getString(nombreSharedPreferences, defaultValue);
@@ -826,7 +952,7 @@ public class ModuloConversacional extends TopBaseActivity {
         return sp.getBoolean(nombreSharedPreferences, defaultValue);
     }
 
-    private void gestionVoz(String voz, AccionReproduccionVoz accionVoz) throws IOException {
+    public void gestionVoz(String voz, AccionReproduccionVoz accionVoz) throws IOException {
         if(voz.equals("sanbot")){
             switch (accionVoz) {
                 case DETENER:
@@ -895,7 +1021,8 @@ public class ModuloConversacional extends TopBaseActivity {
         return segmentos;
     }
 
-    private void sentimientosUsuario(String emocionesUsuario, ArrayList<Integer> codigoEmocionesUsuario){
+    private void sentimientosUsuario(String emocionesUsuario){
+        ArrayList<Integer> codigoEmocionesUsuario = new ArrayList<>();
         String usuarioFinal = emocionesUsuario.substring(emocionesUsuario.indexOf("(") + 1, emocionesUsuario.indexOf(")"));
         Log.d("Respuesta usuario final", usuarioFinal);
         String[] sentimientosUsuario = usuarioFinal.split("-");
@@ -904,15 +1031,17 @@ public class ModuloConversacional extends TopBaseActivity {
         }
     };
 
-    private void sentimientosRobot(String emocionesRobot, ArrayList<Integer> codigoEmocionesRobot){
+    private void sentimientosRobot(String emocionesRobot) throws InterruptedException {
+        ArrayList<Integer> codigoEmocionesRobot = new ArrayList<>();
         String robotFinal = emocionesRobot.substring(emocionesRobot.indexOf("(") + 1, emocionesRobot.indexOf(")"));
         Log.d("Respuesta robot final", robotFinal);
         String[] sentimientosRobot = robotFinal.split("-");
         for(String sentimientos : sentimientosRobot){
             codigoEmocionesRobot.add(Integer.valueOf(sentimientos));
         }
+        expresividadFacial(codigoEmocionesRobot);
     };
-    public static void hablar(String voz, String respuesta) throws IOException {
+    public void hablar(String voz, String respuesta) throws IOException {
         Log.d("hablar", respuesta);
         if(voz.equals("sanbot")){
             speechManager.startSpeak(respuesta, so);
@@ -922,7 +1051,7 @@ public class ModuloConversacional extends TopBaseActivity {
         }
     }
 
-    private void expresividadFacial(ArrayList<Integer> codigoEmocionesRobot){
+    private void expresividadFacial(List<Integer> codigoEmocionesRobot) throws InterruptedException {
         int indexSentimiento;
         if(codigoEmocionesRobot.size()>1){
             indexSentimiento = codigoEmocionesRobot.get((int) Math.floor(Math.random() * codigoEmocionesRobot.size()));
@@ -930,75 +1059,146 @@ public class ModuloConversacional extends TopBaseActivity {
         else{
             indexSentimiento = codigoEmocionesRobot.get(0);
         }
-        if(indexSentimiento>=0 && indexSentimiento<=2){
+        Log.d("indexSentimiento", String.valueOf(indexSentimiento));
+        if(indexSentimiento>=0 && indexSentimiento<=2){ // ALEGRÍA
             cambiarEmocion(EmotionsType.SMILE);
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_YELLOW));
+            controlBasicoBrazos(AccionesBrazos.LEVANTAR_BRAZO, TipoBrazo.AMBOS);
         }
-        else if(indexSentimiento>=3 && indexSentimiento<=5){
+        else if(indexSentimiento>=3 && indexSentimiento<=5){ // CONFIANZA
             cambiarEmocion(EmotionsType.PRISE);
         }
-        else if(indexSentimiento>=6 && indexSentimiento<=8){
+        else if(indexSentimiento>=6 && indexSentimiento<=8){ // MIEDO
             cambiarEmocion(EmotionsType.GRIEVANCE);
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_PURPLE));
         }
-        else if(indexSentimiento>=9 && indexSentimiento<=10){
+        else if(indexSentimiento>=9 && indexSentimiento<=10){ // SORPRESA
             cambiarEmocion(EmotionsType.SURPRISE);
+            controlBasicoBrazos(AccionesBrazos.LEVANTAR_BRAZO, TipoBrazo.AMBOS);
         }
-        else if(indexSentimiento==11){
-            cambiarEmocion(EmotionsType.PICKNOSE); // aaaaaaa
+        else if(indexSentimiento==11){ // DISTRACCIÓN
+            cambiarEmocion(EmotionsType.SWEAT);
         }
-        else if(indexSentimiento>=12 && indexSentimiento<=13){
+        else if(indexSentimiento>=12 && indexSentimiento<=13){ // TRISTEZA
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_BLUE));
+            controlBasicoCabeza(AccionesCabeza.ABAJO);
             cambiarEmocion(EmotionsType.GOODBYE);
         }
-        else if(indexSentimiento==14){
+        else if(indexSentimiento==14){ // MELANCOLIA
             cambiarEmocion(EmotionsType.GRIEVANCE);
         }
-        else if(indexSentimiento>=15 && indexSentimiento<=17){
+        else if(indexSentimiento>=15 && indexSentimiento<=16){ // ASCO
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_GREEN));
             cambiarEmocion(EmotionsType.ARROGANCE);
         }
-        else if(indexSentimiento>=18 && indexSentimiento<=19){
+        else if(indexSentimiento==17){ // ABURRIMIENTO
+            cambiarEmocion(EmotionsType.SLEEP);
+        }
+        else if(indexSentimiento>=18 && indexSentimiento<=19){ // IRA
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_RED));
             cambiarEmocion(EmotionsType.ANGRY);
         }
-        else if(indexSentimiento==20){
-            cambiarEmocion(EmotionsType.ANGRY); // aaaaaa QUIERO PONER SHOUT
+        else if(indexSentimiento==20){ // ENFADO
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_RED));
+            cambiarEmocion(EmotionsType.ABUSE);
         }
-        else if(indexSentimiento>=21 && indexSentimiento<=23){
-            cambiarEmocion(EmotionsType.SNICKER);
+        else if(indexSentimiento>=21 && indexSentimiento<=23){ // INTERÉS
+            cambiarEmocion(EmotionsType.QUESTION);
         }
-        else if(indexSentimiento==24){
+        else if(indexSentimiento==24){ // OPTIMISMO
+                cambiarEmocion(EmotionsType.SMILE);
+        }
+        else if(indexSentimiento==25){ // AMOR
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_PINK));
+            controlBasicoCabeza(AccionesCabeza.ABAJO);
             cambiarEmocion(EmotionsType.LAUGHTER);
         }
-        else if(indexSentimiento==25){
-            cambiarEmocion(EmotionsType.SMILE); // aaaaaa QUIERO PONER SHOUT
-        }
-        else if(indexSentimiento==26){
+        else if(indexSentimiento==26){ // SUMISION
             cambiarEmocion(EmotionsType.GRIEVANCE);
         }
-        else if(indexSentimiento==27){
-            cambiarEmocion(EmotionsType.GRIEVANCE); // aaaaaa QUIERO PONER ASHAMED
+        else if(indexSentimiento==27){ // SUSTO
+            cambiarEmocion(EmotionsType.SWEAT);
         }
-        else if(indexSentimiento==28){
+        else if(indexSentimiento==28){ // DECEPCION
             cambiarEmocion(EmotionsType.GOODBYE);
         }
-        else if(indexSentimiento==29){
-            cambiarEmocion(EmotionsType.GOODBYE); // aaaaaa QUIERO PONER ASHAMED
+        else if(indexSentimiento==29){ // REMORDIMIENTO
+            cambiarEmocion(EmotionsType.SWEAT);
         }
-        else if(indexSentimiento==30){
-            cambiarEmocion(EmotionsType.ANGRY); // aaaaaa QUIERO PONER SHOUT
+        else if(indexSentimiento==30){ // DESPRECIO
+            cambiarEmocion(EmotionsType.ARROGANCE);
+        }
+        else if(indexSentimiento==31){ // AGRESIVIDAD
+            cambiarEmocion(EmotionsType.ANGRY);
+        }
+        else if(indexSentimiento==32){ // ESPERANZA
+            cambiarEmocion(EmotionsType.SMILE);
+        }
+        else if(indexSentimiento==33){ // CULPA
+            cambiarEmocion(EmotionsType.SWEAT);
+        }
+        else if(indexSentimiento==34){ // CURIOSIDAD
+            cambiarEmocion(EmotionsType.SNICKER);
+        }
+        else if(indexSentimiento==35){ // DESESPERACION
+            cambiarEmocion(EmotionsType.GRIEVANCE);
+        }
+        else if(indexSentimiento==36){ // INCREDULIDAD
+            cambiarEmocion(EmotionsType.SURPRISE);
+        }
+        else if(indexSentimiento==37){ // ENVIDIA
+            cambiarEmocion(EmotionsType.ARROGANCE);
+        }
+        else if(indexSentimiento==38){ // CINISMO
+            cambiarEmocion(EmotionsType.ARROGANCE);
+        }
+        else if(indexSentimiento==39){ // ORGULLO
+            cambiarEmocion(EmotionsType.SMILE);
+        }
+        else if(indexSentimiento==40){ // ANSIEDAD
+            cambiarEmocion(EmotionsType.GRIEVANCE);
+        }
+        else if(indexSentimiento==41){ // DELEITE
+            cambiarEmocion(EmotionsType.SMILE);
+        }
+        else if(indexSentimiento==42){ // SENTIMENTALISMO
+            cambiarEmocion(EmotionsType.SMILE);
+        }
+        else if(indexSentimiento==43){ // VERGUENZA
+            cambiarEmocion(EmotionsType.SHY);
+            hardWareManager.setLED(new LED(LED.PART_ALL, LED.MODE_PINK));
+            controlBasicoCabeza(AccionesCabeza.ABAJO);
+        }
+        else if(indexSentimiento==44){ // INDIGNACIÓN
+            cambiarEmocion(EmotionsType.ABUSE);
+        }
+        else if(indexSentimiento==45){ // PESIMISMO
+            cambiarEmocion(EmotionsType.GOODBYE);
+            controlBasicoCabeza(AccionesCabeza.ABAJO);
+        }
+        else if(indexSentimiento==46){ // MORBOSIDAD
+            cambiarEmocion(EmotionsType.FAINT);
+        }
+        else if(indexSentimiento==47){ // DOMINANCIA
+            cambiarEmocion(EmotionsType.ARROGANCE);
         }
     }
 
     private void enviarConsulta(){
         // Muestro por pantalla la consulta del usuario
         // e indico que la respuesta se está cargando
-        dialogoUsuario.setVisibility(View.VISIBLE);
-        dialogoUsuario.setText(consultaChatGPT);
-        dialogoRobot.setVisibility(View.VISIBLE);
-        dialogoRobot.setText("Cargando...");
+        //dialogoUsuario.setVisibility(View.VISIBLE);
+        //dialogoUsuario.setText(consultaChatGPT);
+        chatArrayAdapter.add(new ChatMessage(false, consultaChatGPT));
+        conversacion.add(new ChatMessage(false, consultaChatGPT));
+        //dialogoRobot.setVisibility(View.VISIBLE);
+        //dialogoRobot.setText("Cargando...");
 
         textoConsulta.setText("");
 
         if(consultaRobot){
             try {
-                hablar(diaYHora(), vozSeleccionada);
+                hablar(vozSeleccionada, diaYHora());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -1028,6 +1228,99 @@ public class ModuloConversacional extends TopBaseActivity {
             }
         });
         mediaPlayer.prepareAsync();
+    }
+
+    public enum AccionesBrazos {
+        LEVANTAR_BRAZO,
+        BAJAR_BRAZO,
+    }
+
+    public enum TipoBrazo {
+        DERECHO,
+        IZQUIERDO,
+        AMBOS;
+    }
+
+    public enum AccionesCabeza {
+        DERECHA,
+        IZQUIERDA,
+        ARRIBA,
+        ABAJO,
+        CENTRO;
+    }
+
+    private boolean controlBasicoBrazos(AccionesBrazos accion, TipoBrazo brazo) throws InterruptedException {
+        byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
+        AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 0);
+        switch(accion) {
+            case LEVANTAR_BRAZO:
+                switch (brazo) {
+                    case IZQUIERDO:
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 7, 10);
+                        handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                        break;
+                    case DERECHO:
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], 7, 10);
+                        handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                        break;
+                    case AMBOS:
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 7, 10);
+                        handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                        break;
+                }
+                break;
+            case BAJAR_BRAZO:
+                switch (brazo) {
+                    case IZQUIERDO:
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 7, 170);
+                        handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                        break;
+                    case DERECHO:
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[1], 7, 170);
+                        handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                        break;
+                    case AMBOS:
+                        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 7, 170);
+                        handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+                        break;
+                }
+                break;
+        }
+        Thread.sleep(3000);
+        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 7, 170);
+        handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
+        return true;
+    }
+
+    public boolean controlBasicoCabeza(AccionesCabeza accion) throws InterruptedException {
+        RelativeAngleHeadMotion relativeAngleHeadMotion;
+        AbsoluteAngleHeadMotion absoluteAngleHeadMotion;
+        switch (accion) {
+            case IZQUIERDA:
+                relativeAngleHeadMotion = new RelativeAngleHeadMotion(RelativeAngleHeadMotion.ACTION_LEFT, 180);
+                headMotionManager.doRelativeAngleMotion(relativeAngleHeadMotion);
+                break;
+            case DERECHA:
+                relativeAngleHeadMotion = new RelativeAngleHeadMotion(RelativeAngleHeadMotion.ACTION_RIGHT, 180);
+                headMotionManager.doRelativeAngleMotion(relativeAngleHeadMotion);
+                break;
+            case ARRIBA:
+                relativeAngleHeadMotion = new RelativeAngleHeadMotion(RelativeAngleHeadMotion.ACTION_UP, 30);
+                headMotionManager.doRelativeAngleMotion(relativeAngleHeadMotion);
+                break;
+            case ABAJO:
+                relativeAngleHeadMotion = new RelativeAngleHeadMotion(RelativeAngleHeadMotion.ACTION_DOWN, 30);
+                headMotionManager.doRelativeAngleMotion(relativeAngleHeadMotion);
+                break;
+            case CENTRO:
+                absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90);
+                headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
+                break;
+        }
+        Thread.sleep(3000);
+        absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90);
+        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
+        return true;
     }
     @Override
     protected void onMainServiceConnected() {

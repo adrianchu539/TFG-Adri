@@ -12,6 +12,7 @@ public class MenuConfiguracion extends TopBaseActivity {
     private Button botonAjustes;
     private Button botonPersonalizacion;
     private Button botonContextualizacion;
+    private Button botonAtras;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,7 @@ public class MenuConfiguracion extends TopBaseActivity {
             botonAjustes = findViewById(R.id.botonAjustes);
             botonPersonalizacion = findViewById(R.id.botonPersonalizacion);
             botonContextualizacion = findViewById(R.id.botonContextualizacion);
+            botonAtras = findViewById(R.id.botonAtras);
 
             botonAjustes.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -47,6 +49,14 @@ public class MenuConfiguracion extends TopBaseActivity {
                 public void onClick (View v){
                     Intent cuestionarioNombreActivity = new Intent(MenuConfiguracion.this, CuestionarioNombre.class);
                     startActivity(cuestionarioNombreActivity);
+                    finish();
+                }
+            });
+            botonAtras.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick (View v){
+                    Intent moduloConversacionalActivity = new Intent(MenuConfiguracion.this, ModuloConversacional.class);
+                    startActivity(moduloConversacionalActivity);
                     finish();
                 }
             });

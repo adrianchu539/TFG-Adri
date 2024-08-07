@@ -22,10 +22,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.NoActionBar">
         <meta-data android:name="RECOGNIZE_MODE" android:value="1"/>
         <activity
-            android:name=".CuestionarioNombre"
+            android:name=".MenuPruebas"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -33,14 +33,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HandControl" />
-        <activity android:name=".SpeechControl" />
-        <activity android:name=".MediaControlActivity" />
-        <activity android:name=".WheelControlActivity"/>
         <activity android:name=".SettingsActivity"/>
         <activity android:name=".ModuloConversacional"/>
         <activity android:name=".CuestionarioEdad"/>
         <activity android:name=".ContextualizacionActivity"/>
+        <activity android:name=".TutorialModuloConversacional"/>
+        <activity android:name=".CuestionarioNombre"/>
+        <activity android:name=".MenuConfiguracion"/>
+        <activity android:name=".PruebaVoces"/>
 
 
     </application>

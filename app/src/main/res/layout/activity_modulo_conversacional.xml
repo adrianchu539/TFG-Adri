@@ -38,6 +38,22 @@
         android:drawableStart="@drawable/baseline_help_24"
         android:drawablePadding="8dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/botonNuevaConversacion"/>
+
+    <Button
+        android:id="@+id/botonNuevaConversacion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="Nueva conversación"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textAllCaps="false"
+        android:padding="10dp"
+        android:background="@drawable/button_rounded"
+        android:drawableStart="@drawable/baseline_add_comment_24"
+        android:drawablePadding="8dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/botonAjustes"/>
 
 
@@ -102,9 +118,10 @@
             android:scrollbars="vertical"
             android:background="@drawable/outcoming_speech_bubble"
             android:textSize="28dp"
+            android:textColor="@color/colorWhite"
             android:layout_gravity="right"
-            android:visibility="invisible"
-            android:text=""
+            android:visibility="visible"
+            android:text="Buenos días, Sanbot"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:layout_marginStart="50dp"
@@ -119,9 +136,10 @@
             android:id="@+id/burbujaDialogoRobot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
             android:scrollbars="vertical"
-            android:text=""
-            android:visibility="invisible"
+            android:text="¡Hola! Qué alegría verte. ¿De qué quieres hablar?"
+            android:visibility="visible"
             android:background="@drawable/incoming_speech_bubble"
             android:textSize="28dp"
             android:layout_gravity="start"

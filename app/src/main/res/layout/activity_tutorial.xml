@@ -6,104 +6,142 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/Tutorial"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="10dp"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
         <LinearLayout
-            android:id="@+id/Tutorial"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingLeft="10dp"
-            android:gravity="center">
+            android:layout_width="1000dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="500dp"
+            <TextView
+                android:id="@+id/TutorialTitulo"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_gravity="center">
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                android:layout_marginTop="16dp"
+                android:text="TUTORIAL"
+                android:textColor="@color/colorPurple"
+                android:textSize="30sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/TutorialTitulo"
+            <TextView
+                android:id="@+id/TutorialPasos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                android:layout_marginTop="16dp"
+                android:text=""
+                android:textColor="@color/colorPurple"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textoTutorial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="0dp"
+                android:layout_marginTop="16dp"
+                android:gravity="start"
+                android:text=""
+                android:textColor="@color/colorPurple"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/imagen"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </ImageView>
+
+            <RelativeLayout
+                android:id="@+id/layoutBarraInferior"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <Button
+                    android:id="@+id/botonAtras"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:layout_marginTop="16dp"
-                    android:text="TUTORIAL"
-                    android:textColor="@color/colorPurple"
-                    android:textStyle="bold"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/button_rounded"
+                    android:drawableStart="@drawable/baseline_arrow_back_24"
+                    android:drawablePadding="10dp"
+                    android:padding="10dp"
+                    android:text="Atrás"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
                     android:textSize="30sp"
-                    android:layout_gravity="center"/>
+                    android:visibility="visible" />
 
-                <TextView
-                    android:id="@+id/textoTutorial"
+                <Button
+                    android:id="@+id/botonOmitir"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:layout_marginTop="16dp"
-                    android:gravity="start"
-                    android:layout_gravity="center_horizontal"
-                    android:text=""
-                    android:textColor="@color/colorPurple"
-                    android:textStyle="bold"
-                    android:textSize="30sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
-                <LinearLayout
-                    android:id="@+id/layoutModificarVolumen"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:layout_centerInParent="true"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/button_rounded"
+                    android:drawablePadding="10dp"
+                    android:gravity="right"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:text="Omitir"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="30sp" />
 
-                    <LinearLayout
-                        android:id="@+id/a"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                    <Button
-                        android:id="@+id/botonAtras"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="15dp"
-                        android:layout_marginStart="15dp"
-                        android:layout_marginTop="15dp"
-                        android:layout_marginEnd="15dp"
-                        android:layout_marginBottom="15dp"
-                        android:background="@drawable/button_rounded"
-                        android:drawableStart="@drawable/baseline_arrow_back_24"
-                        android:drawablePadding="10dp"
-                        android:padding="10dp"
-                        android:text="Atrás"
-                        android:visibility="invisible"
-                        android:textAllCaps="false"
-                        android:textColor="@android:color/white"
-                        android:textSize="30sp"
-                        android:layout_gravity="center_vertical"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/b"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="140dp">
-
-                    <Button
-                        android:id="@+id/botonSiguiente"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_margin="10dp"
-                        android:background="@drawable/button_rounded"
-                        android:drawablePadding="10dp"
-                        android:padding="10dp"
-                        android:text=""
-                        android:gravity="right"
-                        android:textAllCaps="false"
-                        android:textColor="@android:color/white"
-                        android:textSize="30sp"/>
-                    </LinearLayout>
-
-                </LinearLayout>
-            </LinearLayout>
+                <Button
+                    android:id="@+id/botonSiguiente"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/button_rounded"
+                    android:drawablePadding="10dp"
+                    android:padding="10dp"
+                    android:text="Siguiente"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="30sp" />
+            </RelativeLayout>
         </LinearLayout>
+    </LinearLayout>
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

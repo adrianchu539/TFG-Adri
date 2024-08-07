@@ -20,6 +20,10 @@ public class CuestionarioNombre extends TopBaseActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+        if(nombre!=null){
+            nombreUsuario.setText(nombre);
+        }
         botonAtras.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
