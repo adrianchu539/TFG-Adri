@@ -19,6 +19,8 @@ import com.qihancloud.opensdk.function.beans.speech.Grammar;
 import com.qihancloud.opensdk.function.unit.SpeechManager;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
 
+import java.io.IOException;
+
 
 public class ContextualizacionActivity extends TopBaseActivity {
 
@@ -39,6 +41,7 @@ public class ContextualizacionActivity extends TopBaseActivity {
     private String generoSeleccionado;
     private String grupoEdadSeleccionado;
 
+    private ModuloConversacional moduloConversacional;
     public void onResume(){
         super.onResume();
         botonAtras.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +62,7 @@ public class ContextualizacionActivity extends TopBaseActivity {
         setContentView(R.layout.activity_modulo_contextualizacion);
 
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
+        moduloConversacional = new ModuloConversacional();
 
         // Creo una sección de almacenamiento local donde se guardará la voz seleccionada del robot
         SharedPreferences sharedPrefVoz = this.getSharedPreferences("vozSeleccionada", MODE_PRIVATE);
@@ -202,7 +206,13 @@ public class ContextualizacionActivity extends TopBaseActivity {
                 @Override
                 public void onClick(View v) {
                     speechManager.doWakeUp();
-                    reconocerRespuesta();
+                    try {
+                        moduloConversacional.reconocerConsulta();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             });
             botonOmitir.setOnClickListener(new View.OnClickListener() {
@@ -227,35 +237,6 @@ public class ContextualizacionActivity extends TopBaseActivity {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public boolean reconocerRespuesta(){
-        speechManager.setOnSpeechListener(new RecognizeListener() {
-            @Override
-            public boolean onRecognizeResult(Grammar grammar) {
-                // paso la gramática reconocida a String
-                cadena = grammar.getText();
-                contextoPersonalizacion.setText(cadena);
-                return true;
-            }
-
-            @Override
-            public void onRecognizeVolume(int i) {
-            }
-
-            public void onStartRecognize() {
-                //Log.i("Cris", "onStartRecognize: ");
-            }
-
-            public void onStopRecognize() {
-                //Log.i("Cris", "onStopRecognize: ");
-            }
-
-            public void onError(int i, int i1) {
-                Log.d("errorReconocimiento", "Ha habido un error en reconocimiento");
-            }
-        });
-        return true;
     }
 
     @Override

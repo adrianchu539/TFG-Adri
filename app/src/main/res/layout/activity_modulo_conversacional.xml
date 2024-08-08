@@ -9,7 +9,7 @@
     tools:ignore="MissingClass"
     android:orientation="horizontal">
         <Button
-            android:id="@+id/botonAjustes"
+            android:id="@+id/botonConfiguracion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
@@ -89,20 +89,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@id/botonDetener"/>
 
-    <ScrollView
-        android:id="@+id/scrollViewConversacion"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toTopOf="@id/barra_inferior"
-        app:layout_constraintTop_toBottomOf="@id/botonAjustes"
-        app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="-64dp">
+
         <LinearLayout
             android:id="@+id/linearLayoutConversacion"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="640dp"
             android:orientation="vertical"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
@@ -111,49 +102,22 @@
             app:layout_constraintVertical_bias="0.0"
             tools:layout_editor_absoluteX="-64dp">
 
-        <TextView
-            android:id="@+id/burbujaDialogoUsuario"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:scrollbars="vertical"
-            android:background="@drawable/outcoming_speech_bubble"
-            android:textSize="28dp"
-            android:textColor="@color/colorWhite"
-            android:layout_gravity="right"
-            android:visibility="visible"
-            android:text="Buenos días, Sanbot"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginEnd="20dp"
-            android:padding="50dp"
-            app:layout_constraintBottom_toTopOf="@id/barra_inferior"
-            app:layout_constraintTop_toBottomOf="@id/botonAjustes"
-            app:layout_constraintVertical_bias="0.0"
-            tools:layout_editor_absoluteX="-64dp" />
-
-        <TextView
-            android:id="@+id/burbujaDialogoRobot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorWhite"
-            android:scrollbars="vertical"
-            android:text="¡Hola! Qué alegría verte. ¿De qué quieres hablar?"
-            android:visibility="visible"
-            android:background="@drawable/incoming_speech_bubble"
-            android:textSize="28dp"
-            android:layout_gravity="start"
-            android:layout_marginEnd="50dp"
-            android:layout_marginStart="20dp"
-            android:padding="50dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"
-            app:layout_constraintBottom_toTopOf="@id/barra_inferior"
-            app:layout_constraintTop_toBottomOf="@id/botonAjustes"
-            app:layout_constraintVertical_bias="0.0"
-            tools:layout_editor_absoluteX="-64dp" />
+            <ListView
+                android:id="@+id/burbujaDialogo"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:textSize="28dp"
+                app:layout_constraintBottom_toTopOf="@id/barra_inferior"
+                app:layout_constraintTop_toBottomOf="@id/botonAjustes"
+                app:layout_constraintVertical_bias="0.0"
+                tools:layout_editor_absoluteX="-64dp" />
         </LinearLayout>
-    </ScrollView>
 
     <RelativeLayout
         android:id="@+id/barra_inferior"

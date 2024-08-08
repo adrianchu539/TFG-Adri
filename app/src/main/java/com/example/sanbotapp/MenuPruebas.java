@@ -102,19 +102,6 @@ public class MenuPruebas extends TopBaseActivity {
 
     }
 
-    public void hablar(String voz, String respuesta, SpeechManager sm) throws IOException {
-        Log.d("hablar", respuesta);
-        SpeakOption so = new SpeakOption();;
-        so.setSpeed(60);
-        so.setIntonation(50);
-        if(voz.equals("sanbot")){
-            sm.startSpeak(respuesta, so);
-        }
-        else{
-            ModuloConversacional.APIChatGPTVoz(respuesta, voz.toLowerCase());
-        }
-    }
-
     private void emptySharedPreferences(String nombreSharedPreferences){
         SharedPreferences sp = getSharedPreferences(nombreSharedPreferences, 0);
         sp.edit().clear().commit();

@@ -26,6 +26,12 @@ public class PruebaVoces extends TopBaseActivity {
     private Button botonVoz5;
     private Button botonVoz6;
 
+    private SpeechManager speechManager;
+    private SpeakOption speakOption;
+    private SpeechControl speechControl;
+
+    private ModuloConversacional moduloConversacional;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -33,9 +39,12 @@ public class PruebaVoces extends TopBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prueba_voces);
 
-        SpeechManager sm;
-        sm = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
+        speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
 
+        speakOption.setSpeed(50);
+        speakOption.setIntonation(50);
+
+        speechControl = new SpeechControl(speechManager, speakOption);
 
         try {
 
@@ -50,8 +59,8 @@ public class PruebaVoces extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     try {
-                        hablar("nova", "Hola. Soy Sanbot. Espero que hayas" +
-                                " disfrutado de esta prueba del módulo conversacional", sm);
+                        speechControl.gestionHabla("nova", "Hola. Soy Sanbot. Espero que hayas" +
+                                " disfrutado de esta prueba del módulo conversacional");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -61,8 +70,8 @@ public class PruebaVoces extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     try {
-                        hablar("alloy", "Hola. Soy Sanbot. Espero que hayas" +
-                                " disfrutado de esta prueba del módulo conversacional", sm);
+                        speechControl.gestionHabla("alloy", "Hola. Soy Sanbot. Espero que hayas" +
+                                " disfrutado de esta prueba del módulo conversacional");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -72,8 +81,8 @@ public class PruebaVoces extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     try {
-                        hablar("onyx", "Hola. Soy Sanbot. Espero que hayas" +
-                                " disfrutado de esta prueba del módulo conversacional", sm);
+                        speechControl.gestionHabla("onyx", "Hola. Soy Sanbot. Espero que hayas" +
+                                " disfrutado de esta prueba del módulo conversacional");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -83,8 +92,8 @@ public class PruebaVoces extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     try {
-                        hablar("sanbot", "Hola. Soy Sanbot. Espero que hayas" +
-                                " disfrutado de esta prueba del módulo conversacional", sm);
+                        speechControl.gestionHabla("sanbot", "Hola. Soy Sanbot. Espero que hayas" +
+                                " disfrutado de esta prueba del módulo conversacional");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -94,8 +103,8 @@ public class PruebaVoces extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     try {
-                        hablar("shimmer", "Hola. Soy Sanbot. Espero que hayas" +
-                                " disfrutado de esta prueba del módulo conversacional", sm);
+                        speechControl.gestionHabla("shimmer", "Hola. Soy Sanbot. Espero que hayas" +
+                                " disfrutado de esta prueba del módulo conversacional");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -105,8 +114,8 @@ public class PruebaVoces extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     try {
-                        hablar("echo", "Hola. Soy Sanbot. Espero que hayas" +
-                                " disfrutado de esta prueba del módulo conversacional", sm);
+                        speechControl.gestionHabla("echo", "Hola. Soy Sanbot. Espero que hayas" +
+                                " disfrutado de esta prueba del módulo conversacional");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -116,19 +125,6 @@ public class PruebaVoces extends TopBaseActivity {
             throw new RuntimeException(e);
         }
 
-    }
-
-    public void hablar(String voz, String respuesta, SpeechManager sm) throws IOException {
-        Log.d("hablar", respuesta);
-        SpeakOption so = new SpeakOption();;
-        so.setSpeed(60);
-        so.setIntonation(50);
-        if(voz.equals("sanbot")){
-            sm.startSpeak(respuesta, so);
-        }
-        else{
-            ModuloConversacional.APIChatGPTVoz(respuesta, voz.toLowerCase());
-        }
     }
 
     private void emptySharedPreferences(String nombreSharedPreferences){
