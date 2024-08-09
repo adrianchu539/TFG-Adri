@@ -75,78 +75,74 @@ public class ModuloOpenAICompletions {
         return conversacion;
     }
     protected void consultaOpenAI(String pregunta){
-        new Thread(new Runnable() {
-            public void run() {
 
-                // ----------- DATOS PARA REALIZAR REQUESTS HTTP -------------
+            // ----------- DATOS PARA REALIZAR REQUESTS HTTP -------------
 
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                        .permitAll().build();
-                StrictMode.setThreadPolicy(policy);
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
 
-                final OkHttpClient client = new OkHttpClient();
+            final OkHttpClient client = new OkHttpClient();
 
-                // ----------- DATOS PARA REALIZAR PETICIÓN A LA API DE OPENAI ---------
+            // ----------- DATOS PARA REALIZAR PETICIÓN A LA API DE OPENAI ---------
 
-                anadirRoleUser(pregunta);
+            anadirRoleUser(pregunta);
 
-                JSONArray conversacion = construirConversacion();
+            JSONArray conversacion = construirConversacion();
 
-                JSONObject request = new JSONObject();
+            JSONObject request = new JSONObject();
 
-                try {
-                    request.put("model", "gpt-4o-mini");
-                    request.put("messages", conversacion);
-                    request.put("max_tokens", 800);
+            try {
+                request.put("model", "gpt-4o-mini");
+                request.put("messages", conversacion);
+                request.put("max_tokens", 800);
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                Log.d("respuestaJSON", request.toString());
-
-                RequestBody peticion = RequestBody.create(
-                        MediaType.parse("application/json"), String.valueOf(request));
-
-
-                Request requestOpenAI = new Request.Builder()
-                        .url("https://api.openai.com/v1/chat/completions")
-                        .post(peticion)
-                        .header("Content-Type", "application/json")
-                        .header("Authorization", "Bearer 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")
-                        .build();
-
-                try (Response response = client.newCall(requestOpenAI).execute()) {
-                    if (!response.isSuccessful())
-                        throw new IOException("Unexpected code " + response);
-                    String respuesta = response.body().string();
-                    Log.d("Response", "He recibido: " + respuesta);
-                    JSONObject res = new JSONObject(respuesta);
-                    JSONArray choices = res.getJSONArray("choices");
-                    Log.d("Response", "Choices se compone de " + choices);
-                    String res2 = null;
-                    for (int i = 0; i < choices.length(); i++) {
-                        try {
-                            JSONObject m = choices.getJSONObject(i);
-                            Log.d("Response", "Mensajes se compone de " + m);
-                            // Pulling items from the array
-                            res2 = m.getString("message");
-                        } catch (JSONException e) {
-                            // Oops
-                        }
-                    }
-                    JSONObject mess = new JSONObject(res2);
-                    Log.d("Response", "Messages es " + mess);
-                    String r = mess.getString("content");
-                    Log.d("Response", "La respuesta es " + r);
-                    anadirRoleAssistant(r);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        }).start();
+
+            Log.d("respuestaJSON", request.toString());
+
+            RequestBody peticion = RequestBody.create(
+                    MediaType.parse("application/json"), String.valueOf(request));
+
+
+            Request requestOpenAI = new Request.Builder()
+                    .url("https://api.openai.com/v1/chat/completions")
+                    .post(peticion)
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer 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")
+                    .build();
+
+            try (Response response = client.newCall(requestOpenAI).execute()) {
+                if (!response.isSuccessful())
+                    throw new IOException("Unexpected code " + response);
+                String respuesta = response.body().string();
+                Log.d("Response", "He recibido: " + respuesta);
+                JSONObject res = new JSONObject(respuesta);
+                JSONArray choices = res.getJSONArray("choices");
+                Log.d("Response", "Choices se compone de " + choices);
+                String res2 = null;
+                for (int i = 0; i < choices.length(); i++) {
+                    try {
+                        JSONObject m = choices.getJSONObject(i);
+                        Log.d("Response", "Mensajes se compone de " + m);
+                        // Pulling items from the array
+                        res2 = m.getString("message");
+                    } catch (JSONException e) {
+                        // Oops
+                    }
+                }
+                JSONObject mess = new JSONObject(res2);
+                Log.d("Response", "Messages es " + mess);
+                String r = mess.getString("content");
+                Log.d("Response", "La respuesta es " + r);
+                anadirRoleAssistant(r);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
     }
 
     protected String getRespuestaGPT(){

@@ -38,13 +38,16 @@ public class TutorialModuloConversacional extends TopBaseActivity {
     private String vozSeleccionada;
     private GestionMediaPlayer gestionMediaPlayer;
     private GestionSharedPreferences gestionSharedPreferences;
+    private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice;
 
     @Override
     public void onResume(){
         super.onResume();
+        SpeechManager speechManager;
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
         speakOption = new SpeakOption();
         speechControl = new SpeechControl(speechManager, speakOption);
+        moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
         vozSeleccionada = gestionSharedPreferences.getStringSharedPreferences("vozSeleccionada", "echo").toLowerCase();
 
         SpeakOption so = new SpeakOption();
@@ -214,6 +217,8 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                 botonSiguiente.setText("Aceptar");
                 Drawable done = getContext().getResources().getDrawable(R.drawable.baseline_done_24);
                 botonSiguiente.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
+                Intent moduloConversacional = new Intent(TutorialModuloConversacional.this, com.example.sanbotapp.ModuloConversacional.class);
+                startActivity(moduloConversacional);
                 try {
                     speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
                 } catch (IOException e) {
@@ -242,8 +247,12 @@ public class TutorialModuloConversacional extends TopBaseActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
+
+        SpeechManager speechManager;
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
+        moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
         gestionSharedPreferences = new GestionSharedPreferences(this);
+
 
         textoTutorial = findViewById(R.id.textoTutorial);
         textoPasos = findViewById(R.id.TutorialPasos);
@@ -253,6 +262,9 @@ public class TutorialModuloConversacional extends TopBaseActivity {
         imagen= findViewById(R.id.imagen);
 
         vozSeleccionada = gestionSharedPreferences.getStringSharedPreferences("vozSeleccionada", "echo").toLowerCase();
+        SpeakOption so = new SpeakOption();
+        so.setSpeed(60);
+        so.setIntonation(50);
 
         try {
 
@@ -287,6 +299,18 @@ public class TutorialModuloConversacional extends TopBaseActivity {
 
     }
 
+    public void hablar(String voz, String respuesta, SpeechManager sm) throws IOException {
+        Log.d("hablar", respuesta);
+        SpeakOption so = new SpeakOption();;
+        so.setSpeed(60);
+        so.setIntonation(50);
+        if(voz.equals("sanbot")){
+            sm.startSpeak(respuesta, so);
+        }
+        else{
+            moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz.toLowerCase());
+        }
+    }
 
     @Override
     protected void onMainServiceConnected() {

@@ -15,9 +15,11 @@ import android.widget.Spinner;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.FuncConstant;
+import com.qihancloud.opensdk.function.beans.SpeakOption;
 import com.qihancloud.opensdk.function.beans.speech.Grammar;
 import com.qihancloud.opensdk.function.unit.SpeechManager;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
+import com.qihancloud.opensdk.function.unit.interfaces.speech.SpeakListener;
 
 import java.io.IOException;
 
@@ -41,7 +43,7 @@ public class ContextualizacionActivity extends TopBaseActivity {
     private String generoSeleccionado;
     private String grupoEdadSeleccionado;
 
-    private ModuloConversacional moduloConversacional;
+    private SpeechControl speechControl;
     public void onResume(){
         super.onResume();
         botonAtras.setOnClickListener(new View.OnClickListener() {
@@ -62,7 +64,8 @@ public class ContextualizacionActivity extends TopBaseActivity {
         setContentView(R.layout.activity_modulo_contextualizacion);
 
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
-        moduloConversacional = new ModuloConversacional();
+        SpeakOption speakOption = new SpeakOption();
+        speechControl = new SpeechControl(speechManager, speakOption);
 
         // Creo una sección de almacenamiento local donde se guardará la voz seleccionada del robot
         SharedPreferences sharedPrefVoz = this.getSharedPreferences("vozSeleccionada", MODE_PRIVATE);
@@ -206,13 +209,8 @@ public class ContextualizacionActivity extends TopBaseActivity {
                 @Override
                 public void onClick(View v) {
                     speechManager.doWakeUp();
-                    try {
-                        moduloConversacional.reconocerConsulta();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    while(!speechControl.reconocerRespuesta());
+                    String respuesta = speechControl.getRespuesta();
                 }
             });
             botonOmitir.setOnClickListener(new View.OnClickListener() {

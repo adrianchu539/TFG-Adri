@@ -61,7 +61,7 @@ public class MenuPruebas extends TopBaseActivity {
 
                     editorVozSeleccionada.putString("vozSeleccionada", "sanbot");
                     //Intent tutorialModuloConversacionalActivity = new Intent(MenuPruebas.this, TutorialModuloConversacional.class);
-                    Intent tutorialModuloConversacionalActivity = new Intent(MenuPruebas.this, TutorialModuloConversacional.class);
+                    Intent tutorialModuloConversacionalActivity = new Intent(MenuPruebas.this, ModuloConversacional.class);
                     startActivity(tutorialModuloConversacionalActivity);
                     finish();
                 }

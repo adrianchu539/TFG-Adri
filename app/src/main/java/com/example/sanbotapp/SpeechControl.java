@@ -17,22 +17,26 @@ public class SpeechControl {
     private SpeakOption speakOption;
     private String cadenaReconocida;
     private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
+    private boolean esperar;
 
     public SpeechControl(SpeechManager speechManager, SpeakOption speakOption){
         this.speechManager = speechManager;
         this.speakOption = speakOption;
     }
 
-    protected String reconocerRespuesta(){
+    protected boolean reconocerRespuesta(){
         speechManager.setOnSpeechListener(new RecognizeListener() {
 
             // Intercepta el diálogo hablado por el usuario
             @Override
             public boolean onRecognizeResult(Grammar grammar) {
+                esperar = true;
 
                 Log.d("prueba", "reconociendo consulta...");
 
                 cadenaReconocida = grammar.getText();
+
+                esperar=false;
 
                 return true;
             }
@@ -55,7 +59,10 @@ public class SpeechControl {
                 // ...
             }
         });
-        return cadenaReconocida;
+        while(esperar){
+
+        }
+        return true;
     }
 
     protected boolean robotHablando(){
@@ -78,6 +85,10 @@ public class SpeechControl {
 
     protected void modoEscucha(){
         speechManager.doWakeUp();
+    }
+
+    protected String getRespuesta(){
+        return cadenaReconocida;
     }
 
     protected void gestionHabla(String voz, String respuesta) throws IOException {

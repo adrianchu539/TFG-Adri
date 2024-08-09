@@ -82,6 +82,7 @@ public class ModuloConversacional extends TopBaseActivity {
 
     // Variables usadas en el modulo
 
+    private String respuesta = "";
     private String consultaChatGPT; // Consulta realizada por el usuario
     private String respuestaGPT; // Respuesta dada a la consulta realizada por el usuario
     private byte[] respuestaGPTVoz;
@@ -471,9 +472,15 @@ public class ModuloConversacional extends TopBaseActivity {
     }
 
     // Función que reconoce la consulta del usuario
-    protected void reconocerConsulta() throws IOException, InterruptedException {
+    private void reconocerConsulta() throws IOException, InterruptedException {
+        Log.d("prueba", "reconociendo consulta...");
         // Hace uso del modulo SpeechControl para interpretar la consulta del usuario
-        String respuesta = speechControl.reconocerRespuesta();
+        while(!speechControl.reconocerRespuesta()){};
+        respuesta = speechControl.getRespuesta();
+
+        while(respuesta=="" || respuesta==null){
+
+        }
 
         respuesta = capitalizeCadena(respuesta);
         consultaRobot = false;
@@ -509,7 +516,7 @@ public class ModuloConversacional extends TopBaseActivity {
     }
 
 
-    public void registrarConsulta() throws IOException, InterruptedException {
+    private void registrarConsulta() throws IOException, InterruptedException {
 
         Log.d("prueba", "registrando consulta...");
 
@@ -527,30 +534,50 @@ public class ModuloConversacional extends TopBaseActivity {
 
     // Función en la que se le pasa la respuesta del ChatGPT y la voz con la que el usuario
     // desea que la reproduzca
-    public void APIChatGPTVoz(String respuesta, String voz)  {
-        moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz);
-        respuestaGPTVoz = moduloOpenAISpeechVoice.getGPTVoz();
-        gestionMediaPlayer.reproducirMediaPlayer(respuestaGPTVoz);
+    private void APIChatGPTVoz(String respuesta, String voz)  {
+        new Thread(new Runnable() {
+            public void run(){
+                moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz);
+                respuestaGPTVoz = moduloOpenAISpeechVoice.getGPTVoz();
+                gestionMediaPlayer.reproducirMediaPlayer(respuestaGPTVoz);
+            }
+        }).start();
     }
 
-    public void APIChatGPT(String pregunta) throws IOException, InterruptedException {
-        moduloOpenAI.consultaOpenAI(pregunta);
-        respuestaGPT = moduloOpenAI.getRespuestaGPT();
-        if(interpretacionEmocionalActivada) {
-            moduloEmocional.gestionEmocional(respuestaGPT);
-        }
-        // DEBUG!!
-        //dialogoRobot.setText(respuestaGPT);
-        chatArrayAdapter.add(new ChatMessage(true, respuestaGPT));
-        conversacion.add(new ChatMessage(true, respuestaGPT));
-        //dialogoRobot.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
-        //       emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
-        speechControl.gestionHabla(vozSeleccionada, respuestaGPT);
-        Thread.sleep(5000);
+    private void APIChatGPT(String pregunta) throws IOException, InterruptedException {
+        new Thread(new Runnable() {
+            public void run(){
+                moduloOpenAI.consultaOpenAI(pregunta);
+                respuestaGPT = moduloOpenAI.getRespuestaGPT();
+                if(interpretacionEmocionalActivada) {
+                    try {
+                        moduloEmocional.gestionEmocional(respuestaGPT);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                // DEBUG!!
+                //dialogoRobot.setText(respuestaGPT);
+                chatArrayAdapter.add(new ChatMessage(true, respuestaGPT));
+                conversacion.add(new ChatMessage(true, respuestaGPT));
+                //dialogoRobot.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
+                //       emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
+                try {
+                    speechControl.gestionHabla(vozSeleccionada, respuestaGPT);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
     }
 
     private String capitalizeCadena(String c){
-        if (c.length() > 0) return c.substring(0,1).toUpperCase() + c.substring(1);
+        if (c.length() > 0 || c!=null) return c.substring(0,1).toUpperCase() + c.substring(1);
         else return "";
     }
 
