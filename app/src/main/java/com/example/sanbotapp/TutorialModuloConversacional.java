@@ -30,34 +30,25 @@ public class TutorialModuloConversacional extends TopBaseActivity {
     private Button botonOmitir;
     private int pasosTotales = 14;
     private ImageView imagen;
+    private SpeechControl speechControl;
 
     private static int paso = 0;
-    private SpeechControl speechControl;
-    private SpeechManager speechManager;
-    private SpeakOption speakOption;
-    private String vozSeleccionada;
-    private GestionMediaPlayer gestionMediaPlayer;
-    private GestionSharedPreferences gestionSharedPreferences;
-    private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice;
 
     @Override
     public void onResume(){
         super.onResume();
+        String vozSeleccionada = getStringSharedPreferences("vozSeleccionada", "echo").toLowerCase();
         SpeechManager speechManager;
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
-        speakOption = new SpeakOption();
-        speechControl = new SpeechControl(speechManager, speakOption);
-        moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
-        vozSeleccionada = gestionSharedPreferences.getStringSharedPreferences("vozSeleccionada", "echo").toLowerCase();
-
         SpeakOption so = new SpeakOption();
+        speechControl = new SpeechControl(speechManager, so);
         switch(paso){
             case 0:
                 botonAtras.setVisibility(View.INVISIBLE);
                 textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
                 textoTutorial.setText("Hola. Soy Sanbot. Te doy la bienvenida al módulo conversacional cuyo objetivo es la mejora de la interacción entre los humanos y los robots.");
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -68,7 +59,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                 textoTutorial.setText("Todavía no sé responder a consultas que requieren datos actuales, por lo que no puedo contestar a preguntas de qué dia es hoy, qué tiempo hizo ayer o similares" +
                         " ya que únicamente guardo datos hasta finales del año 2023." + " Pero no te preocupes, en caso de que no sepa darte la respuesta te lo indicaré de forma clara durante la conversación");
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -80,7 +71,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         "mis orejas se encenderán de color verde, lo que significa que te estaré escuchando. Es entonces cuando podrás iniciar la conversación.");
                 imagen.setImageResource(R.drawable.senalar_hablar);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -92,7 +83,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         " mis orejas para escuchar de nuevo tu respuesta y repetir el proceso.");
                 imagen.setImageResource(R.drawable.senalar_hablar);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -104,7 +95,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         " vuelve a pulsar el botón hablar para reanudar la conversación.");
                 imagen.setImageResource(R.drawable.senalar_hablar);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -115,7 +106,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                 textoTutorial.setText("La conversación se irá almacenando y aparecerá en todo momento en el centro de la pantalla");
                 imagen.setImageResource(R.drawable.senalar_conversacion);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -126,7 +117,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                 textoTutorial.setText("En el lado derecho, de color verde, aparecerán tus mensajes");
                 imagen.setImageResource(R.drawable.senalar_conversacion_usuario);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -137,7 +128,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                 textoTutorial.setText("Y en el lado izquierdo, de color azul, aparecerán mis mensajes");
                 imagen.setImageResource(R.drawable.senalar_conversacion_robot);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -148,7 +139,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                 textoTutorial.setText("Si quieres ver mensajes anteriores puedes deslizar con tu dedo hacia abajo");
                 imagen.setImageResource(R.drawable.senalar_conversacion_robot);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -160,7 +151,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         " el botón Repetir situado en la parte superior derecha de la pantalla");
                 imagen.setImageResource(R.drawable.senalar_repetir);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -172,7 +163,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         " el botón Detener situado en la parte superior derecha de la pantalla");
                 imagen.setImageResource(R.drawable.senalar_detener);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -184,7 +175,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         " de la pantalla, podrás cambiar diversas opciones del módulo conversacional");
                 imagen.setImageResource(R.drawable.senalar_configuracion);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -195,7 +186,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         " el botón Nueva Conversación situado en la parte superior izquierda de la pantalla");
                 imagen.setImageResource(R.drawable.senalar_nueva_conversacion);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -206,7 +197,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                         " situado en la parte superior izquierda de la pantalla.");
                 imagen.setImageResource(R.drawable.senalar_tutorial);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -214,33 +205,18 @@ public class TutorialModuloConversacional extends TopBaseActivity {
                 botonAtras.setVisibility(View.VISIBLE);
                 textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
                 textoTutorial.setText("Muchas gracias y feliz conversación.");
-                botonSiguiente.setText("Aceptar");
+                botonSiguiente.setText("Hecho");
                 Drawable done = getContext().getResources().getDrawable(R.drawable.baseline_done_24);
                 botonSiguiente.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
                 Intent moduloConversacional = new Intent(TutorialModuloConversacional.this, com.example.sanbotapp.ModuloConversacional.class);
                 startActivity(moduloConversacional);
                 try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
+                    hablar(vozSeleccionada, textoTutorial.getText().toString(), speechManager);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
                 break;
         }
-        botonSiguiente.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(botonSiguiente.getText().equals("Aceptar")){
-                    if(vozSeleccionada.equals("sanbot")){
-                        speechControl.pararHabla();
-                    }
-                    else{
-                        gestionMediaPlayer.pararMediaPlayer();
-                    }
-                    Intent moduloConversacional = new Intent(TutorialModuloConversacional.this, com.example.sanbotapp.ModuloConversacional.class);
-                    startActivity(moduloConversacional);
-                }
-            }
-        });
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -250,9 +226,6 @@ public class TutorialModuloConversacional extends TopBaseActivity {
 
         SpeechManager speechManager;
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
-        moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
-        gestionSharedPreferences = new GestionSharedPreferences(this);
-
 
         textoTutorial = findViewById(R.id.textoTutorial);
         textoPasos = findViewById(R.id.TutorialPasos);
@@ -261,7 +234,7 @@ public class TutorialModuloConversacional extends TopBaseActivity {
         botonOmitir = findViewById(R.id.botonOmitir);
         imagen= findViewById(R.id.imagen);
 
-        vozSeleccionada = gestionSharedPreferences.getStringSharedPreferences("vozSeleccionada", "echo").toLowerCase();
+        String vozSeleccionada = getStringSharedPreferences("vozSeleccionada", "echo").toLowerCase();
         SpeakOption so = new SpeakOption();
         so.setSpeed(60);
         so.setIntonation(50);
@@ -308,8 +281,14 @@ public class TutorialModuloConversacional extends TopBaseActivity {
             sm.startSpeak(respuesta, so);
         }
         else{
-            moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz.toLowerCase());
+            speechControl.gestionHabla(respuesta, voz.toLowerCase());
         }
+    }
+
+    public String getStringSharedPreferences(String nombreSharedPreferences, String defaultValue){
+        SharedPreferences sp = this.getSharedPreferences(nombreSharedPreferences, MODE_PRIVATE);
+        Log.d("getStringPreferences", "el valor de " + nombreSharedPreferences + " es " + sp.getString(nombreSharedPreferences, defaultValue));
+        return sp.getString(nombreSharedPreferences, defaultValue);
     }
 
     @Override

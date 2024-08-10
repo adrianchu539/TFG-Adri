@@ -1,6 +1,8 @@
 package com.example.sanbotapp;
 
+import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.OperationResult;
@@ -8,6 +10,7 @@ import com.qihancloud.opensdk.function.beans.SpeakOption;
 import com.qihancloud.opensdk.function.beans.speech.Grammar;
 import com.qihancloud.opensdk.function.unit.SpeechManager;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
+import com.qihancloud.opensdk.function.unit.interfaces.speech.SpeakListener;
 
 import java.io.IOException;
 
@@ -17,7 +20,6 @@ public class SpeechControl {
     private SpeakOption speakOption;
     private String cadenaReconocida;
     private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
-    private boolean esperar;
 
     public SpeechControl(SpeechManager speechManager, SpeakOption speakOption){
         this.speechManager = speechManager;
@@ -25,42 +27,10 @@ public class SpeechControl {
     }
 
     protected boolean reconocerRespuesta(){
-        speechManager.setOnSpeechListener(new RecognizeListener() {
+        Log.d("prueba", "reconociendo respuesta...");
 
-            // Intercepta el diálogo hablado por el usuario
-            @Override
-            public boolean onRecognizeResult(Grammar grammar) {
-                esperar = true;
-
-                Log.d("prueba", "reconociendo consulta...");
-
-                cadenaReconocida = grammar.getText();
-
-                esperar=false;
-
-                return true;
-            }
-
-            // Intercepta el volumen hablado por el usuario
-            @Override
-            public void onRecognizeVolume(int i) {
-                // ...
-            }
-
-            public void onStartRecognize() {
-                // ...
-            }
-
-            public void onStopRecognize() {
-                // ...
-            }
-
-            public void onError(int i, int i1) {
-                // ...
-            }
-        });
-        while(esperar){
-
+        while(getRespuesta()==null || getRespuesta()==""){
+            Log.d("esperando", "esperando...... " + getRespuesta());
         }
         return true;
     }
@@ -85,6 +55,19 @@ public class SpeechControl {
 
     protected void modoEscucha(){
         speechManager.doWakeUp();
+        speechManager.setOnSpeechListener(new RecognizeListener() {
+            @Override
+            public boolean onRecognizeResult(Grammar grammar) {
+                Log.d("prueba", "The text recognized by the robot is "+
+                    grammar.getText());
+                return true;
+            }
+
+            @Override
+            public void onRecognizeVolume(int i) {
+
+            }
+        });
     }
 
     protected String getRespuesta(){
@@ -99,6 +82,19 @@ public class SpeechControl {
         else{
             moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz.toLowerCase());
         }
+        speechManager.setOnSpeechListener(new SpeakListener(){
+            // Acción que se ejecuta cuando el robot termina de hablar
+            @Override
+            public void onSpeakFinish() {
+                // Si está en modo conversación automática
+                Log.d("fin", "termine de hablar");
+            }
+
+            @Override
+            public void onSpeakProgress(int i) {
+                // ...
+            }
+        });
     }
 
 }

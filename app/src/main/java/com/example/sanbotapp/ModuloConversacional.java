@@ -82,7 +82,7 @@ public class ModuloConversacional extends TopBaseActivity {
 
     // Variables usadas en el modulo
 
-    private String respuesta = "";
+    private String respuesta;
     private String consultaChatGPT; // Consulta realizada por el usuario
     private String respuestaGPT; // Respuesta dada a la consulta realizada por el usuario
     private byte[] respuestaGPTVoz;
@@ -475,12 +475,9 @@ public class ModuloConversacional extends TopBaseActivity {
     private void reconocerConsulta() throws IOException, InterruptedException {
         Log.d("prueba", "reconociendo consulta...");
         // Hace uso del modulo SpeechControl para interpretar la consulta del usuario
-        while(!speechControl.reconocerRespuesta()){};
-        respuesta = speechControl.getRespuesta();
-
-        while(respuesta=="" || respuesta==null){
-
-        }
+        while(!speechControl.reconocerRespuesta()){
+            Log.d("esperando true", "esperando true......");
+        };
 
         respuesta = capitalizeCadena(respuesta);
         consultaRobot = false;
@@ -529,7 +526,10 @@ public class ModuloConversacional extends TopBaseActivity {
         speechControl.modoEscucha();
 
         // Interpreto lo que dice el usuario
-        reconocerConsulta();
+        //reconocerConsulta();
+
+        //speechControl.reconocerRespuesta();
+        //speechControl.gestionHabla("sanbot", "holaaaaa");
     }
 
     // Función en la que se le pasa la respuesta del ChatGPT y la voz con la que el usuario
