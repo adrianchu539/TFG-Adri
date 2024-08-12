@@ -48,12 +48,12 @@ public class PruebaVoces extends TopBaseActivity {
 
         try {
 
-            botonVoz1 = findViewById(R.id.boton1);
-            botonVoz2 = findViewById(R.id.boton2);
-            botonVoz3 = findViewById(R.id.boton3);
-            botonVoz4 = findViewById(R.id.boton4);
-            botonVoz5 = findViewById(R.id.boton5);
-            botonVoz6 = findViewById(R.id.boton6);
+            botonVoz1 = findViewById(R.id.boton4);
+            botonVoz2 = findViewById(R.id.boton1);
+            botonVoz3 = findViewById(R.id.boton4);
+            botonVoz4 = findViewById(R.id.boton2);
+            botonVoz5 = findViewById(R.id.boton6);
+            botonVoz6 = findViewById(R.id.boton3);
 
             botonVoz1.setOnClickListener(new View.OnClickListener() {
                 @Override

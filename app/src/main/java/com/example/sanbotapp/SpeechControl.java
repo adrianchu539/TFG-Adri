@@ -3,6 +3,7 @@ package com.example.sanbotapp;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.OperationResult;
@@ -20,6 +21,7 @@ public class SpeechControl {
     private SpeakOption speakOption;
     private String cadenaReconocida;
     private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
+    private boolean finHabla = false;
 
     public SpeechControl(SpeechManager speechManager, SpeakOption speakOption){
         this.speechManager = speechManager;
@@ -46,6 +48,7 @@ public class SpeechControl {
     }
 
     protected void hablar(String respuesta){
+        Log.d("hablar", "voy a hablar");
         speechManager.startSpeak(respuesta, speakOption);
     }
 
@@ -53,13 +56,14 @@ public class SpeechControl {
         speechManager.stopSpeak();
     }
 
-    protected void modoEscucha(){
+    protected String modoEscucha(){
+        cadenaReconocida=null;
         speechManager.doWakeUp();
         speechManager.setOnSpeechListener(new RecognizeListener() {
             @Override
             public boolean onRecognizeResult(Grammar grammar) {
-                Log.d("prueba", "The text recognized by the robot is "+
-                    grammar.getText());
+                cadenaReconocida = grammar.getText();
+                Log.d("pruebaRecognizeResult", cadenaReconocida);
                 return true;
             }
 
@@ -67,10 +71,18 @@ public class SpeechControl {
             public void onRecognizeVolume(int i) {
 
             }
+
+
         });
+        while(cadenaReconocida==null || cadenaReconocida.isEmpty()){
+        }
+        return cadenaReconocida;
     }
 
     protected String getRespuesta(){
+        if(cadenaReconocida!=null){
+            Log.d("pruebaGetRespuesta", cadenaReconocida);
+        }
         return cadenaReconocida;
     }
 
@@ -82,12 +94,17 @@ public class SpeechControl {
         else{
             moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz.toLowerCase());
         }
+    }
+
+    protected boolean heAcabado(){
+        finHabla = false;
         speechManager.setOnSpeechListener(new SpeakListener(){
             // Acción que se ejecuta cuando el robot termina de hablar
             @Override
             public void onSpeakFinish() {
                 // Si está en modo conversación automática
                 Log.d("fin", "termine de hablar");
+                finHabla = true;
             }
 
             @Override
@@ -95,6 +112,8 @@ public class SpeechControl {
                 // ...
             }
         });
+        while(!finHabla){
+        }
+        return finHabla;
     }
-
 }

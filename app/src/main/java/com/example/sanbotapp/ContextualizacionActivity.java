@@ -199,7 +199,7 @@ public class ContextualizacionActivity extends TopBaseActivity {
                         editorContexto.apply();
                     }
                     // Pasamos a la actividad de modulo conversacional
-                    Intent moduloConversacionalActivity = new Intent(ContextualizacionActivity.this, TutorialModuloConversacional.class);
+                    Intent moduloConversacionalActivity = new Intent(ContextualizacionActivity.this, ModuloConversacional.class);
                     startActivity(moduloConversacionalActivity);
                     finish();
                 }
