@@ -6,9 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+
 
     <LinearLayout
         android:id="@+id/Tutorial"
@@ -27,25 +25,12 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/TutorialTitulo"
+                android:id="@+id/tutorialTitulo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_margin="16dp"
                 android:layout_marginTop="16dp"
                 android:text="TUTORIAL"
-                android:textColor="@color/colorPurple"
-                android:textSize="30sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/TutorialPasos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="16dp"
-                android:layout_marginTop="16dp"
-                android:text=""
                 android:textColor="@color/colorPurple"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -60,7 +45,7 @@
                 android:gravity="start"
                 android:text=""
                 android:textColor="@color/colorPurple"
-                android:textSize="30sp"
+                android:textSize="25sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -72,76 +57,102 @@
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="500dp"
+                android:layout_margin="10dp">
             </ImageView>
 
-            <RelativeLayout
-                android:id="@+id/layoutBarraInferior"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal"
-                android:weightSum="3">
-
-                <Button
-                    android:id="@+id/botonAtras"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginBottom="15dp"
-                    android:background="@drawable/button_rounded"
-                    android:drawableStart="@drawable/baseline_arrow_back_24"
-                    android:drawablePadding="10dp"
-                    android:padding="10dp"
-                    android:text="Atrás"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textSize="30sp"
-                    android:visibility="visible" />
-
-                <Button
-                    android:id="@+id/botonOmitir"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginBottom="15dp"
-                    android:layout_centerInParent="true"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/button_rounded"
-                    android:drawablePadding="10dp"
-                    android:gravity="right"
-                    android:orientation="vertical"
-                    android:padding="10dp"
-                    android:text="Omitir"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textSize="30sp" />
-
-                <Button
-                    android:id="@+id/botonSiguiente"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginBottom="15dp"
-                    android:background="@drawable/button_rounded"
-                    android:drawablePadding="10dp"
-                    android:padding="10dp"
-                    android:text="Siguiente"
-                    android:textAllCaps="false"
-                    android:textColor="@android:color/white"
-                    android:textSize="30sp" />
-            </RelativeLayout>
         </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/layoutBarraInferior"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_marginStart="135dp"
+            android:layout_marginEnd="135dp"
+            android:layout_alignParentBottom="true">
+
+            <Button
+                android:id="@+id/botonAtras"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableStart="@drawable/baseline_arrow_back_24"
+                android:drawablePadding="10dp"
+                android:padding="10dp"
+                android:text="Atrás"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:visibility="visible" />
+
+            <Button
+                android:id="@+id/botonOmitir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:layout_centerInParent="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/button_rounded"
+                android:drawablePadding="10dp"
+                android:gravity="right"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:text="Omitir"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp" />
+            <Button
+                android:id="@+id/botonEmpezar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:layout_centerInParent="true"
+                android:layout_margin="10dp"
+                android:background="@drawable/button_rounded"
+                android:drawablePadding="10dp"
+                android:gravity="right"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:text="Empezar"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:visibility="invisible"/>
+
+            <Button
+                android:id="@+id/botonSiguiente"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableEnd="@drawable/baseline_arrow_forward_24"
+                android:drawablePadding="10dp"
+                android:padding="10dp"
+                android:text="Siguiente"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp" />
+        </RelativeLayout>
+
     </LinearLayout>
-    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

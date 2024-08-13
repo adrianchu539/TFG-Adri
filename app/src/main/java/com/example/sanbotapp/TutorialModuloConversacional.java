@@ -7,8 +7,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.style.UpdateAppearance;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,212 +28,20 @@ import java.io.IOException;
 public class TutorialModuloConversacional extends TopBaseActivity {
 
     private TextView textoTutorial;
-    private TextView textoPasos;
+    private TextView tutorialTitulo;
     private Button botonAtras;
     private Button botonSiguiente;
     private Button botonOmitir;
-    private int pasosTotales = 14;
+    private Button botonEmpezar;
+    private int pasosTotales = 15;
     private ImageView imagen;
     private SpeechControl speechControl;
-    private Handler handler = new Handler(Looper.getMainLooper());
     private static int paso = 0;
 
     private String vozSeleccionada;
 
     private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice;
     private GestionMediaPlayer gestionMediaPlayer;
-
-    /*
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        String vozSeleccionada = getStringSharedPreferences("vozSeleccionada", "sanbot").toLowerCase();
-        SpeechManager speechManager;
-        speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
-        SpeakOption so = new SpeakOption();
-        speechControl = new SpeechControl(speechManager, so);
-        so.setSpeed(60);
-        so.setIntonation(50);
-        switch(paso){
-            case 0:
-                botonAtras.setVisibility(View.INVISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Hola. Soy Sanbot. Te doy la bienvenida al módulo conversacional cuyo objetivo es la mejora de la interacción entre los humanos y los robots.");
-                try {
-                    hablar(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 1:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Todavía no sé responder a consultas que requieren datos actuales, por lo que no puedo contestar a preguntas de qué dia es hoy, qué tiempo hizo ayer o similares" +
-                        " ya que únicamente guardo datos hasta finales del año 2023." + " Pero no te preocupes, en caso de que no sepa darte la respuesta te lo indicaré de forma clara durante la conversación");
-                try {
-                    hablar(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 2:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("En la parte inferior de la pantalla podrás observar el botón HABLAR. Al pulsarlo, haré un sonido de confirmación y " +
-                        "mis orejas se encenderán de color verde, lo que significa que te estaré escuchando. Es entonces cuando podrás iniciar la conversación.");
-                imagen.setImageResource(R.drawable.senalar_hablar);
-                try {
-                    hablar(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 3:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("En el momento en el que dejes de hablar, tu respuesta se enviará. Cuando yo dé mi respuesta, automáticamente volveré a encender" +
-                        " mis orejas para escuchar de nuevo tu respuesta y repetir el proceso.");
-                imagen.setImageResource(R.drawable.senalar_hablar);
-                try {
-                    hablar(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 4:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Si has dejado de hablar o se produce algún fallo, significa que no he escuchado tu consulta. En este caso," +
-                        " vuelve a pulsar el botón hablar para reanudar la conversación.");
-                imagen.setImageResource(R.drawable.senalar_hablar);
-                try {
-                    hablar(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 5:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("La conversación se irá almacenando y aparecerá en todo momento en el centro de la pantalla");
-                imagen.setImageResource(R.drawable.senalar_conversacion);
-                try {
-                    hablar(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 6:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("En el lado derecho, de color verde, aparecerán tus mensajes");
-                imagen.setImageResource(R.drawable.senalar_conversacion_usuario);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 7:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Y en el lado izquierdo, de color azul, aparecerán mis mensajes");
-                imagen.setImageResource(R.drawable.senalar_conversacion_robot);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 8:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Si quieres ver mensajes anteriores puedes deslizar con tu dedo hacia abajo");
-                imagen.setImageResource(R.drawable.senalar_conversacion_robot);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 9:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("En caso de que quieras repetir la última respuesta del robot, podrás pulsar" +
-                        " el botón Repetir situado en la parte superior derecha de la pantalla");
-                imagen.setImageResource(R.drawable.senalar_repetir);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 10:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("En caso de que quieras detener el habla del robot, podrás pulsar" +
-                        " el botón Detener situado en la parte superior derecha de la pantalla");
-                imagen.setImageResource(R.drawable.senalar_detener);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            case 11:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Pulsando el botón Configuración situado en la parte superior izquierda" +
-                        " de la pantalla, podrás cambiar diversas opciones del módulo conversacional");
-                imagen.setImageResource(R.drawable.senalar_configuracion);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            case 12:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Si quieres iniciar una nueva conversación desde el principio, podrás pulsar" +
-                        " el botón Nueva Conversación situado en la parte superior izquierda de la pantalla");
-                imagen.setImageResource(R.drawable.senalar_nueva_conversacion);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            case 13:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Por último, si necesitas ver de nuevo este tutorial, pulsar el botón Tutorial" +
-                        " situado en la parte superior izquierda de la pantalla.");
-                imagen.setImageResource(R.drawable.senalar_tutorial);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            case 14:
-                botonAtras.setVisibility(View.VISIBLE);
-                textoPasos.setText("PASO " + (paso+1) + "/" + pasosTotales);
-                textoTutorial.setText("Muchas gracias y feliz conversación.");
-                botonSiguiente.setText("Hecho");
-                Drawable done = getContext().getResources().getDrawable(R.drawable.baseline_done_24);
-                botonSiguiente.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
-                Intent moduloConversacional = new Intent(TutorialModuloConversacional.this, com.example.sanbotapp.ModuloConversacional.class);
-                startActivity(moduloConversacional);
-                try {
-                    speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-        }
-    }
-
-     */
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -243,10 +53,11 @@ public class TutorialModuloConversacional extends TopBaseActivity {
         speechManager = (SpeechManager) getUnitManager(FuncConstant.SPEECH_MANAGER);
 
         textoTutorial = findViewById(R.id.textoTutorial);
-        textoPasos = findViewById(R.id.TutorialPasos);
+        tutorialTitulo = findViewById(R.id.tutorialTitulo);
         botonAtras = findViewById(R.id.botonAtras);
         botonSiguiente = findViewById(R.id.botonSiguiente);
         botonOmitir = findViewById(R.id.botonOmitir);
+        botonEmpezar = findViewById(R.id.botonEmpezar);
         imagen= findViewById(R.id.imagen);
 
 
@@ -261,214 +72,39 @@ public class TutorialModuloConversacional extends TopBaseActivity {
 
         speechControl = new SpeechControl(speechManager, so);
 
-        try {
-            hablar(vozSeleccionada, textoTutorial.getText().toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        update();
 
-        try {
-            switch(paso) {
-                case 0:
-                    botonAtras.setVisibility(View.INVISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Hola. Soy Sanbot. Te doy la bienvenida al módulo conversacional cuyo objetivo es la mejora de la interacción entre los humanos y los robots.");
-                    break;
-                case 1:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Todavía no sé responder a consultas que requieren datos actuales, por lo que no puedo contestar a preguntas de qué dia es hoy, qué tiempo hizo ayer o similares" +
-                            " ya que únicamente guardo datos hasta finales del año 2023." + " Pero no te preocupes, en caso de que no sepa darte la respuesta te lo indicaré de forma clara durante la conversación");
-                    break;
-                case 2:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("En la parte inferior de la pantalla podrás observar el botón HABLAR. Al pulsarlo, haré un sonido de confirmación y " +
-                            "mis orejas se encenderán de color verde, lo que significa que te estaré escuchando. Es entonces cuando podrás iniciar la conversación.");
-                    imagen.setImageResource(R.drawable.senalar_hablar);
-                    break;
-                case 3:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("En el momento en el que dejes de hablar, tu respuesta se enviará. Cuando yo dé mi respuesta, automáticamente volveré a encender" +
-                            " mis orejas para escuchar de nuevo tu respuesta y repetir el proceso.");
-                    imagen.setImageResource(R.drawable.senalar_hablar);
-                    try {
-                        hablar(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 4:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Si has dejado de hablar o se produce algún fallo, significa que no he escuchado tu consulta. En este caso," +
-                            " vuelve a pulsar el botón hablar para reanudar la conversación.");
-                    imagen.setImageResource(R.drawable.senalar_hablar);
-                    try {
-                        hablar(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 5:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("La conversación se irá almacenando y aparecerá en todo momento en el centro de la pantalla");
-                    imagen.setImageResource(R.drawable.senalar_conversacion);
-                    try {
-                        hablar(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 6:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("En el lado derecho, de color verde, aparecerán tus mensajes");
-                    imagen.setImageResource(R.drawable.senalar_conversacion_usuario);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 7:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Y en el lado izquierdo, de color azul, aparecerán mis mensajes");
-                    imagen.setImageResource(R.drawable.senalar_conversacion_robot);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 8:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Si quieres ver mensajes anteriores puedes deslizar con tu dedo hacia abajo");
-                    imagen.setImageResource(R.drawable.senalar_conversacion_robot);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 9:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("En caso de que quieras repetir la última respuesta del robot, podrás pulsar" +
-                            " el botón Repetir situado en la parte superior derecha de la pantalla");
-                    imagen.setImageResource(R.drawable.senalar_repetir);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 10:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("En caso de que quieras detener el habla del robot, podrás pulsar" +
-                            " el botón Detener situado en la parte superior derecha de la pantalla");
-                    imagen.setImageResource(R.drawable.senalar_detener);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case 11:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Pulsando el botón Configuración situado en la parte superior izquierda" +
-                            " de la pantalla, podrás cambiar diversas opciones del módulo conversacional");
-                    imagen.setImageResource(R.drawable.senalar_configuracion);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                case 12:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Si quieres iniciar una nueva conversación desde el principio, podrás pulsar" +
-                            " el botón Nueva Conversación situado en la parte superior izquierda de la pantalla");
-                    imagen.setImageResource(R.drawable.senalar_nueva_conversacion);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                case 13:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Por último, si necesitas ver de nuevo este tutorial, pulsar el botón Tutorial" +
-                            " situado en la parte superior izquierda de la pantalla.");
-                    imagen.setImageResource(R.drawable.senalar_tutorial);
-                    try {
-                        speechControl.gestionHabla(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                case 14:
-                    botonAtras.setVisibility(View.VISIBLE);
-                    textoPasos.setText("PASO " + (paso + 1) + "/" + pasosTotales);
-                    textoTutorial.setText("Muchas gracias y feliz conversación.");
-                    botonSiguiente.setText("Hecho");
-                    Drawable done = getContext().getResources().getDrawable(R.drawable.baseline_done_24);
-                    botonSiguiente.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
-                    Intent moduloConversacional = new Intent(TutorialModuloConversacional.this, com.example.sanbotapp.ModuloConversacional.class);
-                    startActivity(moduloConversacional);
-                    try {
-                        hablar(vozSeleccionada, "holaaaaa");
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
+        botonSiguiente.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                paso++;
+                Log.d("paso", String.valueOf(paso));
+                update();
             }
+        });
+        botonAtras.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                paso--;
+                update();
+            }
+        });
+        botonOmitir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent moduloConversacional = new Intent(TutorialModuloConversacional.this, ModuloConversacional.class);
+                startActivity(moduloConversacional);
+                finish();
+            }
+        });
 
-            botonSiguiente.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    paso++;
-                    Intent tutorialModuloConversacional = new Intent(TutorialModuloConversacional.this, TutorialModuloConversacional.class);
-                    startActivity(tutorialModuloConversacional);
-                    try {
-                        hablar(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            botonAtras.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    paso--;
-                    Intent tutorialModuloConversacional = new Intent(TutorialModuloConversacional.this, TutorialModuloConversacional.class);
-                    startActivity(tutorialModuloConversacional);
-                    try {
-                        hablar(vozSeleccionada, textoTutorial.getText().toString());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            botonOmitir.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    paso--;
-                    Intent moduloConversacional = new Intent(TutorialModuloConversacional.this, ModuloConversacional.class);
-                    startActivity(moduloConversacional);
-                }
-            });
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        botonEmpezar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                paso++;
+                update();
+            }
+        });
     }
 
     public void hablar(String voz, String respuesta) throws IOException {
@@ -494,6 +130,219 @@ public class TutorialModuloConversacional extends TopBaseActivity {
     @Override
     protected void onMainServiceConnected() {
 
+    }
+
+    private void update(){
+        switch(paso) {
+            case 0:
+                Log.d("paso", String.valueOf(paso));
+                botonOmitir.setVisibility(View.INVISIBLE);
+                imagen.setVisibility(View.INVISIBLE);
+                imagen.setVisibility(View.GONE);
+                botonAtras.setVisibility(View.INVISIBLE);
+                botonSiguiente.setVisibility(View.INVISIBLE);
+                botonEmpezar.setVisibility(View.VISIBLE);
+                textoTutorial.setVisibility(View.INVISIBLE);
+                textoTutorial.setVisibility(View.GONE);
+                tutorialTitulo.setText("TUTORIAL");
+                break;
+            case 1:
+                Log.d("paso", String.valueOf(paso));
+                botonOmitir.setVisibility(View.VISIBLE);
+                imagen.setVisibility(View.INVISIBLE);
+                imagen.setVisibility(View.GONE);
+                imagen.getLayoutParams().height = 0;
+                imagen.getLayoutParams().width = 0;
+                botonAtras.setVisibility(View.VISIBLE);
+                botonSiguiente.setVisibility(View.VISIBLE);
+                botonEmpezar.setVisibility(View.INVISIBLE);
+                textoTutorial.setVisibility(View.VISIBLE);
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Hola. Soy Sanbot. Te doy la bienvenida al módulo conversacional cuyo objetivo es la mejora de la interacción entre los humanos y los robots.");
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 2:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Todavía no sé responder a consultas que requieren datos actuales, por lo que no puedo contestar a preguntas de qué dia es hoy, qué tiempo hizo ayer o similares" +
+                        " ya que únicamente guardo datos hasta finales del año 2023." + " Pero no te preocupes, en caso de que no sepa darte la respuesta te lo indicaré de forma clara durante la conversación");
+                imagen.setVisibility(View.INVISIBLE);
+                imagen.getLayoutParams().height = 0;
+                imagen.getLayoutParams().width = 0;
+                imagen.setVisibility(View.GONE);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 3:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("En la parte inferior de la pantalla podrás observar el botón HABLAR. Al pulsarlo, haré un sonido de confirmación y " +
+                        "mis orejas se encenderán de color verde, lo que significa que te estaré escuchando. Es entonces cuando podrás iniciar la conversación.");
+                imagen.setVisibility(View.VISIBLE);
+                imagen.getLayoutParams().height = 700;
+                imagen.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
+                imagen.setImageResource(R.drawable.senalar_hablar);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 4:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("En el momento en el que dejes de hablar, tu respuesta se enviará. Cuando yo dé mi respuesta, automáticamente volveré a encender" +
+                        " mis orejas para escuchar de nuevo tu respuesta y repetir el proceso.");
+                imagen.setImageResource(R.drawable.senalar_hablar);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 5:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Si has dejado de hablar o se produce algún fallo, significa que no he escuchado tu consulta. En este caso," +
+                        " vuelve a pulsar el botón hablar para reanudar la conversación.");
+                imagen.setImageResource(R.drawable.senalar_hablar);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 6:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("La conversación se irá almacenando y aparecerá en todo momento en el centro de la pantalla");
+                imagen.setImageResource(R.drawable.senalar_conversacion);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 7:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("En el lado derecho, de color verde, aparecerán tus mensajes");
+                imagen.setImageResource(R.drawable.senalar_conversacion_usuario);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 8:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Y en el lado izquierdo, de color azul, aparecerán mis mensajes");
+                imagen.setImageResource(R.drawable.senalar_conversacion_robot);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 9:
+                Log.d("paso", String.valueOf(paso));
+                botonAtras.setVisibility(View.VISIBLE);
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Si quieres ver mensajes anteriores puedes deslizar con tu dedo hacia abajo");
+                imagen.setImageResource(R.drawable.senalar_conversacion_robot);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 10:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("En caso de que quieras repetir la última respuesta del robot, podrás pulsar" +
+                        " el botón Repetir situado en la parte superior derecha de la pantalla");
+                imagen.setImageResource(R.drawable.senalar_repetir);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 11:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("En caso de que quieras detener el habla del robot, podrás pulsar" +
+                        " el botón Detener situado en la parte superior derecha de la pantalla");
+                imagen.setImageResource(R.drawable.senalar_detener);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 12:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Pulsando el botón Configuración situado en la parte superior izquierda" +
+                        " de la pantalla, podrás cambiar diversas opciones del módulo conversacional");
+                imagen.setImageResource(R.drawable.senalar_configuracion);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 13:
+                Log.d("paso", String.valueOf(paso));
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Si quieres iniciar una nueva conversación desde el principio, podrás pulsar" +
+                        " el botón Nueva Conversación situado en la parte superior izquierda de la pantalla");
+                imagen.setImageResource(R.drawable.senalar_nueva_conversacion);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 14:
+                Log.d("paso", String.valueOf(paso));
+                botonSiguiente.setVisibility(View.VISIBLE);
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Por último, si necesitas ver de nuevo este tutorial, pulsar el botón Tutorial" +
+                        " situado en la parte superior izquierda de la pantalla.");
+                imagen.setImageResource(R.drawable.senalar_tutorial);
+                botonOmitir.setText("Omitir");
+                botonOmitir.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            case 15:
+                Log.d("paso", String.valueOf(paso));
+                botonAtras.setVisibility(View.VISIBLE);
+                tutorialTitulo.setText("PASO " + paso + "/" + pasosTotales);
+                textoTutorial.setText("Muchas gracias y feliz conversación.");
+                botonSiguiente.setVisibility(View.INVISIBLE);
+                Drawable done = getContext().getResources().getDrawable(R.drawable.baseline_done_24);
+                botonOmitir.setText("Hecho");
+                botonOmitir.setCompoundDrawablesWithIntrinsicBounds(done, null, null, null);
+                try {
+                    hablar(vozSeleccionada, textoTutorial.getText().toString());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+        }
     }
 
 }
