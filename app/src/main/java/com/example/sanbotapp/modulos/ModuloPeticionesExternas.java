@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.modulos;
 
 import android.os.StrictMode;
 import android.util.Log;
@@ -24,9 +24,11 @@ import okhttp3.Response;
 
 public class ModuloPeticionesExternas {
 
+    // Constructor
     public ModuloPeticionesExternas(){
     }
 
+    // Función que obtiene el día y la hora actual
     private String diaYHora(){
         Calendar cal = Calendar.getInstance();
         int dia = cal.get(Calendar.DAY_OF_MONTH);
@@ -37,11 +39,14 @@ public class ModuloPeticionesExternas {
         int segundos = cal.get(Calendar.SECOND);
         return "Hoy es " + dia + " del " + mes + " de " + agno + " y son las " + hora + minutos + segundos;
     }
-    protected String funcionesRobot(){
+
+    // Función para añadir posibles funciones del robot
+    public String funcionesRobot(){
         return diaYHora();
     }
 
-    protected ArrayList<String> peliculasAPI(){
+    // Función que realiza una consulta de las peliculas en cartelera
+    public ArrayList<String> peliculasAPI(){
         ArrayList<String> nombresPeliculas = new ArrayList<String>();
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
                 .permitAll().build();

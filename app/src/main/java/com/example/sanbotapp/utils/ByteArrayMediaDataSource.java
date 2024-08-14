@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.utils;
 
 import android.annotation.TargetApi;
 import android.media.MediaDataSource;

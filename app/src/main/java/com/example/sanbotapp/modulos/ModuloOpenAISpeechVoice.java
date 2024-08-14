@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.modulos;
 
 import android.media.MediaDataSource;
 import android.os.Build;
@@ -25,10 +25,13 @@ import okhttp3.Response;
 
 public class ModuloOpenAISpeechVoice {
     private byte[] respuestaGPTVoz;
+
+    // Constructor
     public ModuloOpenAISpeechVoice(){
     }
 
-    protected void peticionVozOpenAI(String respuesta, String voz){
+    // Función para realizar la consulta al endpoint Audio Speech de OpenAI
+    public void peticionVozOpenAI(String respuesta, String voz){
 
             // ----------- DATOS PARA REALIZAR REQUESTS HTTP -------------
 
@@ -78,7 +81,8 @@ public class ModuloOpenAISpeechVoice {
             }
     }
 
-    protected byte[] getGPTVoz(){
+    // Función que obtiene la respuesta en formato ristra de bytes de la consulta al Audio Speech de la API de OpenAI
+    public byte[] getGPTVoz(){
         return respuestaGPTVoz;
     }
 

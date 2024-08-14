@@ -24,7 +24,7 @@
             android:textAlignment="textStart"
             android:textColor="@color/colorPurple"
             android:textStyle="bold"
-            android:textSize="30sp"
+            android:textSize="25sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -34,8 +34,7 @@
             android:id="@+id/visualizarVolumen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_margin="0dp"
             android:gravity="start"
             android:layout_gravity="center_horizontal"
             android:text=""
@@ -113,20 +112,209 @@
 
         </LinearLayout>
 
-        <CheckBox android:id="@+id/checkboxConversacionAutomatica"
+        <TextView
+            android:id="@+id/textViewTitleSeleccionarVelocidad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Conversación automática"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"
+            android:text="Selecciona la velocidad de habla que deseas utilizar"
+            android:textAlignment="textStart"
             android:textColor="@color/colorPurple"
             android:textStyle="bold"
-            android:textSize="30sp"
+            android:textSize="25sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/visualizarVelocidad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:gravity="start"
+            android:layout_gravity="center_horizontal"
+            android:text=""
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/layoutModificarVelocidad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <Button
+                android:id="@+id/botonBajarVelocidad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableStart="@drawable/baseline_volume_down_24"
+                android:drawablePadding="0dp"
+                android:padding="10dp"
+                android:text="-"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <SeekBar
+                android:id="@+id/seekBarVelocidad"
+                android:layout_width="700dp"
+                android:layout_height="17dp"
+                android:progressTint="@color/colorPurple"
+                android:thumbTint="@color/colorPurple"
+                android:layout_gravity="center_vertical"
+                tools:layout_editor_absoluteX="219dp"
+                tools:layout_editor_absoluteY="178dp">
+            </SeekBar>
+
+            <Button
+                android:id="@+id/botonSubirVelocidad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableStart="@drawable/baseline_volume_down_24"
+                android:drawablePadding="0dp"
+                android:padding="10dp"
+                android:text="+"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewTitleSeleccionarEntonacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:layout_marginTop="16dp"
-            android:gravity="start"/>
+            android:gravity="start"
+            android:text="Selecciona la entonacion que deseas utilizar"
+            android:textAlignment="textStart"
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="25sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/visualizarEntonacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:gravity="start"
+            android:layout_gravity="center_horizontal"
+            android:text=""
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/layoutModificarEntonacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center">
+
+            <Button
+                android:id="@+id/botonBajarEntonacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableStart="@drawable/baseline_volume_down_24"
+                android:drawablePadding="0dp"
+                android:padding="10dp"
+                android:text="-"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <SeekBar
+                android:id="@+id/seekBarEntonacion"
+                android:layout_width="700dp"
+                android:layout_height="17dp"
+                android:progressTint="@color/colorPurple"
+                android:thumbTint="@color/colorPurple"
+                android:layout_gravity="center_vertical"
+                tools:layout_editor_absoluteX="219dp"
+                tools:layout_editor_absoluteY="178dp">
+            </SeekBar>
+
+            <Button
+                android:id="@+id/botonSubirEntonacion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/button_rounded"
+                android:drawableStart="@drawable/baseline_volume_down_24"
+                android:drawablePadding="0dp"
+                android:padding="10dp"
+                android:text="+"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp">
 
         <CheckBox android:id="@+id/checkboxModoTeclado"
             android:layout_width="wrap_content"
@@ -142,6 +330,24 @@
             android:layout_margin="16dp"
             android:layout_marginTop="16dp"
             android:gravity="start"/>
+
+
+        <CheckBox android:id="@+id/checkboxConversacionAutomatica"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Conversación automática"
+            android:textColor="@color/colorPurple"
+            android:textStyle="bold"
+            android:textSize="30sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="16dp"
+            android:layout_marginTop="16dp"
+            android:gravity="start"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

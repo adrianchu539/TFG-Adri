@@ -1,12 +1,13 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.modulos;
 
 import android.util.Log;
 
-import com.qihancloud.opensdk.base.TopBaseActivity;
+import com.example.sanbotapp.robotControl.HandsControl;
+import com.example.sanbotapp.robotControl.HardwareControl;
+import com.example.sanbotapp.robotControl.HeadControl;
+import com.example.sanbotapp.robotControl.SystemControl;
 import com.qihancloud.opensdk.function.beans.EmotionsType;
 import com.qihancloud.opensdk.function.beans.LED;
-import com.qihancloud.opensdk.function.unit.HandMotionManager;
-import com.qihancloud.opensdk.function.unit.SystemManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class ModuloEmocional {
             "DESESPERACIÓN", "INCREDULIDAD", "ENVIDIA", "CINISMO", "ORGULLO", "ANSIEDAD", "DELEITE", "SENTIMENTALISMO", "VERGÜENZA",
             "INDIGNACIÓN", "PESIMISMO", "MORBOSIDAD", "DOMINANCIA"};
 
+    // Constructor
     public ModuloEmocional(HandsControl handsControl, HeadControl headControl, HardwareControl hardwareControl, SystemControl systemControl){
         this.handsControl = handsControl;
         this.headControl = headControl;
@@ -36,7 +38,17 @@ public class ModuloEmocional {
         this.systemControl = systemControl;
     }
 
-    protected void gestionEmocional(String respuestaGPT) throws InterruptedException {
+    // Función que separa la interpretación emocional
+    // de la respuesta a la consulta y devuelve esta última
+    public String separarRespuestaGPT(String respuesta){
+        // Respuesta sin interpretación emocional
+        String respuestaGPT = respuesta.substring(respuesta.indexOf("]")+1, respuesta.length());
+        Log.d("Respuesta GPT", respuestaGPT);
+        return respuestaGPT;
+    }
+
+    // Función que separa la interpretación emocional del usuario y la del robot
+    public void gestionEmocional(String respuestaGPT) throws InterruptedException {
         String[] cadena = separarEmociones(respuestaGPT);
 
         sentimientosUsuario(cadena[0]);
@@ -51,12 +63,9 @@ public class ModuloEmocional {
         }
     }
 
+    // Función que separa la consulta de la respuesta
+    // de la interpretación emocional y devuelve esta última
     private String[] separarEmociones(String respuesta){
-        // TRATANDO DE SEPARAR LA STRING
-        // Respuesta sin valoración emocional
-        respuesta = respuesta.substring(respuesta.indexOf("]")+1, respuesta.length());
-        Log.d("Respuesta GPT", respuesta);
-
         // Apartamos la valoración emocional para utilizarla más tarde
         String valoracionEmocional = respuesta.substring(0, respuesta.indexOf("]")+1);
         Log.d("valoracion emocional", valoracionEmocional);
@@ -65,6 +74,8 @@ public class ModuloEmocional {
         return segmentos;
     }
 
+    // Función que almacena las emociones del usuario
+    // recogiéndolas de la valoración emocional
     private void sentimientosUsuario(String emocionesUsuario){
         ArrayList<Integer> codigoEmocionesUsuario = new ArrayList<>();
         String usuarioFinal = emocionesUsuario.substring(emocionesUsuario.indexOf("(") + 1, emocionesUsuario.indexOf(")"));
@@ -75,6 +86,8 @@ public class ModuloEmocional {
         }
     };
 
+    // Función que almacena las emociones del robot
+    // recogiéndolas de la valoración emocional
     private void sentimientosRobot(String emocionesRobot) throws InterruptedException {
         ArrayList<Integer> codigoEmocionesRobot = new ArrayList<>();
         String robotFinal = emocionesRobot.substring(emocionesRobot.indexOf("(") + 1, emocionesRobot.indexOf(")"));
@@ -83,10 +96,12 @@ public class ModuloEmocional {
         for(String sentimientos : sentimientosRobot){
             codigoEmocionesRobot.add(Integer.valueOf(sentimientos));
         }
-        expresividadFacial(codigoEmocionesRobot);
+        expresividadGestual(codigoEmocionesRobot);
     };
 
-    private void expresividadFacial(List<Integer> codigoEmocionesRobot) throws InterruptedException {
+    // Función que utiliza las funciones del robot como la expresión facial,
+    // el movimiento de brazos y cabeza
+    private void expresividadGestual(List<Integer> codigoEmocionesRobot) throws InterruptedException {
         int indexSentimiento;
         if(codigoEmocionesRobot.size()>1){
             indexSentimiento = codigoEmocionesRobot.get((int) Math.floor(Math.random() * codigoEmocionesRobot.size()));

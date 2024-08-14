@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.robotControl;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.function.beans.EmotionsType;
@@ -11,11 +11,13 @@ import com.qihancloud.opensdk.function.unit.HeadMotionManager;
 public class HeadControl {
     private HeadMotionManager headMotionManager;
 
+    // Constructor
     public HeadControl(HeadMotionManager headMotionManager){
         this.headMotionManager = headMotionManager;
     }
 
-    protected enum AccionesCabeza {
+    // Enum utilizado para definir las acciones de cabeza, en este caso: derecha, izquierda, arriba, abajo y centro
+    public enum AccionesCabeza {
         DERECHA,
         IZQUIERDA,
         ARRIBA,
@@ -23,7 +25,9 @@ public class HeadControl {
         CENTRO;
     }
 
-    protected boolean controlBasicoCabeza(AccionesCabeza accion) {
+    // Función utilizada para indicar la acción que se quiere realizar
+    // con la cabeza
+    public boolean controlBasicoCabeza(AccionesCabeza accion) {
         RelativeAngleHeadMotion relativeAngleHeadMotion;
         AbsoluteAngleHeadMotion absoluteAngleHeadMotion;
         switch (accion) {
@@ -51,7 +55,8 @@ public class HeadControl {
         return true;
     }
 
-    protected boolean reiniciar(){
+    // Función para poner la cabeza en su posición original, en este caso: en el centro
+    public boolean reiniciar(){
         AbsoluteAngleHeadMotion absoluteAngleHeadMotion;
         absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90);
         headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);

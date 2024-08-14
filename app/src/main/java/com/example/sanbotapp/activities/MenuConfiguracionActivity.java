@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,12 +6,15 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.example.sanbotapp.activities.personalizacionRobot.PersonalizacionRobotActivity;
+import com.example.sanbotapp.activities.personalizacionUsuario.CuestionarioNombreActivity;
+import com.example.sanbotapp.R;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 
-public class MenuConfiguracion extends TopBaseActivity {
+public class MenuConfiguracionActivity extends TopBaseActivity {
     private Button botonAjustes;
-    private Button botonPersonalizacion;
-    private Button botonContextualizacion;
+    private Button botonPersonalizacionRobot;
+    private Button botonPersonalizacionUsuario;
     private Button botonAtras;
 
     @Override
@@ -24,30 +27,30 @@ public class MenuConfiguracion extends TopBaseActivity {
 
         try {
             botonAjustes = findViewById(R.id.botonAjustes);
-            botonPersonalizacion = findViewById(R.id.botonPersonalizacion);
-            botonContextualizacion = findViewById(R.id.botonContextualizacion);
+            botonPersonalizacionUsuario = findViewById(R.id.botonPersonalizacionUsuario);
+            botonPersonalizacionRobot = findViewById(R.id.botonPersonalizacionRobot);
             botonAtras = findViewById(R.id.botonAtras);
 
             botonAjustes.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent settingsActivity = new Intent(MenuConfiguracion.this, SettingsActivity.class);
+                    Intent settingsActivity = new Intent(MenuConfiguracionActivity.this, AjustesActivity.class);
                     startActivity(settingsActivity);
                     finish();
                 }
             });
-            botonContextualizacion.setOnClickListener(new View.OnClickListener() {
+            botonPersonalizacionRobot.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent contextualizacionActivity = new Intent(MenuConfiguracion.this, ContextualizacionActivity.class);
+                    Intent contextualizacionActivity = new Intent(MenuConfiguracionActivity.this, PersonalizacionRobotActivity.class);
                     startActivity(contextualizacionActivity);
                     finish();
                 }
             });
-            botonPersonalizacion.setOnClickListener(new View.OnClickListener() {
+            botonPersonalizacionUsuario.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent cuestionarioNombreActivity = new Intent(MenuConfiguracion.this, CuestionarioNombre.class);
+                    Intent cuestionarioNombreActivity = new Intent(MenuConfiguracionActivity.this, CuestionarioNombreActivity.class);
                     startActivity(cuestionarioNombreActivity);
                     finish();
                 }
@@ -55,8 +58,6 @@ public class MenuConfiguracion extends TopBaseActivity {
             botonAtras.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent moduloConversacionalActivity = new Intent(MenuConfiguracion.this, ModuloConversacional.class);
-                    startActivity(moduloConversacionalActivity);
                     finish();
                 }
             });

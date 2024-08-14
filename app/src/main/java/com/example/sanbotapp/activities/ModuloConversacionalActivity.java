@@ -1,14 +1,11 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.activities;
 
 import android.content.Intent;
 import android.database.DataSetObserver;
-import android.media.MediaDataSource;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,37 +14,34 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.example.sanbotapp.conversacion.ChatArrayAdapter;
+import com.example.sanbotapp.conversacion.MensajeChat;
+import com.example.sanbotapp.gestion.GestionMediaPlayer;
+import com.example.sanbotapp.gestion.GestionSharedPreferences;
+import com.example.sanbotapp.R;
+import com.example.sanbotapp.modulos.ModuloEmocional;
+import com.example.sanbotapp.modulos.ModuloOpenAICompletions;
+import com.example.sanbotapp.modulos.ModuloOpenAISpeechVoice;
+import com.example.sanbotapp.modulos.ModuloPeticionesExternas;
+import com.example.sanbotapp.robotControl.HandsControl;
+import com.example.sanbotapp.robotControl.HardwareControl;
+import com.example.sanbotapp.robotControl.HeadControl;
+import com.example.sanbotapp.robotControl.SpeechControl;
+import com.example.sanbotapp.robotControl.SystemControl;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.FuncConstant;
 import com.qihancloud.opensdk.function.beans.SpeakOption;
-import com.qihancloud.opensdk.function.beans.handmotion.AbsoluteAngleHandMotion;
-import com.qihancloud.opensdk.function.beans.headmotion.AbsoluteAngleHeadMotion;
-import com.qihancloud.opensdk.function.beans.headmotion.RelativeAngleHeadMotion;
 import com.qihancloud.opensdk.function.unit.HandMotionManager;
 import com.qihancloud.opensdk.function.unit.HardWareManager;
 import com.qihancloud.opensdk.function.unit.HeadMotionManager;
 import com.qihancloud.opensdk.function.unit.SpeechManager;
 import com.qihancloud.opensdk.function.unit.SystemManager;
-import com.qihancloud.opensdk.function.unit.interfaces.speech.SpeakListener;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
-import kotlinx.coroutines.sync.Mutex;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
-public class ModuloConversacional extends TopBaseActivity {
+public class ModuloConversacionalActivity extends TopBaseActivity {
 
     // Componentes módulo conversacional
     private Button botonConfiguracion;
@@ -87,13 +81,14 @@ public class ModuloConversacional extends TopBaseActivity {
     private Handler handler = new Handler(Looper.getMainLooper());
 
     private boolean finHabla = false;
+    private boolean finReproduccion = false;
 
     // Variables usadas en el modulo
 
     private String respuesta;
     private String consultaChatGPT; // Consulta realizada por el usuario
     private String respuestaGPT; // Respuesta dada a la consulta realizada por el usuario
-    private byte[] respuestaGPTVoz;
+    private static byte[] respuestaGPTVoz;
     private String vozSeleccionada; // Voz seleccionada por el usuario
     private String nombreUsuario; // Nombre del usuario
     private int edadUsuario; // Edad del usuario
@@ -104,10 +99,10 @@ public class ModuloConversacional extends TopBaseActivity {
     private boolean consultaPeliculas = false; // Variable para consultas API de películas
     private boolean conversacionAutomatica = true; // Variable para indicar si la conversación está en modo automático
     private boolean modoTeclado; // Variable para indicar si la conversación está en modo automático
-    private boolean personalizacionActivada; // Variable para indicar si la conversación está en modo automático
-    private boolean contextualizacionActivada;
-    private boolean interpretacionEmocionalActivada;
-    private boolean contextoVacio;
+    private boolean personalizacionUsuarioActivada = true; // Variable para indicar si la conversación está en modo automático
+    private boolean personalizacionRobotActivada = true;
+    private boolean interpretacionEmocionalActivada = true;
+    private boolean contextoVacio = true;
 
     // Lista de variables necesarias para el envío de requests en la API de ChatGPT
 
@@ -136,8 +131,7 @@ public class ModuloConversacional extends TopBaseActivity {
 
     private ChatArrayAdapter chatArrayAdapter;
 
-    private List<ChatMessage> conversacion;
-
+    private List<MensajeChat> conversacion;
 
     @Override
     public void onResume() {
@@ -155,20 +149,30 @@ public class ModuloConversacional extends TopBaseActivity {
         conversacionAutomatica = gestionSharedPreferences.getBooleanSharedPreferences("conversacionAutomatica", true);
         modoTeclado = gestionSharedPreferences.getBooleanSharedPreferences("modoTeclado", false);
 
-        personalizacionActivada = gestionSharedPreferences.getBooleanSharedPreferences("personalizacionActivada", false);
-        contextualizacionActivada = gestionSharedPreferences.getBooleanSharedPreferences("contextualizacionActivada", false);
-        interpretacionEmocionalActivada = gestionSharedPreferences.getBooleanSharedPreferences("interpretacionEmocionalActivada", false);
-        contextoVacio = gestionSharedPreferences.getBooleanSharedPreferences("contextoVacio", false);
+        if(nombreUsuario==null || edadUsuario==0){
+            personalizacionUsuarioActivada = false;
+        }
+        if(generoRobot==null || grupoEdadRobot==null ){
+            personalizacionRobotActivada = false;
+        }
+        if(contexto==null || contexto.isEmpty()){
+            contextoVacio = true;
+        }
+        Log.d("valor", "personalizacion" + personalizacionUsuarioActivada);
+        Log.d("valor", "emocional" + interpretacionEmocionalActivada);
+        Log.d("valor", "contextualizacion" + personalizacionRobotActivada);
+        Log.d("valor", "contextovacio" + contextoVacio);
 
         // ------------------- PRUEBAS CHAT -----------------
         dialogo.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.activity_chat_singlemessage);
         if(chatArrayAdapter.isEmpty()){
-            for(ChatMessage cm : conversacion){
-                Log.d("cm", cm.toString());
+            Log.d("caa", "caa vacío, llenando...");
+            for(MensajeChat cm : conversacion){
+                Log.d("chatmessage", cm.toString());
                 chatArrayAdapter.add(cm);
             }
-            Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
+            Log.d("chatarray", String.valueOf(chatArrayAdapter.getCount() - 1));
             dialogo.setSelection(chatArrayAdapter.getCount() - 1);
         }
         chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
@@ -185,15 +189,17 @@ public class ModuloConversacional extends TopBaseActivity {
 
     }
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         // Configuración de la aplicación
+        super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        super.onCreate(savedInstanceState);
 
         // Establecer pantalla
         setContentView(R.layout.activity_modulo_conversacional);
@@ -217,12 +223,13 @@ public class ModuloConversacional extends TopBaseActivity {
         conversacion = new ArrayList<>();
         dialogo.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.activity_chat_singlemessage);
-        if(chatArrayAdapter.isEmpty()){
-            for(ChatMessage cm : conversacion){
-                Log.d("cm", cm.toString());
+        if (chatArrayAdapter.isEmpty()) {
+            Log.d("caa", "caa vacío, llenando...");
+            for (MensajeChat cm : conversacion) {
+                Log.d("chatmessage", cm.toString());
                 chatArrayAdapter.add(cm);
             }
-            Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
+            Log.d("chatarray", String.valueOf(chatArrayAdapter.getCount() - 1));
             dialogo.setSelection(chatArrayAdapter.getCount() - 1);
         }
         chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
@@ -246,7 +253,7 @@ public class ModuloConversacional extends TopBaseActivity {
         speakOption.setSpeed(50);
         speakOption.setIntonation(50);
 
-        speechControl = new SpeechControl(speechManager, speakOption);
+        speechControl = new SpeechControl(speechManager);
         moduloOpenAI = new ModuloOpenAICompletions();
         headControl = new HeadControl(headMotionManager);
         handsControl = new HandsControl(handMotionManager);
@@ -269,9 +276,8 @@ public class ModuloConversacional extends TopBaseActivity {
         grupoEdadRobot = gestionSharedPreferences.getStringSharedPreferences("grupoEdadRobotPersonalizacion", null);
         contexto = gestionSharedPreferences.getStringSharedPreferences("contextoPersonalizacion", null);
         conversacionAutomatica = gestionSharedPreferences.getBooleanSharedPreferences("conversacionAutomatica", true);
-        personalizacionActivada = gestionSharedPreferences.getBooleanSharedPreferences("personalizacionActivada", false);
-        contextualizacionActivada = gestionSharedPreferences.getBooleanSharedPreferences("contextualizacionActivada", false);
-        interpretacionEmocionalActivada = gestionSharedPreferences.getBooleanSharedPreferences("interpretacionEmocionalActivada", false);
+        personalizacionRobotActivada = gestionSharedPreferences.getBooleanSharedPreferences("personalizacionActivada", false);
+        personalizacionRobotActivada = gestionSharedPreferences.getBooleanSharedPreferences("contextualizacionActivada", false);
         contextoVacio = gestionSharedPreferences.getBooleanSharedPreferences("personalizacionActivada", false);
         modoTeclado = gestionSharedPreferences.getBooleanSharedPreferences("modoTeclado", false);
 
@@ -296,7 +302,7 @@ public class ModuloConversacional extends TopBaseActivity {
             botonNuevaConversacion.setOnClickListener(new View.OnClickListener() {
                 // Al pulsarlo muestra la pantalla de ajustes
                 @Override
-                public void onClick (View v){
+                public void onClick(View v) {
                     moduloOpenAI.clearRoleSystem();
                     moduloOpenAI.clearMessages();
                     clasificarRoleSystem(contentPersonalizacion, contentContextualizacionSinContexto, contentContextualizacionConContexto);
@@ -305,32 +311,12 @@ public class ModuloConversacional extends TopBaseActivity {
                 }
             });
 
-            // Gestión de acciones del mediaPlayer
-            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                // Acción que se ejecuta al terminar la reproducción el mediaPlayer
-                @Override
-                public void onCompletion(MediaPlayer mp)
-                {
-                    // Si está en modo conversación automática
-                    if(conversacionAutomatica && !forzarParada){
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                        // "Pulsa" el botón hablar
-                        botonHablar.performClick();
-                    }
-                    forzarParada = false;
-                }
-            });
-
             // Gestión de la pulsación del botón de ajustes
             botonTutorial.setOnClickListener(new View.OnClickListener() {
                 // Al pulsarlo muestra la pantalla de ajustes
                 @Override
-                public void onClick (View v){
-                    Intent menuConfiguracionActivity = new Intent(ModuloConversacional.this, TutorialModuloConversacional.class);
+                public void onClick(View v) {
+                    Intent menuConfiguracionActivity = new Intent(ModuloConversacionalActivity.this, TutorialModuloConversacionalActivity.class);
                     startActivity(menuConfiguracionActivity);
                 }
             });
@@ -338,8 +324,8 @@ public class ModuloConversacional extends TopBaseActivity {
             botonConfiguracion.setOnClickListener(new View.OnClickListener() {
                 // Al pulsarlo muestra la pantalla de ajustes
                 @Override
-                public void onClick (View v){
-                    Intent menuConfiguracionActivity = new Intent(ModuloConversacional.this, MenuConfiguracion.class);
+                public void onClick(View v) {
+                    Intent menuConfiguracionActivity = new Intent(ModuloConversacionalActivity.this, MenuConfiguracionActivity.class);
                     startActivity(menuConfiguracionActivity);
                 }
             });
@@ -347,11 +333,11 @@ public class ModuloConversacional extends TopBaseActivity {
             // Gestión de la pulsación del botón de silenciar
             botonDetener.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick (View v) {
+                public void onClick(View v) {
 
                     // Si el robot está hablando (voz Sanbot) se pausa
                     // sino, se reanuda
-                    if (speechControl.robotHablando()) {
+                    if (speechControl.isRobotHablando()) {
                         try {
                             gestionVoz(vozSeleccionada, AccionReproduccionVoz.DETENER);
                         } catch (IOException e) {
@@ -359,8 +345,7 @@ public class ModuloConversacional extends TopBaseActivity {
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
-                    }
-                    else {
+                    } else {
                         try {
                             gestionVoz(vozSeleccionada, AccionReproduccionVoz.DETENER);
                         } catch (IOException | InterruptedException e) {
@@ -369,7 +354,7 @@ public class ModuloConversacional extends TopBaseActivity {
                     }
                     // Si el mediaPlayer está reproduciéndose (voz OpenAI) se pausa,
                     // sino, se reanuda
-                    if (gestionMediaPlayer.mediaPlayerReproduciendose()) {
+                    if (gestionMediaPlayer.isMediaPlayerReproduciendose()) {
                         try {
                             gestionVoz(vozSeleccionada, AccionReproduccionVoz.DETENER);
                         } catch (IOException e) {
@@ -392,7 +377,7 @@ public class ModuloConversacional extends TopBaseActivity {
                 // Al pulsarlo se empieza a escuchar al usuario
                 // y se interpreta su consulta hablada
                 @Override
-                public void onClick (View v){
+                public void onClick(View v) {
                     try {
                         registrarConsulta();
                     } catch (IOException e) {
@@ -408,7 +393,7 @@ public class ModuloConversacional extends TopBaseActivity {
                 // Al pulsarlo se empieza a escuchar al usuario
                 // y se interpreta su consulta hablada
                 @Override
-                public void onClick (View v){
+                public void onClick(View v) {
                     try {
                         registrarConsulta();
                     } catch (IOException e) {
@@ -422,11 +407,11 @@ public class ModuloConversacional extends TopBaseActivity {
             // Gestión de la pulsación del botón de enviar
             botonEnviarTeclado.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick (View v){
+                public void onClick(View v) {
 
                     // Si la conversación no es automática, se obtiene
                     // lo que hay en el texto consulta
-                    if(!conversacionAutomatica){
+                    if (consultaChatGPT.isEmpty()) {
                         consultaChatGPT = textoConsulta.getText().toString();
                     }
 
@@ -445,7 +430,7 @@ public class ModuloConversacional extends TopBaseActivity {
 
             botonRepetir.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick (View v){
+                public void onClick(View v) {
                     try {
                         gestionVoz(vozSeleccionada, AccionReproduccionVoz.REPETIR);
                     } catch (IOException e) {
@@ -535,18 +520,6 @@ public class ModuloConversacional extends TopBaseActivity {
         }).start();
     }
 
-    // Función en la que se le pasa la respuesta del ChatGPT y la voz con la que el usuario
-    // desea que la reproduzca
-    private void APIChatGPTVoz(String respuesta, String voz)  {
-        new Thread(new Runnable() {
-            public void run(){
-                moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz);
-                respuestaGPTVoz = moduloOpenAISpeechVoice.getGPTVoz();
-                gestionMediaPlayer.reproducirMediaPlayer(respuestaGPTVoz);
-            }
-        }).start();
-    }
-
     private void APIChatGPT(String pregunta) throws IOException, InterruptedException {
         new Thread(new Runnable() {
             public void run(){
@@ -555,6 +528,7 @@ public class ModuloConversacional extends TopBaseActivity {
                 if(interpretacionEmocionalActivada) {
                     try {
                         moduloEmocional.gestionEmocional(respuestaGPT);
+                        respuestaGPT = moduloEmocional.separarRespuestaGPT(respuestaGPT);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -562,13 +536,21 @@ public class ModuloConversacional extends TopBaseActivity {
 
                 handler.post(new Runnable() {
                     public void run() {
-                        // DEBUG!!
-                        //dialogoRobot.setText(respuestaGPT);
-                        chatArrayAdapter.add(new ChatMessage(true, respuestaGPT));
-                        conversacion.add(new ChatMessage(true, respuestaGPT));
-                        //dialogoRobot.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
-                        //       emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
+
+                        if(interpretacionEmocionalActivada){
+                            chatArrayAdapter.add(new MensajeChat(true, moduloEmocional.separarRespuestaGPT(respuestaGPT)));
+                            conversacion.add(new MensajeChat(true, moduloEmocional.separarRespuestaGPT(respuestaGPT)));
+                        }
+                        else{
+                            // DEBUG!!
+                            //dialogoRobot.setText(respuestaGPT);
+                            chatArrayAdapter.add(new MensajeChat(true, respuestaGPT));
+                            conversacion.add(new MensajeChat(true, respuestaGPT));
+                            //dialogoRobot.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
+                            //       emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
+                        }
                         try {
+                            handler.removeCallbacksAndMessages(null);
                             gestionVoz(vozSeleccionada, AccionReproduccionVoz.HABLAR);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
@@ -593,7 +575,7 @@ public class ModuloConversacional extends TopBaseActivity {
                 case HABLAR:
                     speechControl.hablar(respuestaGPT);
                     if(conversacionAutomatica && !forzarParada){
-                        gestionarFinHabla();
+                        gestionarFinHablaSanbot();
                     }
                     break;
                 case DETENER:
@@ -614,10 +596,19 @@ public class ModuloConversacional extends TopBaseActivity {
                     moduloOpenAISpeechVoice.peticionVozOpenAI(respuestaGPT, vozSeleccionada);
                     handler.post(new Runnable() {
                         public void run() {
-                            byte[] respuestaGPTVoz = moduloOpenAISpeechVoice.getGPTVoz();
+                            handler.removeCallbacksAndMessages(null);
+                            respuestaGPTVoz = moduloOpenAISpeechVoice.getGPTVoz();
                             gestionMediaPlayer.reproducirMediaPlayer(respuestaGPTVoz);
+                            Log.d("parada mp", "error");
+                            Log.d("parada mp", String.valueOf(conversacionAutomatica));
+                            Log.d("parada mp", String.valueOf(forzarParada));
+                            if(conversacionAutomatica && !forzarParada){
+                                Log.d("parada mp", "gestionando parada mediaplayer....");
+                                gestionarFinReproduccionMediaPlayer();
+                            }
                         }
                     });
+                    break;
                 case DETENER:
                     Log.d("Le estoy dando", "mediaplauer habladno, intentando parar");
                     // Se detiene
@@ -627,6 +618,7 @@ public class ModuloConversacional extends TopBaseActivity {
                 case REPETIR:
                     forzarParada=true;
                     gestionMediaPlayer.reproducirMediaPlayer(respuestaGPTVoz);
+                    break;
             }
         }
     }
@@ -642,8 +634,8 @@ public class ModuloConversacional extends TopBaseActivity {
         // e indico que la respuesta se está cargando
         //dialogoUsuario.setVisibility(View.VISIBLE);
         //dialogoUsuario.setText(consultaChatGPT);
-        chatArrayAdapter.add(new ChatMessage(false, consultaChatGPT));
-        conversacion.add(new ChatMessage(false, consultaChatGPT));
+        chatArrayAdapter.add(new MensajeChat(false, consultaChatGPT));
+        conversacion.add(new MensajeChat(false, consultaChatGPT));
         //dialogoRobot.setVisibility(View.VISIBLE);
         //dialogoRobot.setText("Cargando...");
 
@@ -667,7 +659,7 @@ public class ModuloConversacional extends TopBaseActivity {
         }
     }
 
-    private void gestionarFinHabla(){
+    private void gestionarFinHablaSanbot(){
         Log.d("hola", "entrando....");
         new Thread(new Runnable() {
             public void run(){
@@ -683,6 +675,35 @@ public class ModuloConversacional extends TopBaseActivity {
                     @Override
                     public void run() {
                         try {
+                            handler.removeCallbacksAndMessages(null);
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        botonHablar.performClick();
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void gestionarFinReproduccionMediaPlayer(){
+        Log.d("hola", "entrando....");
+        new Thread(new Runnable() {
+            public void run(){
+                Log.d("hola", "entrando mas....");
+                finReproduccion = false;
+                finReproduccion = gestionMediaPlayer.heAcabado();
+                while (!finReproduccion) {
+                    Log.d("waiting", "waiting..." + finHabla);
+                }
+                Log.d("hola", "finHabla es " + finHabla);
+                // Una vez que la variable tiene valor, ejecuta la acción en el hilo principal
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            handler.removeCallbacksAndMessages(null);
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
@@ -695,20 +716,20 @@ public class ModuloConversacional extends TopBaseActivity {
     }
     private void gestionModuloConversacional(String nombreUsuario, int edadUsuario, String generoRobot, String grupoEdadRobot, String contexto){
         if(nombreUsuario == null || edadUsuario==0){
-            personalizacionActivada = false;
-            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionActivada);
+            personalizacionUsuarioActivada = false;
+            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionUsuarioActivada);
         }
         else{
-            personalizacionActivada = true;
-            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionActivada);
+            personalizacionUsuarioActivada = true;
+            Log.d("personalizacionActivada", "personalizacionActivada es " + personalizacionUsuarioActivada);
         }
         if(generoRobot == null || grupoEdadRobot == null){
-            contextualizacionActivada = false;
-            Log.d("contextualizacionActiva", "contextualizacionActivada es " + contextualizacionActivada);
+            personalizacionRobotActivada = false;
+            Log.d("contextualizacionActiva", "contextualizacionActivada es " + personalizacionRobotActivada);
         }
         else{
-            contextualizacionActivada = true;
-            Log.d("contextualizacionActiva", "contextualizacionActivada es " + contextualizacionActivada);
+            personalizacionRobotActivada = true;
+            Log.d("contextualizacionActiva", "contextualizacionActivada es " + personalizacionRobotActivada);
         }
         if(contexto == null){
             contextoVacio = true;
@@ -723,20 +744,29 @@ public class ModuloConversacional extends TopBaseActivity {
     private void clasificarRoleSystem(String contentPersonalizacion, String contentContextualizacionSinContexto, String contentContextualizacionConContexto){
         // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN CON CONTEXTO
 
-        if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && !contextoVacio){
+        if(personalizacionUsuarioActivada && interpretacionEmocionalActivada && personalizacionRobotActivada && !contextoVacio){
             moduloOpenAI.anadirRoleSystem(contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional + contentContextualizacionConContexto);
         }
         // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL + CONTEXTUALIZACIÓN SIN CONTEXTO
-        else if(personalizacionActivada && interpretacionEmocionalActivada && contextualizacionActivada && contextoVacio){
+        else if(personalizacionUsuarioActivada && interpretacionEmocionalActivada && personalizacionRobotActivada && contextoVacio){
             moduloOpenAI.anadirRoleSystem(contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional + contentContextualizacionSinContexto);
         }
         // PERSONALIZACIÓN + CONVERSACIÓN + INTERPRETACIÓN EMOCIONAL
-        else if(personalizacionActivada && interpretacionEmocionalActivada && !contextualizacionActivada){
+        else if(personalizacionUsuarioActivada && interpretacionEmocionalActivada && !personalizacionRobotActivada){
             moduloOpenAI.anadirRoleSystem(contentConversacion + "," + contentPersonalizacion + contentInterpretacionEmocional);
         }
         // PERSONALIZACIÓN + CONVERSACIÓN
-        else if(personalizacionActivada && !interpretacionEmocionalActivada){
+        else if(personalizacionUsuarioActivada && !interpretacionEmocionalActivada){
             moduloOpenAI.anadirRoleSystem(contentPersonalizacion);
+        }
+        else if(!personalizacionUsuarioActivada && interpretacionEmocionalActivada && personalizacionRobotActivada && !contextoVacio){
+            moduloOpenAI.anadirRoleSystem(contentConversacion + "," + contentInterpretacionEmocional + contentContextualizacionConContexto);
+        }
+        else if(!personalizacionUsuarioActivada && interpretacionEmocionalActivada && personalizacionRobotActivada && contextoVacio){
+            moduloOpenAI.anadirRoleSystem(contentConversacion + "," + contentInterpretacionEmocional + contentContextualizacionSinContexto);
+        }
+        else if(!personalizacionUsuarioActivada && interpretacionEmocionalActivada && !personalizacionRobotActivada){
+            moduloOpenAI.anadirRoleSystem(contentConversacion + "," + contentInterpretacionEmocional);
         }
         // CONVERSACIÓN
         else{
@@ -746,13 +776,13 @@ public class ModuloConversacional extends TopBaseActivity {
 
     private void clasificarConsulta() throws IOException, InterruptedException {
         if(consultaRobot){
-            speechControl.gestionHabla(vozSeleccionada, moduloPeticionesExternas.funcionesRobot());
+            speechControl.hablar(moduloPeticionesExternas.funcionesRobot());
         }
         else if(consultaPeliculas){
-            speechControl.gestionHabla(vozSeleccionada,  "Hola, las novedades de peliculas son las siguientes");
+            speechControl.hablar("Hola, las novedades de peliculas son las siguientes");
             for(String nP: moduloPeticionesExternas.peliculasAPI()){
                 System.out.println("Voy a decir la pelicula " + nP);
-                speechControl.gestionHabla(vozSeleccionada, nP + ",");
+                speechControl.hablar(nP + ",");
                 Thread.sleep(2000);
             }
         }

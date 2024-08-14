@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.robotControl;
 
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.function.beans.LED;
@@ -9,16 +9,19 @@ import com.qihancloud.opensdk.function.unit.HardWareManager;
 public class HardwareControl {
     private HardWareManager hardWareManager;
 
+    // Constructor
     public HardwareControl(HardWareManager hardWareManager){
         this.hardWareManager = hardWareManager;
     }
 
-    protected boolean encenderLED(byte parte, byte modo) {
+    // Función para encender el LED en la parte y modo que se pase como parámetro
+    public boolean encenderLED(byte parte, byte modo) {
         hardWareManager.setLED(new LED(parte, modo));
         return true;
     }
 
-    protected boolean apagarLED(byte parte) {
+    // Función para apagar el LED en la parte y modo que se pase como parámetro
+    public boolean apagarLED(byte parte) {
         hardWareManager.setLED(new LED(parte, LED.MODE_CLOSE));
         return true;
     }

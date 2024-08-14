@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.activities.personalizacionUsuario;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,15 +8,21 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.sanbotapp.R;
+import com.example.sanbotapp.activities.MenuConfiguracionActivity;
+import com.example.sanbotapp.activities.MenuPruebasActivity;
+import com.example.sanbotapp.gestion.GestionSharedPreferences;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 
-public class CuestionarioNombre extends TopBaseActivity {
+public class CuestionarioNombreActivity extends TopBaseActivity {
 
     private EditText nombreUsuario;
     private String nombre;
     private Button botonContinuar;
     private Button botonAtras;
 
+    private GestionSharedPreferences gestionSharedPreferences;
+    /*
     @Override
     public void onResume() {
         super.onResume();
@@ -27,12 +33,14 @@ public class CuestionarioNombre extends TopBaseActivity {
         botonAtras.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent menuConfiguracionActivity = new Intent(CuestionarioNombre.this, MenuConfiguracion.class);
+                Intent menuConfiguracionActivity = new Intent(CuestionarioNombreActivity.this, MenuConfiguracionActivity.class);
                 startActivity(menuConfiguracionActivity);
                 finish();
             }
         });
     }
+
+     */
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,11 +49,7 @@ public class CuestionarioNombre extends TopBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cuestionario_previo_nombre);
 
-        // Creo una sección de almacenamiento local donde se guardará el nombre del usuario
-        SharedPreferences sharedPref = this.getSharedPreferences("nombreUsuario", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-
-        nombre = sharedPref.getString("nombreUsuario", null);
+        nombre = gestionSharedPreferences.getStringSharedPreferences("nombreUsuario", null);
 
         try {
             nombreUsuario = findViewById(R.id.nombreUsuario);
@@ -58,9 +62,8 @@ public class CuestionarioNombre extends TopBaseActivity {
             botonContinuar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    editor.putString("nombreUsuario", String.valueOf(nombreUsuario.getText()));
-                    editor.apply();
-                    Intent cuestionarioEdadActivity = new Intent(CuestionarioNombre.this, CuestionarioEdad.class);
+                    gestionSharedPreferences.putStringSharedPreferences("nombreUsuario", "nombreUsuario", String.valueOf(nombreUsuario.getText()));
+                    Intent cuestionarioEdadActivity = new Intent(CuestionarioNombreActivity.this, CuestionarioEdadActivity.class);
                     startActivity(cuestionarioEdadActivity);
                     finish();
                 }
@@ -68,8 +71,8 @@ public class CuestionarioNombre extends TopBaseActivity {
             botonAtras.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent menuPruebasActivity = new Intent(CuestionarioNombre.this, MenuPruebas.class);
-                    startActivity(menuPruebasActivity);
+                    Intent menuConfiguracionActivity = new Intent(CuestionarioNombreActivity.this, MenuConfiguracionActivity.class);
+                    startActivity(menuConfiguracionActivity);
                     finish();
                 }
             });

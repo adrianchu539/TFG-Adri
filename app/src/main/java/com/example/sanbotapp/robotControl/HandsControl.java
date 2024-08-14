@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.robotControl;
 
 import android.util.Log;
 
@@ -16,13 +16,30 @@ import java.util.List;
 public class HandsControl {
     private HandMotionManager handMotionManager;
 
+    // Constructor
     public HandsControl(HandMotionManager handMotionManager){
         this.handMotionManager = handMotionManager;
     }
 
-    protected boolean controlBasicoBrazos(AccionesBrazos accion, TipoBrazo brazo) throws InterruptedException {
+    // Enum utilizado para definir las acciones de brazo, en este caso: levantar y bajar
+    public enum AccionesBrazos {
+        LEVANTAR_BRAZO,
+        BAJAR_BRAZO,
+    }
+
+    // Enum utilizado para definir los tipos de brazo con los que se puede trabajar,
+    // en este caso: derecho, izquierdo y ambos
+    public enum TipoBrazo {
+        DERECHO,
+        IZQUIERDO,
+        AMBOS;
+    }
+
+    // Función utilizada para indicar la acción que se quiere realizar
+    // y el brazo o brazos que se quieren mover
+    public boolean controlBasicoBrazos(AccionesBrazos accion, TipoBrazo brazo) {
         byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
-        AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 0);
+        AbsoluteAngleHandMotion absoluteAngleHandMotion;
         switch(accion) {
             case LEVANTAR_BRAZO:
                 switch (brazo) {
@@ -57,26 +74,14 @@ public class HandsControl {
                 }
                 break;
         }
-
         return true;
     }
 
-    protected boolean reiniciar(){
+    // Función para poner los brazos en su posición original, en este caso: hacia abajo
+    public boolean reiniciar(){
         byte[] absolutePart = new byte[]{AbsoluteAngleHandMotion.PART_LEFT, AbsoluteAngleHandMotion.PART_RIGHT, AbsoluteAngleHandMotion.PART_BOTH};
-        AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[0], 10, 0);
-        absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 7, 170);
+        AbsoluteAngleHandMotion absoluteAngleHandMotion = new AbsoluteAngleHandMotion(absolutePart[2], 7, 170);
         handMotionManager.doAbsoluteAngleMotion(absoluteAngleHandMotion);
         return true;
-    }
-
-    protected enum AccionesBrazos {
-        LEVANTAR_BRAZO,
-        BAJAR_BRAZO,
-    }
-
-    protected enum TipoBrazo {
-        DERECHO,
-        IZQUIERDO,
-        AMBOS;
     }
 }

@@ -1,10 +1,10 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.conversacion;
 
-public class ChatMessage {
+public class MensajeChat {
     public boolean left;
     public String message;
 
-    public ChatMessage(boolean left, String message) {
+    public MensajeChat(boolean left, String message) {
         super();
         this.left = left;
         this.message = message;

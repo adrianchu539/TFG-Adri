@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.modulos;
 
 import android.os.StrictMode;
 import android.util.Log;
@@ -27,23 +27,28 @@ public class ModuloOpenAICompletions {
     private List<Map<String, String>> messages = new ArrayList<>();
     private String respuestaChatGPT;
 
+    // Constructor
     public ModuloOpenAICompletions(){
     }
 
-    protected void anadirRoleSystem(String content){
+    // Función para añadir content RoleSystem
+    public void anadirRoleSystem(String content){
         roleSystem.put("role", "system");
         roleSystem.put("content", content);
         messages.add(roleSystem);
     }
 
-    protected void clearRoleSystem(){
+    // Función para vaciar content RoleSystem
+    public void clearRoleSystem(){
         roleSystem.clear();
     }
 
-    protected void clearMessages(){
+    // Función para vaciar mensajes de la API de OpenAI
+    public void clearMessages(){
         messages.clear();
     }
 
+    // Función para añadir content al RoleUser
     private void anadirRoleUser(String pregunta){
         Map<String, String> roleUser = new HashMap<>();
         roleUser.put("role", "user");
@@ -51,6 +56,7 @@ public class ModuloOpenAICompletions {
         messages.add(roleUser);
     }
 
+    // Función para añadir content al RoleAssistant
     private void anadirRoleAssistant(String respuesta){
         Map<String, String> roleAssistant = new HashMap<>();
         roleAssistant.put("role", "assistant");
@@ -59,6 +65,7 @@ public class ModuloOpenAICompletions {
         respuestaChatGPT = respuesta;
     }
 
+    // Función que va añadiendo el hilo de la conversación
     private JSONArray construirConversacion(){
         JSONArray conversacion = new JSONArray();
 
@@ -74,7 +81,9 @@ public class ModuloOpenAICompletions {
         }
         return conversacion;
     }
-    protected void consultaOpenAI(String pregunta){
+
+    // Función para realizar la consulta al endpoint Chat Completions de OpenAI
+    public void consultaOpenAI(String pregunta){
 
             // ----------- DATOS PARA REALIZAR REQUESTS HTTP -------------
 
@@ -145,7 +154,8 @@ public class ModuloOpenAICompletions {
             }
     }
 
-    protected String getRespuestaGPT(){
+    // Función que obtiene la respuesta de la consulta al Chat Completions de la API de OpenAI
+    public String getRespuestaGPT(){
         return respuestaChatGPT;
     }
 

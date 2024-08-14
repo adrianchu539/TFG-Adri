@@ -1,11 +1,7 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.robotControl;
 
-import android.os.Bundle;
 import android.util.Log;
-import android.view.WindowManager;
-import java.util.concurrent.locks.ReentrantLock;
 
-import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.OperationResult;
 import com.qihancloud.opensdk.function.beans.SpeakOption;
 import com.qihancloud.opensdk.function.beans.speech.Grammar;
@@ -13,31 +9,20 @@ import com.qihancloud.opensdk.function.unit.SpeechManager;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.SpeakListener;
 
-import java.io.IOException;
-
 public class SpeechControl {
 
     private SpeechManager speechManager;
-    private SpeakOption speakOption;
+    private static SpeakOption speakOption = new SpeakOption();
     private String cadenaReconocida;
-    private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
     private boolean finHabla = false;
 
-    public SpeechControl(SpeechManager speechManager, SpeakOption speakOption){
+    // Constructor
+    public SpeechControl(SpeechManager speechManager){
         this.speechManager = speechManager;
-        this.speakOption = speakOption;
     }
 
-    protected boolean reconocerRespuesta(){
-        Log.d("prueba", "reconociendo respuesta...");
-
-        while(getRespuesta()==null || getRespuesta()==""){
-            Log.d("esperando", "esperando...... " + getRespuesta());
-        }
-        return true;
-    }
-
-    protected boolean robotHablando(){
+    // Función que indica si el robot está hablando o no
+    public boolean isRobotHablando(){
         OperationResult or = speechManager.isSpeaking();
         if (or.getResult().equals("1")) {
             return true;
@@ -47,16 +32,25 @@ public class SpeechControl {
         }
     }
 
-    protected void hablar(String respuesta){
+    // Función que utiliza la síntesis de voz para pronunciar la
+    // frase que se passa como parámetro con la entonación
+    // y velocidad pasadas en el constructor.
+    public void hablar(String respuesta){
         Log.d("hablar", "voy a hablar");
+        Log.d("speakoption velocidad", String.valueOf(speakOption.getSpeed()));
+        Log.d("speakoption entonacion", String.valueOf(speakOption.getIntonation()));
         speechManager.startSpeak(respuesta, speakOption);
     }
 
-    protected void pararHabla(){
+    // Función que detiene el habla del robot.
+    public void pararHabla(){
         speechManager.stopSpeak();
     }
 
-    protected String modoEscucha(){
+    // Función que obtiene el diálogo que el usuario ha dicho
+    // desde que el robot se pone en modo WakeUp hasta que el
+    // usuario deja de hablar
+    public String modoEscucha(){
         cadenaReconocida=null;
         speechManager.doWakeUp();
         speechManager.setOnSpeechListener(new RecognizeListener() {
@@ -71,32 +65,14 @@ public class SpeechControl {
             public void onRecognizeVolume(int i) {
 
             }
-
-
         });
         while(cadenaReconocida==null || cadenaReconocida.isEmpty()){
         }
         return cadenaReconocida;
     }
 
-    protected String getRespuesta(){
-        if(cadenaReconocida!=null){
-            Log.d("pruebaGetRespuesta", cadenaReconocida);
-        }
-        return cadenaReconocida;
-    }
-
-    protected void gestionHabla(String voz, String respuesta) throws IOException {
-        Log.d("hablar", respuesta);
-        if(voz.equals("sanbot")){
-            hablar(respuesta);
-        }
-        else{
-            moduloOpenAISpeechVoice.peticionVozOpenAI(respuesta, voz.toLowerCase());
-        }
-    }
-
-    protected boolean heAcabado(){
+    // Función que espera a que el robot termina de hablar
+    public boolean heAcabado(){
         finHabla = false;
         speechManager.setOnSpeechListener(new SpeakListener(){
             // Acción que se ejecuta cuando el robot termina de hablar
@@ -115,5 +91,23 @@ public class SpeechControl {
         while(!finHabla){
         }
         return finHabla;
+    }
+
+    public void setVelocidadHabla(int velocidad){
+        Log.d("speakoption velocidad", "cambiando velocidad a " + velocidad);
+        speakOption.setSpeed(velocidad);
+    }
+
+    public void setEntonacionHabla(int entonacion){
+        Log.d("speakoption entonacion", "cambiando entonacion a " + entonacion);
+        speakOption.setIntonation(entonacion);
+    }
+
+    public int getVelocidadHabla(){
+        return speakOption.getSpeed();
+    }
+
+    public int getEntonacionHabla(){
+        return speakOption.getIntonation();
     }
 }

@@ -1,4 +1,4 @@
-package com.example.sanbotapp;
+package com.example.sanbotapp.activities.personalizacionUsuario;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,9 +10,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.sanbotapp.R;
+import com.example.sanbotapp.activities.personalizacionRobot.PersonalizacionRobotActivity;
+import com.example.sanbotapp.gestion.GestionSharedPreferences;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 
-public class CuestionarioEdad extends TopBaseActivity {
+public class CuestionarioEdadActivity extends TopBaseActivity {
 
     // Componentes de la pantalla de cuestionario edad
     private Button botonContinuar;
@@ -20,6 +23,9 @@ public class CuestionarioEdad extends TopBaseActivity {
     private EditText edadUsuario;
     private int edad;
 
+    private GestionSharedPreferences gestionSharedPreferences;
+
+    /*
     @Override
     public void onResume() {
         super.onResume();
@@ -42,12 +48,14 @@ public class CuestionarioEdad extends TopBaseActivity {
                 // Guardamos en el almacenamiento local la edad del usuario
                 editor.putInt("edadUsuario", Integer.parseInt(String.valueOf(edadUsuario.getText())));
                 editor.apply();
-                Intent moduloConversacionalActivity = new Intent(CuestionarioEdad.this, ContextualizacionActivity.class);
+                Intent moduloConversacionalActivity = new Intent(CuestionarioEdadActivity.this, PersonalizacionRobotActivity.class);
                 startActivity(moduloConversacionalActivity);
                 finish();
             }
         });
     }
+
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -55,11 +63,7 @@ public class CuestionarioEdad extends TopBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cuestionario_previo_edad);
 
-        // Creo una sección de almacenamiento local donde se guardará la edad del usuario
-        SharedPreferences sharedPref = this.getSharedPreferences("edadUsuario", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-
-        edad = sharedPref.getInt("edadUsuario", 0);
+        edad = gestionSharedPreferences.getIntSharedPreferences("edadUsuario", 0);
 
         try {
             botonContinuar = findViewById(R.id.botonContinuar);
@@ -75,10 +79,9 @@ public class CuestionarioEdad extends TopBaseActivity {
                 public void onClick (View v){
                     // Guardamos en el almacenamiento local la edad del usuario
                     Log.d("Edad usuario", "edad usuario es " + Integer.parseInt(String.valueOf(edadUsuario.getText())));
-                    editor.putInt("edadUsuario", Integer.parseInt(String.valueOf(edadUsuario.getText())));
-                    editor.apply();
+                    gestionSharedPreferences.putIntSharedPreferences("edadUsuario", "edadUsuario", Integer.parseInt(String.valueOf(edadUsuario.getText())));
                     // Pasamos a la actividad de personalización
-                    Intent personalizacionActivity = new Intent(CuestionarioEdad.this, ContextualizacionActivity.class);
+                    Intent personalizacionActivity = new Intent(CuestionarioEdadActivity.this, PersonalizacionRobotActivity.class);
                     startActivity(personalizacionActivity);
                     finish();
                 }
@@ -87,7 +90,7 @@ public class CuestionarioEdad extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     // Pasamos a la actividad de cuestionario nombre
-                    Intent cuestionarioNombreActivity = new Intent(CuestionarioEdad.this, CuestionarioNombre.class);
+                    Intent cuestionarioNombreActivity = new Intent(CuestionarioEdadActivity.this, CuestionarioNombreActivity.class);
                     startActivity(cuestionarioNombreActivity);
                     finish();
                 }
