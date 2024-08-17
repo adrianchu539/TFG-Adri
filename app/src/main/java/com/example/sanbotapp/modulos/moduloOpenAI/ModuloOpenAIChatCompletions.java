@@ -1,9 +1,7 @@
-package com.example.sanbotapp.modulos;
+package com.example.sanbotapp.modulos.moduloOpenAI;
 
 import android.os.StrictMode;
 import android.util.Log;
-
-import com.qihancloud.opensdk.base.TopBaseActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,14 +19,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class ModuloOpenAICompletions {
+public class ModuloOpenAIChatCompletions {
 
     private Map<String, String> roleSystem = new HashMap<>();
     private List<Map<String, String>> messages = new ArrayList<>();
     private String respuestaChatGPT;
 
     // Constructor
-    public ModuloOpenAICompletions(){
+    public ModuloOpenAIChatCompletions(){
     }
 
     // Función para añadir content RoleSystem

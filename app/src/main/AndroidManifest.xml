@@ -35,10 +35,10 @@
         </activity>
         <activity android:name=".activities.AjustesActivity"/>
         <activity android:name=".activities.ModuloConversacionalActivity"/>
-        <activity android:name=".activities.personalizacionUsuario.CuestionarioEdadActivity"/>
+        <activity android:name=".activities.personalizacionUsuario.EdadUsuarioActivity"/>
         <activity android:name=".activities.personalizacionRobot.PersonalizacionRobotActivity"/>
         <activity android:name=".activities.TutorialModuloConversacionalActivity"/>
-        <activity android:name=".activities.personalizacionUsuario.CuestionarioNombreActivity"/>
+        <activity android:name=".activities.personalizacionUsuario.NombreUsuarioActivity"/>
         <activity android:name=".activities.MenuConfiguracionActivity"/>
         <activity android:name=".activities.PruebaVocesActivity"/>
 

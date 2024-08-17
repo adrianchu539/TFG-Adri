@@ -41,7 +41,7 @@ public class GestionMediaPlayer {
         mediaPlayer.stop();
     }
 
-    //
+    // Función que espera a que el media player ha dejado de reproducirse
     public boolean heAcabado(){
         finReproduccion = false;
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {

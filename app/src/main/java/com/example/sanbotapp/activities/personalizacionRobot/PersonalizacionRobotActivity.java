@@ -1,7 +1,6 @@
 package com.example.sanbotapp.activities.personalizacionRobot;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,19 +13,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import com.example.sanbotapp.activities.MenuConfiguracionActivity;
 import com.example.sanbotapp.activities.TutorialModuloConversacionalActivity;
-import com.example.sanbotapp.activities.personalizacionUsuario.CuestionarioEdadActivity;
+import com.example.sanbotapp.activities.personalizacionUsuario.EdadUsuarioActivity;
 import com.example.sanbotapp.activities.ModuloConversacionalActivity;
 import com.example.sanbotapp.R;
 import com.example.sanbotapp.gestion.GestionSharedPreferences;
 import com.example.sanbotapp.robotControl.SpeechControl;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.FuncConstant;
-import com.qihancloud.opensdk.function.beans.SpeakOption;
 import com.qihancloud.opensdk.function.unit.SpeechManager;
-
-import java.io.IOException;
 
 
 public class PersonalizacionRobotActivity extends TopBaseActivity {
@@ -246,7 +241,7 @@ public class PersonalizacionRobotActivity extends TopBaseActivity {
             // Pasamos a la actividad de cuestionario edad
             @Override
             public void onClick(View v) {
-                Intent cuestionarioEdadActivity = new Intent(PersonalizacionRobotActivity.this, CuestionarioEdadActivity.class);
+                Intent cuestionarioEdadActivity = new Intent(PersonalizacionRobotActivity.this, EdadUsuarioActivity.class);
                 startActivity(cuestionarioEdadActivity);
                 finish();
             }

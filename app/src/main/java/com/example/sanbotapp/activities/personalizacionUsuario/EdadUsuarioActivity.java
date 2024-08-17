@@ -1,8 +1,6 @@
 package com.example.sanbotapp.activities.personalizacionUsuario;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,7 +13,7 @@ import com.example.sanbotapp.activities.personalizacionRobot.PersonalizacionRobo
 import com.example.sanbotapp.gestion.GestionSharedPreferences;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 
-public class CuestionarioEdadActivity extends TopBaseActivity {
+public class EdadUsuarioActivity extends TopBaseActivity {
 
     // Componentes de la pantalla de cuestionario edad
     private Button botonContinuar;
@@ -81,7 +79,7 @@ public class CuestionarioEdadActivity extends TopBaseActivity {
                     Log.d("Edad usuario", "edad usuario es " + Integer.parseInt(String.valueOf(edadUsuario.getText())));
                     gestionSharedPreferences.putIntSharedPreferences("edadUsuario", "edadUsuario", Integer.parseInt(String.valueOf(edadUsuario.getText())));
                     // Pasamos a la actividad de personalización
-                    Intent personalizacionActivity = new Intent(CuestionarioEdadActivity.this, PersonalizacionRobotActivity.class);
+                    Intent personalizacionActivity = new Intent(EdadUsuarioActivity.this, PersonalizacionRobotActivity.class);
                     startActivity(personalizacionActivity);
                     finish();
                 }
@@ -90,7 +88,7 @@ public class CuestionarioEdadActivity extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     // Pasamos a la actividad de cuestionario nombre
-                    Intent cuestionarioNombreActivity = new Intent(CuestionarioEdadActivity.this, CuestionarioNombreActivity.class);
+                    Intent cuestionarioNombreActivity = new Intent(EdadUsuarioActivity.this, NombreUsuarioActivity.class);
                     startActivity(cuestionarioNombreActivity);
                     finish();
                 }

@@ -57,9 +57,7 @@ public class HeadControl {
 
     // Función para poner la cabeza en su posición original, en este caso: en el centro
     public boolean reiniciar(){
-        AbsoluteAngleHeadMotion absoluteAngleHeadMotion;
-        absoluteAngleHeadMotion = new AbsoluteAngleHeadMotion(AbsoluteAngleHeadMotion.ACTION_HORIZONTAL,90);
-        headMotionManager.doAbsoluteAngleMotion(absoluteAngleHeadMotion);
+        controlBasicoCabeza(AccionesCabeza.CENTRO);
         return true;
     }
 }

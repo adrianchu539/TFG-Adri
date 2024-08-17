@@ -1,21 +1,13 @@
-package com.example.sanbotapp.modulos;
+package com.example.sanbotapp.modulos.moduloOpenAI;
 
-import android.media.MediaDataSource;
 import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
 
-import com.qihancloud.opensdk.base.TopBaseActivity;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -23,11 +15,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class ModuloOpenAISpeechVoice {
+public class ModuloOpenAIAudioSpeech {
     private byte[] respuestaGPTVoz;
 
     // Constructor
-    public ModuloOpenAISpeechVoice(){
+    public ModuloOpenAIAudioSpeech(){
     }
 
     // Función para realizar la consulta al endpoint Audio Speech de OpenAI

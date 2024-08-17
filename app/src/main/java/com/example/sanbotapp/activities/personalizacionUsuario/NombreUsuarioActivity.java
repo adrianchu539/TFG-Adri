@@ -1,7 +1,6 @@
 package com.example.sanbotapp.activities.personalizacionUsuario;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -10,11 +9,10 @@ import android.widget.EditText;
 
 import com.example.sanbotapp.R;
 import com.example.sanbotapp.activities.MenuConfiguracionActivity;
-import com.example.sanbotapp.activities.MenuPruebasActivity;
 import com.example.sanbotapp.gestion.GestionSharedPreferences;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 
-public class CuestionarioNombreActivity extends TopBaseActivity {
+public class NombreUsuarioActivity extends TopBaseActivity {
 
     private EditText nombreUsuario;
     private String nombre;
@@ -63,7 +61,7 @@ public class CuestionarioNombreActivity extends TopBaseActivity {
                 @Override
                 public void onClick (View v){
                     gestionSharedPreferences.putStringSharedPreferences("nombreUsuario", "nombreUsuario", String.valueOf(nombreUsuario.getText()));
-                    Intent cuestionarioEdadActivity = new Intent(CuestionarioNombreActivity.this, CuestionarioEdadActivity.class);
+                    Intent cuestionarioEdadActivity = new Intent(NombreUsuarioActivity.this, EdadUsuarioActivity.class);
                     startActivity(cuestionarioEdadActivity);
                     finish();
                 }
@@ -71,7 +69,7 @@ public class CuestionarioNombreActivity extends TopBaseActivity {
             botonAtras.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent menuConfiguracionActivity = new Intent(CuestionarioNombreActivity.this, MenuConfiguracionActivity.class);
+                    Intent menuConfiguracionActivity = new Intent(NombreUsuarioActivity.this, MenuConfiguracionActivity.class);
                     startActivity(menuConfiguracionActivity);
                     finish();
                 }

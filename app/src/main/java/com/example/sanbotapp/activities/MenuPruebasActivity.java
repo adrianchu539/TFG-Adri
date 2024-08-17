@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
-import com.example.sanbotapp.activities.personalizacionUsuario.CuestionarioNombreActivity;
+import com.example.sanbotapp.activities.personalizacionUsuario.NombreUsuarioActivity;
 import com.example.sanbotapp.R;
 import com.example.sanbotapp.gestion.GestionSharedPreferences;
 import com.qihancloud.opensdk.base.TopBaseActivity;
@@ -79,7 +79,7 @@ public class MenuPruebasActivity extends TopBaseActivity {
                     gestionSharedPreferences.clearSharedPreferences("contextoVacio");
                     editorInterpretacionEmocionalActivada.putBoolean("interpretacionEmocionalActivada", true);
                     editorInterpretacionEmocionalActivada.apply();
-                    Intent cuestionarioNombreActivity = new Intent(MenuPruebasActivity.this, CuestionarioNombreActivity.class);
+                    Intent cuestionarioNombreActivity = new Intent(MenuPruebasActivity.this, NombreUsuarioActivity.class);
                     startActivity(cuestionarioNombreActivity);
                     finish();
                 }

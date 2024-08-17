@@ -7,7 +7,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import com.example.sanbotapp.activities.personalizacionRobot.PersonalizacionRobotActivity;
-import com.example.sanbotapp.activities.personalizacionUsuario.CuestionarioNombreActivity;
+import com.example.sanbotapp.activities.personalizacionUsuario.NombreUsuarioActivity;
 import com.example.sanbotapp.R;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 
@@ -50,7 +50,7 @@ public class MenuConfiguracionActivity extends TopBaseActivity {
             botonPersonalizacionUsuario.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick (View v){
-                    Intent cuestionarioNombreActivity = new Intent(MenuConfiguracionActivity.this, CuestionarioNombreActivity.class);
+                    Intent cuestionarioNombreActivity = new Intent(MenuConfiguracionActivity.this, NombreUsuarioActivity.class);
                     startActivity(cuestionarioNombreActivity);
                     finish();
                 }

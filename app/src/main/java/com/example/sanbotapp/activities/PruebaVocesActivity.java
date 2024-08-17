@@ -1,20 +1,16 @@
 package com.example.sanbotapp.activities;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 
 import com.example.sanbotapp.R;
-import com.example.sanbotapp.modulos.ModuloOpenAISpeechVoice;
+import com.example.sanbotapp.modulos.moduloOpenAI.ModuloOpenAIAudioSpeech;
 import com.example.sanbotapp.robotControl.SpeechControl;
 import com.qihancloud.opensdk.base.TopBaseActivity;
 import com.qihancloud.opensdk.beans.FuncConstant;
-import com.qihancloud.opensdk.function.beans.SpeakOption;
 import com.qihancloud.opensdk.function.unit.SpeechManager;
-
-import java.io.IOException;
 
 public class PruebaVocesActivity extends TopBaseActivity {
     private Button botonVoz1;
@@ -27,7 +23,7 @@ public class PruebaVocesActivity extends TopBaseActivity {
     private SpeechManager speechManager;
     private SpeechControl speechControl;
 
-    private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
+    private ModuloOpenAIAudioSpeech moduloOpenAISpeechVoice = new ModuloOpenAIAudioSpeech();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -20,8 +20,8 @@ import com.example.sanbotapp.gestion.GestionMediaPlayer;
 import com.example.sanbotapp.gestion.GestionSharedPreferences;
 import com.example.sanbotapp.R;
 import com.example.sanbotapp.modulos.ModuloEmocional;
-import com.example.sanbotapp.modulos.ModuloOpenAICompletions;
-import com.example.sanbotapp.modulos.ModuloOpenAISpeechVoice;
+import com.example.sanbotapp.modulos.moduloOpenAI.ModuloOpenAIChatCompletions;
+import com.example.sanbotapp.modulos.moduloOpenAI.ModuloOpenAIAudioSpeech;
 import com.example.sanbotapp.modulos.ModuloPeticionesExternas;
 import com.example.sanbotapp.robotControl.HandsControl;
 import com.example.sanbotapp.robotControl.HardwareControl;
@@ -64,9 +64,9 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
 
     // Modulos del programa
     private SpeechControl speechControl;
-    private ModuloOpenAICompletions moduloOpenAI;
+    private ModuloOpenAIChatCompletions moduloOpenAI;
     private ModuloEmocional moduloEmocional;
-    private ModuloOpenAISpeechVoice moduloOpenAISpeechVoice;
+    private ModuloOpenAIAudioSpeech moduloOpenAISpeechVoice;
     private GestionMediaPlayer gestionMediaPlayer;
     private ModuloPeticionesExternas moduloPeticionesExternas;
     private HandsControl handsControl;
@@ -149,40 +149,15 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
         conversacionAutomatica = gestionSharedPreferences.getBooleanSharedPreferences("conversacionAutomatica", true);
         modoTeclado = gestionSharedPreferences.getBooleanSharedPreferences("modoTeclado", false);
 
-        if(nombreUsuario==null || edadUsuario==0){
-            personalizacionUsuarioActivada = false;
-        }
-        if(generoRobot==null || grupoEdadRobot==null ){
-            personalizacionRobotActivada = false;
-        }
-        if(contexto==null || contexto.isEmpty()){
-            contextoVacio = true;
-        }
-        Log.d("valor", "personalizacion" + personalizacionUsuarioActivada);
-        Log.d("valor", "emocional" + interpretacionEmocionalActivada);
-        Log.d("valor", "contextualizacion" + personalizacionRobotActivada);
-        Log.d("valor", "contextovacio" + contextoVacio);
+        gestionarModulosConversacion();
 
         // ------------------- PRUEBAS CHAT -----------------
         dialogo.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.activity_chat_singlemessage);
         if(chatArrayAdapter.isEmpty()){
-            Log.d("caa", "caa vacío, llenando...");
-            for(MensajeChat cm : conversacion){
-                Log.d("chatmessage", cm.toString());
-                chatArrayAdapter.add(cm);
-            }
-            Log.d("chatarray", String.valueOf(chatArrayAdapter.getCount() - 1));
-            dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+           recuperarConversacion();
         }
-        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
-                dialogo.setSelection(chatArrayAdapter.getCount() - 1);
-            }
-        });
+        actualizarVistaConversacion();
         dialogo.setAdapter(chatArrayAdapter);
 
         gestionarPantallaModoTeclado();
@@ -216,6 +191,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
         textoConsulta = findViewById(R.id.textoConsultaTeclado);
         botonNuevaConversacion = findViewById(R.id.botonNuevaConversacion);
 
+        gestionarModulosConversacion();
         // Gestionamos la pantalla en función de si está activado el modo teclado
         gestionarPantallaModoTeclado();
 
@@ -224,22 +200,9 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
         dialogo.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.activity_chat_singlemessage);
         if (chatArrayAdapter.isEmpty()) {
-            Log.d("caa", "caa vacío, llenando...");
-            for (MensajeChat cm : conversacion) {
-                Log.d("chatmessage", cm.toString());
-                chatArrayAdapter.add(cm);
-            }
-            Log.d("chatarray", String.valueOf(chatArrayAdapter.getCount() - 1));
-            dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+            recuperarConversacion();
         }
-        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
-                dialogo.setSelection(chatArrayAdapter.getCount() - 1);
-            }
-        });
+        actualizarVistaConversacion();
         dialogo.setAdapter(chatArrayAdapter);
 
         // Inicialización de las unidades del robot
@@ -254,7 +217,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
         speakOption.setIntonation(50);
 
         speechControl = new SpeechControl(speechManager);
-        moduloOpenAI = new ModuloOpenAICompletions();
+        moduloOpenAI = new ModuloOpenAIChatCompletions();
         headControl = new HeadControl(headMotionManager);
         handsControl = new HandsControl(handMotionManager);
         systemControl = new SystemControl(systemManager);
@@ -262,7 +225,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
         gestionSharedPreferences = new GestionSharedPreferences(this);
 
         moduloEmocional = new ModuloEmocional(handsControl, headControl, hardwareControl, systemControl);
-        moduloOpenAISpeechVoice = new ModuloOpenAISpeechVoice();
+        moduloOpenAISpeechVoice = new ModuloOpenAIAudioSpeech();
         gestionMediaPlayer = new GestionMediaPlayer();
         moduloPeticionesExternas = new ModuloPeticionesExternas();
 
@@ -520,7 +483,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
         }).start();
     }
 
-    private void APIChatGPT(String pregunta) throws IOException, InterruptedException {
+    private void consultaChatCompletions(String pregunta) throws IOException, InterruptedException {
         new Thread(new Runnable() {
             public void run(){
                 moduloOpenAI.consultaOpenAI(pregunta);
@@ -536,19 +499,12 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
 
                 handler.post(new Runnable() {
                     public void run() {
-
-                        if(interpretacionEmocionalActivada){
-                            chatArrayAdapter.add(new MensajeChat(true, moduloEmocional.separarRespuestaGPT(respuestaGPT)));
-                            conversacion.add(new MensajeChat(true, moduloEmocional.separarRespuestaGPT(respuestaGPT)));
-                        }
-                        else{
-                            // DEBUG!!
-                            //dialogoRobot.setText(respuestaGPT);
-                            chatArrayAdapter.add(new MensajeChat(true, respuestaGPT));
-                            conversacion.add(new MensajeChat(true, respuestaGPT));
-                            //dialogoRobot.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
-                            //       emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
-                        }
+                        // DEBUG!!
+                        //dialogoRobot.setText(respuestaGPT);
+                        chatArrayAdapter.add(new MensajeChat(true, respuestaGPT));
+                        conversacion.add(new MensajeChat(true, respuestaGPT));
+                        //dialogoRobot.setText(respuestaGPT + "\nSENTIMIENTO RECONOCIDO POR EL ROBOT:" +
+                        //       emocionesUsuario + "\nSENTIMIENTO QUE TRANSMITE EL ROBOT:" + emocionesRobot);
                         try {
                             handler.removeCallbacksAndMessages(null);
                             gestionVoz(vozSeleccionada, AccionReproduccionVoz.HABLAR);
@@ -787,8 +743,45 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
             }
         }
         else{
-            APIChatGPT(consultaChatGPT);
+            consultaChatCompletions(consultaChatGPT);
         }
+    }
+
+    private void gestionarModulosConversacion(){
+        if(nombreUsuario==null || edadUsuario==0){
+            personalizacionUsuarioActivada = false;
+        }
+        if(generoRobot==null || grupoEdadRobot==null ){
+            personalizacionRobotActivada = false;
+        }
+        if(contexto==null || contexto.isEmpty()){
+            contextoVacio = true;
+        }
+        Log.d("valor", "personalizacion" + personalizacionUsuarioActivada);
+        Log.d("valor", "emocional" + interpretacionEmocionalActivada);
+        Log.d("valor", "contextualizacion" + personalizacionRobotActivada);
+        Log.d("valor", "contextovacio" + contextoVacio);
+    }
+
+    private void recuperarConversacion(){
+        Log.d("caa", "caa vacío, llenando...");
+        for (MensajeChat cm : conversacion) {
+            Log.d("chatmessage", cm.toString());
+            chatArrayAdapter.add(cm);
+        }
+        Log.d("chatarray", String.valueOf(chatArrayAdapter.getCount() - 1));
+        dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+    }
+
+    private void actualizarVistaConversacion(){
+        chatArrayAdapter.registerDataSetObserver(new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                Log.d("ca", String.valueOf(chatArrayAdapter.getCount() - 1));
+                dialogo.setSelection(chatArrayAdapter.getCount() - 1);
+            }
+        });
     }
     @Override
     protected void onMainServiceConnected() {
