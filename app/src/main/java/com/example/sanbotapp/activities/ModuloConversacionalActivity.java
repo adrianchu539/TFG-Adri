@@ -252,9 +252,9 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
                 "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años";
 
 
-        String contentContextualizacionSinContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot;
+        String contentContextualizacionSinContexto = "Además quiero que actúes como que tu genero es " + generoRobot + " y que pertences al grupo de edad " + grupoEdadRobot;
 
-        String contentContextualizacionConContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que tienes " + grupoEdadRobot + " y además " + contexto;
+        String contentContextualizacionConContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que pertences al grupo de edad " + grupoEdadRobot + " y además " + contexto;
 
 
         clasificarRoleSystem(contentPersonalizacion, contentContextualizacionSinContexto, contentContextualizacionConContexto);
@@ -267,7 +267,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
                 @Override
                 public void onClick(View v) {
                     moduloOpenAI.clearRoleSystem();
-                    moduloOpenAI.clearMessages();
+                    moduloOpenAI.clearConversacion();
                     clasificarRoleSystem(contentPersonalizacion, contentContextualizacionSinContexto, contentContextualizacionConContexto);
                     chatArrayAdapter.clear();
                     dialogo.setAdapter(chatArrayAdapter);

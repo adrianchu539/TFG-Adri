@@ -47,6 +47,8 @@ public class NombreUsuarioActivity extends TopBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cuestionario_previo_nombre);
 
+        gestionSharedPreferences = new GestionSharedPreferences(this);
+
         nombre = gestionSharedPreferences.getStringSharedPreferences("nombreUsuario", null);
 
         try {

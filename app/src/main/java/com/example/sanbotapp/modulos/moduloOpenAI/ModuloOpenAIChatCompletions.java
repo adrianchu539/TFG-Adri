@@ -42,7 +42,7 @@ public class ModuloOpenAIChatCompletions {
     }
 
     // Función para vaciar mensajes de la API de OpenAI
-    public void clearMessages(){
+    public void clearConversacion(){
         messages.clear();
     }
 

@@ -61,6 +61,8 @@ public class EdadUsuarioActivity extends TopBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cuestionario_previo_edad);
 
+        gestionSharedPreferences = new GestionSharedPreferences(this);
+
         edad = gestionSharedPreferences.getIntSharedPreferences("edadUsuario", 0);
 
         try {
