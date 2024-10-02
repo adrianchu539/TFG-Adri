@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -45,6 +46,8 @@ public class AjustesActivity extends TopBaseActivity {
     private Button speedDown;
     private SeekBar entonacionSB;
     private TextView visualizarEntonacion;
+    private TextView entonacion;
+    private LinearLayout seleccionarEntonacion;
     private Button intonationUp;
     private Button intonationDown;
 
@@ -55,6 +58,7 @@ public class AjustesActivity extends TopBaseActivity {
     private SpeechManager speechManager;
     private SpeechControl speechControl;
     private AudioControl audioControl;
+    private String vozSeleccionada;
 
     private GestionSharedPreferences gestionSharedPreferences;
 
@@ -77,6 +81,8 @@ public class AjustesActivity extends TopBaseActivity {
         entonacionSanbot = speechControl.getEntonacionHabla();
         conversacionAuto = gestionSharedPreferences.getBooleanSharedPreferences("conversacionAutomatica", false);
         modoTeclado = gestionSharedPreferences.getBooleanSharedPreferences("modoTeclado", false);
+        vozSeleccionada = gestionSharedPreferences.getStringSharedPreferences("vozSeleccionada", "sanbot").toLowerCase();
+
 
 
         botonAceptar = findViewById(R.id.botonAceptar);
@@ -98,6 +104,8 @@ public class AjustesActivity extends TopBaseActivity {
         visualizarEntonacion = findViewById(R.id.visualizarEntonacion);
         intonationUp = findViewById(R.id.botonSubirEntonacion);
         intonationDown = findViewById(R.id.botonBajarEntonacion);
+        entonacion = findViewById(R.id.textViewTitleSeleccionarEntonacion);
+        seleccionarEntonacion = findViewById(R.id.layoutModificarEntonacion);
 
         volumenSB.setProgress(audioControl.getVolumen());
         visualizarVolumen.setText("El volumen es de " + volumenSB.getProgress() + "/" + volumenSB.getMax());
@@ -105,6 +113,17 @@ public class AjustesActivity extends TopBaseActivity {
         visualizarVelocidad.setText("La velocidad es de " + velocidadSB.getProgress() + "/" + velocidadSB.getMax());
         entonacionSB.setProgress(speechControl.getEntonacionHabla());
         visualizarEntonacion.setText("La entonacion es de " + entonacionSB.getProgress() + "/" + entonacionSB.getMax());
+
+        if(vozSeleccionada.equals("sanbot")){
+            seleccionarEntonacion.setVisibility(View.VISIBLE);
+            entonacion.setVisibility(View.VISIBLE);
+            visualizarEntonacion.setVisibility(View.VISIBLE);
+        }
+        else{
+            seleccionarEntonacion.setVisibility(View.GONE);
+            visualizarEntonacion.setVisibility(View.GONE);
+            entonacion.setVisibility(View.GONE);
+        }
 
         if(conversacionAuto){
             checkConversacionAutomatica.setChecked(true);

@@ -120,6 +120,7 @@
         </LinearLayout>
 
     <RelativeLayout
+        android:background="@drawable/edittext_border"
         android:id="@+id/barra_inferior"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -146,6 +147,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="0dp"
+                android:backgroundTint="@color/colorWhite"
                 android:layout_marginEnd="0dp"
                 android:background="@android:color/transparent"
                 android:hint="Escribe un mensaje..."

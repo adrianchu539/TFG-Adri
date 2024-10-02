@@ -9,6 +9,8 @@ import com.qihancloud.opensdk.function.unit.SpeechManager;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.RecognizeListener;
 import com.qihancloud.opensdk.function.unit.interfaces.speech.SpeakListener;
 
+import java.util.concurrent.CountDownLatch;
+
 public class SpeechControl {
 
     private SpeechManager speechManager;
@@ -91,6 +93,32 @@ public class SpeechControl {
         while(!finHabla){
         }
         return finHabla;
+    }
+
+    public boolean heAcabado2(){
+        CountDownLatch latch = new CountDownLatch(1);
+
+        speechManager.setOnSpeechListener(new SpeakListener() {
+            @Override
+            public void onSpeakFinish() {
+                Log.d("fin", "Terminé de hablar");
+                latch.countDown(); // Decrementar el latch cuando el habla ha terminado
+            }
+
+            @Override
+            public void onSpeakProgress(int i) {
+                // Implementar si es necesario
+            }
+        });
+
+        try {
+            latch.await(); // Esperar hasta que countDown() sea llamado
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+            Log.e("SpeechHandler", "El hilo fue interrumpido", e);
+        }
+
+        return true; // Después de que latch.countDown() sea llamado, sabemos que ha terminado
     }
 
     public void setVelocidadHabla(int velocidad){

@@ -199,7 +199,7 @@ public class PersonalizacionRobotActivity extends TopBaseActivity {
                     gestionSharedPreferences.putStringSharedPreferences("contextoPersonalizacion", "contextoPersonalizacion", contexto);
                 }
                 // Pasamos a la actividad de modulo conversacional
-                Intent moduloConversacionalActivity = new Intent(PersonalizacionRobotActivity.this, ModuloConversacionalActivity.class);
+                Intent moduloConversacionalActivity = new Intent(PersonalizacionRobotActivity.this, TutorialModuloConversacionalActivity.class);
                 startActivity(moduloConversacionalActivity);
                 finish();
             }

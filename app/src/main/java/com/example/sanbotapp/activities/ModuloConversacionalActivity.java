@@ -1,5 +1,6 @@
 package com.example.sanbotapp.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.media.MediaPlayer;
@@ -9,6 +10,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -152,6 +154,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
         gestionarModulosConversacion();
 
         // ------------------- PRUEBAS CHAT -----------------
+        handler.removeCallbacksAndMessages(null);
         dialogo.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         chatArrayAdapter = new ChatArrayAdapter(getApplicationContext(), R.layout.activity_chat_singlemessage);
         if(chatArrayAdapter.isEmpty()){
@@ -252,9 +255,9 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
                 "que adaptes la conversación teniendo en cuenta que mi edad es de " + edadUsuario + " años";
 
 
-        String contentContextualizacionSinContexto = "Además quiero que actúes como que tu genero es " + generoRobot + " y que pertences al grupo de edad " + grupoEdadRobot;
+        String contentContextualizacionSinContexto = "Además quiero que actúes como que tu genero es " + generoRobot + " y que actúes como un " + grupoEdadRobot + " así que procura adaptar las palabras que utilizas en base a estas características";
 
-        String contentContextualizacionConContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que pertences al grupo de edad " + grupoEdadRobot + " y además " + contexto;
+        String contentContextualizacionConContexto = "Además quiero que actúes como que tu genero es " + generoRobot + ", que actúes como un " + grupoEdadRobot + " así que procura adaptar las palabras que utilizas en base a estas características y además " + contexto;
 
 
         clasificarRoleSystem(contentPersonalizacion, contentContextualizacionSinContexto, contentContextualizacionConContexto);
@@ -271,6 +274,17 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
                     clasificarRoleSystem(contentPersonalizacion, contentContextualizacionSinContexto, contentContextualizacionConContexto);
                     chatArrayAdapter.clear();
                     dialogo.setAdapter(chatArrayAdapter);
+                    vozSeleccionada = gestionSharedPreferences.getStringSharedPreferences("vozSeleccionada", "sanbot").toLowerCase();
+                    nombreUsuario = gestionSharedPreferences.getStringSharedPreferences("nombreUsuario", null);
+                    edadUsuario = gestionSharedPreferences.getIntSharedPreferences("edadUsuario", 0);
+                    generoRobot = gestionSharedPreferences.getStringSharedPreferences("generoRobotPersonalizacion", null);
+                    grupoEdadRobot = gestionSharedPreferences.getStringSharedPreferences("grupoEdadRobotPersonalizacion", null);
+                    contexto = gestionSharedPreferences.getStringSharedPreferences("contextoPersonalizacion", null);
+                    conversacionAutomatica = gestionSharedPreferences.getBooleanSharedPreferences("conversacionAutomatica", true);
+                    personalizacionRobotActivada = gestionSharedPreferences.getBooleanSharedPreferences("personalizacionActivada", false);
+                    personalizacionRobotActivada = gestionSharedPreferences.getBooleanSharedPreferences("contextualizacionActivada", false);
+                    contextoVacio = gestionSharedPreferences.getBooleanSharedPreferences("personalizacionActivada", false);
+                    modoTeclado = gestionSharedPreferences.getBooleanSharedPreferences("modoTeclado", false);
                 }
             });
 
@@ -372,11 +386,12 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
                 @Override
                 public void onClick(View v) {
 
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
                     // Si la conversación no es automática, se obtiene
                     // lo que hay en el texto consulta
-                    if (consultaChatGPT.isEmpty()) {
-                        consultaChatGPT = textoConsulta.getText().toString();
-                    }
+                    consultaChatGPT = textoConsulta.getText().toString();
 
                     try {
                         enviarConsulta();
@@ -568,11 +583,11 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
                 case DETENER:
                     Log.d("Le estoy dando", "mediaplauer habladno, intentando parar");
                     // Se detiene
-                    forzarParada = true;
+                    //forzarParada = true;
                     gestionMediaPlayer.pararMediaPlayer();
                     break;
                 case REPETIR:
-                    forzarParada=true;
+                    //forzarParada=true;
                     gestionMediaPlayer.reproducirMediaPlayer(respuestaGPTVoz);
                     break;
             }
@@ -621,7 +636,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
             public void run(){
                 Log.d("hola", "entrando mas....");
                 finHabla = false;
-                finHabla = speechControl.heAcabado();
+                finHabla = speechControl.heAcabado2();
                 while (!finHabla) {
                     Log.d("waiting", "waiting..." + finHabla);
                 }
@@ -641,6 +656,7 @@ public class ModuloConversacionalActivity extends TopBaseActivity {
                 });
             }
         }).start();
+
     }
 
     private void gestionarFinReproduccionMediaPlayer(){

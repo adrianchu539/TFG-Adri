@@ -56,7 +56,7 @@ public class ModuloOpenAIAudioSpeech {
                     .url("https://api.openai.com/v1/audio/speech")
                     .post(peticion)
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer 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")
+                    .header("Authorization", "OPEN_AI_KEY")
                     .build();
 
             Log.d("requestBody", requestOpenAI.toString());
